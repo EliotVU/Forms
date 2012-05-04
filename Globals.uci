@@ -1,0 +1,5 @@
+`define STime					(class'WorldInfo'.static.GetWorldInfo().RealTimeSeconds)
+`define STimeSince(Time)		(`STime - `Time)
+`define Automated				editinline 
+
+
