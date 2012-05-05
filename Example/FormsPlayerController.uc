@@ -13,6 +13,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+/**
+ *	FormsPlayerController - Forms initializer and methods to access Forms.
+ */
 class FormsPlayerController extends UDKPlayerController
 	abstract;
 
@@ -21,12 +24,20 @@ class FormsPlayerController extends UDKPlayerController
  * This reference instance holds the reference to the 'FScene' instance and redirects all input, updates and drawing to 'FScene'. 
  */
 var transient FController	FormsController;
+
+/** The FController class for Forms to initialize. */
 var() class<FController>	FormsControllerClass;
+
+/** The FScene class for Forms to initialize. */
 var() class<FScene>			FormsSceneClass;
 
-var() FPage MainMenu;
-var() FPage EscapeMenu;
+/** The FPage to be opened and non-closable if the loaded map is the UDKFrontEnd map. */
+var() FPage					MainMenu;
 
+/** The FPage to be opened when Escape is hit, if no prior pages are open. */
+var() FPage					EscapeMenu;
+
+/** Pages that need to be opened once the game is ready. Overrides MainMenu! */
 var() array< class<FPage> > PagesQue;
 
 /**
@@ -37,6 +48,7 @@ simulated event InitInputSystem()
 {
 	// We initialize the interaction before PlayerInput - 
 	// because we need to have complete control of inputs which we can't have past this.
+	// Ignore PIE because we do not yet clean up FObject's.
 	if( FormsController == none && !WorldInfo.IsPlayInEditor() )
 	{
 		FormsController = new( self ) FormsControllerClass;
@@ -67,9 +79,11 @@ simulated function SceneInitialized()
 
 	`Log( "SceneInitialized" );
 
-	FormsController.Scene.MenuPostProcessChain = PostProcessChain'GameContent.Effects.MenuPostProcess';
+	// The PostProcessChain to use when the FScene is visible.
+	//FormsController.Scene.MenuPostProcessChain = PostProcessChain'GameContent.Effects.MenuPostProcess';
 
 	MainMenu.Controller = FormsController;
+	// Open any que'ing page, for example a Ready page when the a level is loaded that needs to be opened when possible.
 	if( PagesQue.Length > 0 )
 	{
 		foreach PagesQue( pageClass )
@@ -80,6 +94,7 @@ simulated function SceneInitialized()
 	}
 	else
 	{
+		// UDKFrontEnd, open our menu if set. Cannot be closed.
 		if( WorldInfo.IsMenuLevel( GetURLMap() ) && MainMenu != none )
 		{	
 			FormsController.Scene.AddPage( MainMenu );
@@ -87,6 +102,7 @@ simulated function SceneInitialized()
 	}	
 }
 
+/** Command the client to open a FPage class. (Closable) */
 final reliable client function ClientOpenPage( class<FPage> pageClass )
 {
 	if( WorldInfo.NetMode != NM_DedicatedServer )
@@ -95,6 +111,7 @@ final reliable client function ClientOpenPage( class<FPage> pageClass )
 	}
 }
 
+/** Command the client to close all or front FPage's. (Closable) */
 final reliable client function ClientClosePage( optional bool bCloseAll )
 {
 	if( WorldInfo.NetMode != NM_DedicatedServer )
@@ -103,6 +120,7 @@ final reliable client function ClientClosePage( optional bool bCloseAll )
 	}
 }
 
+/** Toggle EscapeMenu/PauseMenu */
 exec function ShowMenu()
 {
 	if( FormsController == none )
@@ -110,6 +128,7 @@ exec function ShowMenu()
 		return;
 	}
 
+	// Logically we should only open the EscapeMenu when there are no other pages open!
 	if( FormsController.Scene.Pages.Length == 0 )
 	{
 		if( EscapeMenu != none )
@@ -119,6 +138,7 @@ exec function ShowMenu()
 	}
 	else
 	{
+		// The MainMenu cannot be closed! If there's more than one page, then close the front page.
 		if( WorldInfo.IsMenuLevel( GetURLMap() ) && FormsController.Scene.Pages.Length == 1 )
 		{
 			return;
@@ -135,7 +155,7 @@ defaultproperties
 	FormsControllerClass=class'FController'
 	FormsSceneClass=class'FScene'
 
-	// EXAMPLE
+	// EXAMPLE. Uncomment and replace YOURPAGE with yours!
 	/*begin object name=oMainMenu class=YOURPAGE
 		// Properties
 	end object
