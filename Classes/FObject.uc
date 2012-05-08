@@ -14,6 +14,7 @@
    limitations under the License.
 */
 class FObject extends Object
+	hidecategories(None,Object)
 	abstract;
 
 function Free();
