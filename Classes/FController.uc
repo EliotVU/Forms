@@ -20,6 +20,7 @@
 class FController extends Interaction within UDKPlayerController
 	config(Forms);
 
+/** Pointer to our FScene instance. All events are redirected to the Scene and processed by the Scene. */
 var() privatewrite editinline FScene Scene;
 
 final function InitializeScene( optional class<FScene> sceneClass = class'FScene' )
@@ -98,6 +99,7 @@ event PostRender( Canvas C )
 
 function NotifyGameSessionEnded()
 {
+	`Log( "NotifyGameSessionEnded!" );
 	if( Scene != none )
 	{
 		Scene.Free();

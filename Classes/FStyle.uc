@@ -20,12 +20,14 @@ class FStyle extends FObject
 	config(Forms);
 
 /** The texture to be used as the component's background/image (If supported) */
-var(Style, Display) editinline Texture2D Image;
-var config const string ImageName;
+var(Style, Display) editinline Texture2D		Image;
+var(Style, Positioning) TextureCoordinates		ImageCoords;
+var config const editconst string				ImageName;
+var config const editconst TextureCoordinates	ImageNameCoords;
 
 /** The material to be used as the component's image (If supported) */
-var(Style, Display) editinline Material Material;
-var config const string MaterialName;
+var(Style, Display) editinline Material			Material;
+var config const editconst string				MaterialName;
 
 var(Style, Colors) const Color ImageColor;
 var(Style, Colors) const Color HoverColor;
@@ -34,13 +36,17 @@ var(Style, Colors) const Color ActiveColor;
 var(Style, Colors) const Color DisabledColor;
 
 /** Collection of elements to render after the associated component(s). */
-var protectedwrite editinline array<FElement> Elements;
+var(Style, Elements) protectedwrite editinline array<FElement> Elements;
 
 function Initialize()
 {
 	if( ImageName != "" )
 	{
 		Image = Texture2D(DynamicLoadObject( ImageName, class'Texture2D', true ));
+		if( ImageNameCoords.UL > 0.00 && ImageNameCoords.VL > 0.00 )
+		{
+			ImageCoords = ImageNameCoords;
+		}
 	}
 
 	if( MaterialName != "" )
@@ -89,4 +95,6 @@ defaultproperties
 	FocusColor=(R=100,G=100,B=100,A=255)
 	ActiveColor=(R=200,G=200,B=200,A=255)
 	DisabledColor=(R=0,G=0,B=0,A=255)
+	
+	ImageCoords=(U=0.0,V=0.0,UL=1.0,VL=1.0)
 }

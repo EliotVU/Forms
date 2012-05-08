@@ -60,14 +60,11 @@ function Update( float DeltaTime )
 	}
 }
 
+/** 
+ *	Do NOT call Free on other objects here!
+ */
 function Free()
 {
-	local FComponent component;
-
-	foreach Components( component )
-	{
-		component.Free();
-	}
 	Components.Length = 0;
 	super.Free();
 }
@@ -105,13 +102,15 @@ function AddComponent( FComponent component )
 	Components.AddItem( component );
 }
 
-function RemoveComponent( FComponent component )
+function RemoveComponent( FComponent component, optional bool freeComponent = false )
 {
 	Components.RemoveItem( component );
 	component.Parent = none;
 
-	// TODO: Handle deallocation
-	//component.Free();
+	if( freeComponent )
+	{
+		Controller.Scene.FreeObject( component );
+	}
 }
 
 final function FComponent FindComponentByName( name componentName )

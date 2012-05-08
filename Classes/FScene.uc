@@ -16,7 +16,7 @@
 class FScene extends FComponent;
 
 /** Add objects to this pool that have to be free'd on level change! :TODO: */
-var protectedwrite array<FObject> ObjectsPool;
+var protected array<FObject> ObjectsPool;
 
 // First item = Top page/window.
 // Last item = lowest page/window.
@@ -242,16 +242,12 @@ protected function RenderCursor( Canvas C )
 
 function Free()
 {
-	local FPage page;
-
 	// To make sure we remove postprocess and undo pause.
 	SetVisible( false );
-	foreach Pages( page )
-	{
-		page.Free();
-	} 
 	Pages.Length = 0;
 	MenuPostProcessChain = none;
+	
+	FreeObjects();
 	super.Free();
 }
 
@@ -324,7 +320,9 @@ final function AddPage( FPage page )
 	if( Pages.Find( page ) != -1 )
 		return;
 
-	Player().ClientMessage( "AddedPage:" @ page );
+	`if( `isdefined( DEBUG ) )
+		Player().ClientMessage( "AddedPage:" @ page );
+	`endif
 
 	page.Parent = self;
 	if( !page.bInitialized )
@@ -357,7 +355,9 @@ final simulated function ClosePage( optional bool bCloseAll )
 
 final function RemovePage( FPage page )
 {	
-	Player().ClientMessage( "RemovedPage:" @ page );
+	`if( `isdefined( DEBUG ) )
+		Player().ClientMessage( "RemovedPage:" @ page );
+	`endif
 
 	page.Closed();
 	page.Parent = none;
@@ -645,6 +645,32 @@ final function PlayHoverSound()
 final function PlayClickSound()
 {
 	Controller.Player().ClientPlaySound( ClickSound );
+}
+
+/** Adds an object to the pool. All objects in the pool can then be free'd calling Free(). */
+final function AddToPool( FObject formObject )
+{
+	if( ObjectsPool.Find( formObject ) == INDEX_NONE )
+	{
+		ObjectsPool.AddItem( formObject );
+	}
+}
+
+final function FreeObject( FObject formObject )
+{
+	formObject.Free();
+	ObjectsPool.RemoveItem( formObject );
+}
+
+final function FreeObjects()
+{
+	local FObject formObject;
+	
+	`Log( "Free'ing" @ ObjectsPool.Length @ "objects!" );
+	foreach ObjectsPool( formObject )
+	{
+		FreeObject( formObject );
+	}
 }
 
 defaultproperties

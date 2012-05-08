@@ -126,7 +126,8 @@ function Initialize( FController c )
 
 	if( bInitialized )
 		return;
-
+	
+	Controller.Scene.AddToPool( self );
 	OnVisibleChanged( self );
 	OnEnabledChanged( self );
 
@@ -139,7 +140,7 @@ function Initialize( FController c )
 
 	if( Style != none )
 	{
-		Style.Initialize();	
+		SetStyle( Style );
 	}
 }
 
@@ -230,22 +231,25 @@ function RenderStyle( Canvas C )
 /** Override this to render anything specific to a unique component. */
 function RenderComponent( Canvas C );
 
-/** Override this to clear any Object/Actor references! */
+/** 
+ *	Override this to clear any Object/Actor references! 
+ *	Do NOT call Free on other objects here!
+ */
 function Free()
 {
 	`Log( Name $ "Free" );
 	Controller = none;
 	Parent = none;
-	if( Style != none )
-	{
-		Style.Free();
-		Style = none;
-	}
+	Style = none;
+
+	bInitialized = false;	// So it may be restored later if desired.
 }
 
-final function SetStyle( FStyle s )
+final function SetStyle( FStyle newStyle )
 {
-	Style = s;
+	Style = newStyle;
+	Style.Initialize();
+	Controller.Scene.AddToPool( Style );
 }
 
 final function SetPos( float X, float Y )
@@ -426,11 +430,19 @@ final function string ConsoleCommand( string command )
 
 final function RenderBackground( Canvas C, Color drawColor = Style.ImageColor )
 {
+	local float UL, VL;
+	
 	if( Style.Image != none )
 	{
 		C.SetPos( LeftX, TopY );
 		C.DrawColor = drawColor;
-		C.DrawTileStretched( Style.Image, WidthX, HeightY, 0, 0, Style.Image.SizeX, Style.Image.SizeY );
+		UL = (Style.ImageCoords.UL <= 1.0) ? float(Style.Image.SizeX) : Style.ImageCoords.UL;
+		VL = (Style.ImageCoords.VL <= 1.0) ? float(Style.Image.SizeY) : Style.ImageCoords.VL;
+
+		C.DrawTileStretched( Style.Image, WidthX, HeightY, 
+			Style.ImageCoords.U, Style.ImageCoords.V, 
+			UL, VL 
+		);
 	}
 }
 
@@ -477,12 +489,6 @@ final function Color GetStateColor( optional Color defaultColor = Style.ImageCol
 final function FComponent CreateComponent( class<FComponent> componentClass, Object componentOuter )
 {
 	return new(componentOuter) componentClass;
-}
-
-/** Adds an object to the pool. All objects in the pool can then be free'd calling Free(). */
-final function AddToPool( FObject formObject )
-{
-	//... TODO
 }
 
 defaultproperties
