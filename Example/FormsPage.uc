@@ -56,9 +56,10 @@ defaultproperties
 	
 	OnClose=Close
 
+	// Once you have your own textures you should remove this and configue the style for FormsPage through the UDKForms.ini!
 	begin object name=oStyle
 		Image=Texture2D'EngineResources.WhiteSquareTexture'	
-		ImageColor=(R=255,G=255,B=255,A=255)
+		ImageColor=(R=128,G=128,B=128,A=200)
 	end object
 	Style=oStyle
 
@@ -82,6 +83,8 @@ defaultproperties
 		// Executes in Default_FormsPage, all references will be NONE! 
 		//	- Use sender.Controller instead of just Controller!
 		OnClick=Click
+		// Share style with parent. You should remove this and configue the style for FButtons through the UDKForms.ini!
+		Style=oStyle
 	end object
 	BReady=oReady
 	Components.Add(oReady)
