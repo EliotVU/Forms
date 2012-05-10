@@ -27,16 +27,20 @@ function InitializeComponent()
 
 	bindKey = GetBindedKeyForCommand( ActionCommand );
 	ActionLabel = new(self) class'FLabel';
-	ActionLabel.SetPos( 0.01, 0.0 );
-	ActionLabel.SetSize( 0.4, 1.0 );
+	ActionLabel.SetPos( 0.0, 0.0 );
+	ActionLabel.SetSize( 0.5, 1.0 );
+	ActionLabel.SetMargin( 0,0,0,0 );
 	ActionLabel.SetText( ActionName );
 	AddComponent( ActionLabel );
 
 	ActionKey = new(self) class'FInputBox';
-	ActionKey.SetPos( 0.51, 0.15 );
-	ActionKey.SetSize( 0.48, 0.70 );
+	ActionKey.SetPos( 0.5, 0.0 );
+	ActionKey.SetSize( 0.5, 1.0 );
+	ActionKey.SetMargin( 0,0,0,0 );
 	ActionKey.SetText( bindKey );
 	ActionKey.OnTextChanged = BindChanged;
+	//ActionKey.OnDoubleClick = none;
+	//ActionKey.OnClick = ActionKey.StartEdit;
 	AddComponent( ActionKey );
 }
 
@@ -71,6 +75,8 @@ defaultproperties
 {
 	ActionName="None"
 	ActionCommand=""
+	
+	Padding=(X=0,Y=0,W=0,Z=0)
 
 	// TODO: Find out why "instanced" does not work or wait for Epic Games to support nested "Component" classes
 	/*begin object name=oLAction class=FLabel
