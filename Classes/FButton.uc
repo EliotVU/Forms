@@ -16,6 +16,7 @@
 class FButton extends FLabel;
 
 var(Component, Display) bool bRenderCaption;
+var(Component, Display) bool bImageUseStateColor;
 var(Component, Display) bool bAnimateOnHover;
 var(Component, Display) float AnimateSpeed;
 var(Component, Display) float AnimateOffset;
@@ -43,7 +44,7 @@ function RenderComponent( Canvas C )
 	super(FComponent).RenderComponent( C );
 	C.SetPos( LeftX, TopY );
 	// If no caption, then colorize the background based on the component's state.
-	C.DrawColor = bRenderCaption ? Style.ImageColor : GetStateColor();
+	C.DrawColor = (bRenderCaption && !bImageUseStateColor) ? Style.ImageColor : GetStateColor();
 	C.DrawTileStretched( Style.Image, WidthX, HeightY, 0, 0, Style.Image.SizeX, Style.Image.SizeY );
 	RenderButton( C );
 }
@@ -59,7 +60,7 @@ function RenderButton( Canvas C )
 
 	if( bRenderCaption && Text != "" )
 	{
-		RenderLabel( C, LeftX + TextMoveOffset, TopY, WidthX, HeightY, GetStateColor( TextColor ) );
+		RenderLabel( C, LeftX + TextMoveOffset, TopY, WidthX, HeightY, (bImageUseStateColor) ? TextColor : GetStateColor( TextColor ) );
 	}
 }
 
