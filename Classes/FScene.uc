@@ -427,6 +427,25 @@ function OnVisibleChanged( FComponent sender )
 function bool KeyInput( name Key, EInputEvent EventType )
 {
 	local FComponent inputComponent;
+	
+	if( SelectedComponent != none && SelectedComponent != self )
+	{
+		if( EventType == IE_Released )
+		{
+			switch( Key )
+			{
+				case 'Space':
+				case 'Enter':
+					SelectedComponent.OnClick( SelectedComponent );
+					break;
+			}
+		}
+
+		if( SelectedComponent.OnKeyInput != none && SelectedComponent.OnKeyInput( Key, EventType ) )
+		{
+			return true;
+		}
+	}
 
 	if( EventType == IE_Pressed )
 	{
@@ -515,7 +534,9 @@ function bool KeyInput( name Key, EInputEvent EventType )
 					}
 				}
 				if( inputComponent == HoveredComponent )
+				{
 					OnClick( inputComponent );
+				}
 				break;
 
 			case 'RightMouseButton':
@@ -571,25 +592,11 @@ function bool KeyInput( name Key, EInputEvent EventType )
 				break;	
 		}
 	}
-
-	if( SelectedComponent != none && SelectedComponent != self )
-	{
-		if( EventType == IE_Released )
-		{
-			switch( Key )
-			{
-				case 'Space':
-				case 'Enter':
-					SelectedComponent.OnClick( SelectedComponent );
-					break;
-			}
-		}
-
-		if( SelectedComponent.OnKeyInput != none )
-		{
-			return SelectedComponent.OnKeyInput( Key, EventType );
-		}
-	}
+	
+	//if( ActiveComponent != none && ActiveComponent != self && ActiveComponent != SelectedComponent )
+	//{
+		//return ActiveComponent.OnKeyInput( Key, EventType );
+	//}
 	return true;
 }
 
