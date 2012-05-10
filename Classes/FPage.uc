@@ -40,4 +40,5 @@ defaultproperties
 	bSupportSelection=false
 	bSupportHovering=false
 	bClipComponent=true
+	Margin=(X=0,Y=0,Z=0,W=0)
 }
