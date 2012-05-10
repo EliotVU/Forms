@@ -15,27 +15,36 @@
 */
 class FLabel extends FComponent;
 
-var(Component, Display) privatewrite string Text;
-var(Component, Display) Color TextColor;
-var(Component, Display) const Font TextFont;
-var(Component, Display) const FontRenderInfo TextRenderInfo;
-var(Component, Display) const Vector2D TextFontScaling;
+var(Component, Display) privatewrite string			Text;
+var(Component, Display) Color						TextColor;
+var(Component, Display) const Font					TextFont;
+var(Component, Display) const FontRenderInfo		TextRenderInfo;
+var(Component, Display) const Vector2D				TextFontScaling;
+
+var(Component, Display) enum EDecoration
+{
+	D_None,
+	D_Underlined,
+	D_Overlined
+}													TextDecoration;
+var(Component, Display) int							TextDecorationSize;
+var(Component, Display) Color						TextDecorationColor;
 
 var(Component, Display) enum EHAlign
 {
 	TA_Left,
 	TA_Center,
 	TA_Right
-} TextAlign;
+}													TextAlign;
 
 var(Component, Display) enum EVAlign
 {
 	TA_Top,
 	TA_Center,
 	TA_Bottom
-} TextVAlign;
+}													TextVAlign;
 
-var(Component, Positioning) const Vector2D RelativeOffset;
+var(Component, Positioning) const Vector2D			RelativeOffset;
 
 delegate OnTextChanged( FComponent sender );
 
@@ -45,21 +54,38 @@ function RenderComponent( Canvas C )
 	RenderLabel( C, LeftX, TopY, WidthX, HeightY, TextColor );
 }
 
+final function StartClipping( Canvas C, out float x, out float y )
+{
+	local float xc, yc;
+	
+	xc = C.ClipX;
+	yc = C.ClipY;
+	C.SetClip( x, y );
+	x = xc;
+	y = yc;
+}
+
+final function StopClipping( Canvas C, float x, float y )
+{
+	C.SetClip( x, y );
+}
+
 final function RenderLabel( Canvas C, float X, float Y, float W, float H, Color drawColor, optional out float XL, optional out float YL )
 {
 	local float AX, AY;
+//	local float cX, cY;
 
 	X += RelativeOffset.X;
 	Y += RelativeOffset.Y;
 
-	//if( bClipComponent )
-	//{
-		//C.TextSize( Text, XL, YL );	
-	//}
-	//else
-	//{
+	if( bClipComponent )
+	{
+		C.TextSize( Text, XL, YL );	
+	}
+	else
+	{
 		C.StrLen( Text, XL, YL );
-	//}
+	}
 
 	switch( TextAlign )
 	{
@@ -90,11 +116,38 @@ final function RenderLabel( Canvas C, float X, float Y, float W, float H, Color 
 			AY = Y + H - YL;
 			break;
 	}
+	
+	//if( TextRenderInfo.bClipText )
+	//{
+		//cX = XL;
+		//cY = YL;
+		//StartClipping( C, cX, cY );
+	//}
 
 	C.SetPos( AX, AY );
 	C.DrawColor = drawColor;
 	C.Font = TextFont != none ? TextFont : C.GetDefaultCanvasFont();
 	C.DrawText( Text, true, TextFontScaling.X, TextFontScaling.Y, TextRenderInfo );
+	
+	//if( TextRenderInfo.bClipText )
+	//{
+		//StopClipping( C, cX, cY );
+	//}
+	
+	switch( TextDecoration )
+	{
+		case D_Underlined:	
+			C.SetPos( AX, AY + YL );
+			C.DrawColor = TextDecorationColor;
+			C.DrawRect( XL, TextDecorationSize, C.DefaultTexture );
+			break;
+			
+		case D_Overlined:
+			C.SetPos( AX, AY + YL * 0.5 );
+			C.DrawColor = TextDecorationColor;
+			C.DrawRect( XL, TextDecorationSize, C.DefaultTexture );
+			break;
+	}
 }
 
 function SetText( string newText )
@@ -116,6 +169,8 @@ defaultproperties
 
 	TextRenderInfo=(bClipText=true)
 	TextFontScaling=(X=1.0,Y=1.0)
+	TextDecorationSize=1
+	TextDecorationColor=(R=255,G=255,B=255,A=255)
 
 	`if( `isdefined( DEBUG ) )
 		bEnabled=true
