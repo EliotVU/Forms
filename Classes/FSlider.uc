@@ -35,7 +35,7 @@ function RenderSlider( Canvas C )
 		else
 		{
 			sliderX = FClamp( (Value/MaxValue*WidthX), 0.0, WidthX - WidthX*0.02 ) - WidthX*0.02 * 0.5;
-			C.DrawColor = Style.HoverColor;
+			C.DrawColor =FScrollStyle(Style).TrackImageColor;
 
 			S = Value $ "/" $ MaxValue;
 		}	
@@ -47,7 +47,10 @@ function RenderSlider( Canvas C )
 		}
 
 		C.SetPos( LeftX + sliderX, TopY );
-		C.DrawTileStretched( ProgressImage, WidthX*0.02, HeightY, 0, 0, ProgressImage.SizeX, ProgressImage.SizeY );
+		C.DrawTileStretched( FScrollStyle(Style).TrackImage, WidthX*0.02, HeightY, 
+			FScrollStyle(Style).TrackImageCoords.U, FScrollStyle(Style).TrackImageCoords.V, 
+			FScrollStyle(Style).TrackImageCoords.UL, FScrollStyle(Style).TrackImageCoords.VL
+		);
 
 		C.StrLen( S, XL, YL );
 		C.SetPos( LeftX + WidthX * 0.5 - XL * 0.5, TopY + (HeightY * 0.5 - YL * 0.5) );

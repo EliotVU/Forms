@@ -96,12 +96,14 @@ defaultproperties
 	MaxValue=255.0
 	Value=0.0
 
-	ProgressImage=Texture2D'GameUI.Misc.Tracker'
-
 	bEnabled=true
 	OnMouseButtonPressed=MouseButtonPressed
 	OnMouseButtonRelease=MouseButtonRelease
 	OnMouseMove=MouseMove
 	OnUnFocus=FocusLost
 	//OnUnHover=FocusLost
+	
+	begin object name=oStyle class=FScrollStyle
+	end object
+	Style=oStyle
 }
