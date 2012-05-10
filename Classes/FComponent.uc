@@ -264,6 +264,22 @@ final function SetSize( float X, float Y )
 	RelativeSize.Y = Y;
 }
 
+final function SetMargin( float leftPixels, float topPixels, float rightPixels, float bottomPixels )
+{
+	Margin.X = leftPixels;
+	Margin.Y = topPixels;
+	Margin.W = rightPixels;
+	Margin.Z = bottomPixels;
+}
+
+final function SetPadding( float leftPixels, float topPixels, float rightPixels, float bottomPixels )
+{
+	Padding.X = leftPixels;
+	Padding.Y = topPixels;
+	Padding.W = rightPixels;
+	Padding.Z = bottomPixels;
+}
+
 /** Calculates the screen height for this component. */
 function float GetHeight()
 {
@@ -456,7 +472,7 @@ final function bool HasFocus()
 	return (InteractionState & ES_Selected) != ES_None;
 }
 
-final function bool IsActive()
+function bool IsActive()
 {
 	return (InteractionState & ES_Active) != ES_None;
 }
