@@ -17,9 +17,7 @@ class FWindow extends FPage;
 
 function RenderComponent( Canvas C )
 {
-	C.SetPos( LeftX, TopY );
-	C.DrawColor = ((InteractionState & ES_Hover) != ES_None) ? Style.HoverColor : Style.ImageColor;
-	C.DrawTileStretched( Style.Image, WidthX, HeightY, 0, 0, Style.Image.SizeX, Style.Image.SizeY );
+	RenderBackground( C, GetStateColor() );
 	if( HasFocus() )
 	{
 		C.DrawColor = Style.FocusColor;
