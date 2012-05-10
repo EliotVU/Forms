@@ -13,6 +13,10 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+// A simple box that accepts and hooks the KeyInput delegate.
+// Escape = Stop editing and restore text back prior to editing.
+// Enter = Stop editing and save current text.
+// Otherwise = Insert key char.
 class FInputBox extends FLabel;
 
 var transient bool bEditing;
@@ -21,7 +25,8 @@ var transient string OriginalText;
 function RenderComponent( Canvas C )
 {
 	super(FComponent).RenderComponent( C );
-	RenderLabel( C, LeftX, TopY, WidthX, HeightY, (IsHovered() || bEditing) ? Style.HoverColor : TextColor );
+	TextDecoration = bEditing ? D_Underlined : D_None;
+	RenderLabel( C, LeftX, TopY, WidthX, HeightY, GetStateColor( TextColor ) );
 }
 
 function StartEdit( FComponent sender, optional bool bRight )
@@ -38,7 +43,7 @@ function StopEdit( FComponent sender )
 function bool KeyInput( name Key, EInputEvent EventType )
 {
 	if( EventType != IE_Released )
-		return false;
+		return true;
 
 	switch( Key )
 	{
@@ -70,6 +75,11 @@ function bool KeyInput( name Key, EInputEvent EventType )
 	return true;
 }
 
+function bool IsActive()
+{
+	return bEditing || super.IsActive();
+}
+
 defaultproperties
 {
 	OnDoubleClick=StartEdit
@@ -82,4 +92,12 @@ defaultproperties
 
 	bEnabled=true
 	bSupportSelection=true
+	
+	begin object name=oStyle
+		ImageColor=(R=255,G=255,B=255,A=255)
+		HoverColor=(R=255,G=255,B=0,A=255)
+		FocusColor=(R=100,G=100,B=100,A=255)
+		ActiveColor=(R=200,G=200,B=200,A=255)
+		DisabledColor=(R=0,G=0,B=0,A=255)
+	end object
 }
