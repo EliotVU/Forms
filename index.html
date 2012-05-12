@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <title>Forms by EliotVU</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>Forms</h1>
+        <h2>Forms is an elegant Game User Interface(GUI) framework for the infamous Game Engine Unreal Development Kit(UDK).</h2>
+
+        <section id="downloads">
+          <a href="https://github.com/EliotVU/Forms/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/EliotVU/Forms/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/EliotVU/Forms" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <h1>Making your first menu!</h1>
+
+<ul>
+<li>The most interesting and important part you would want to understand is the FComponent, this is the base class of all components which extends FObject which is just a basic abstract class.</li>
+<li>The second bit is the FScene, this is the class that redirects all the events to the FComponents, whether it is hovered, selected or focused.</li>
+<li>The third bit is the FController, this will give you an idea where it all starts, very simple redirecting to the FScene, don't like the FController? Wrap another class and redirect it to the FScene!</li>
+<li>The fourth bit is the the FormsPlayerController Example, this is the class which will setup Forms, especially the FController, and Main or Escape(Pause) menu.</li>
+<li>Once done with all of these, you'd have a basic idea of what's going on, though there's definitely still much to learn.</li>
+<li>Check out the FStyle class, this is the class that holds images, state colors. This FStyle class can be configured within archetypes and UDKForms.ini</li>
+<li>So that's pretty much it. Now of course you're still lost where to start, assuming you at least figured out how to setup your FormsPlayerController with a created MainMenu and UDKFrontEndMap.</li>
+</ul><p>Let's add a basic button to our MainMenu. MainMenu should be a FPage, this is set in your FormsPlayerController like:</p>
+
+<pre>
+begin object name=oMainMenu class=FPage
+end object
+MainMenu=oMainMenu</pre>
+
+<p>Now change the part where it says class=FPage to your desired FPage, for example "MyMainMenu":</p>
+
+<pre>
+begin object name=oMainMenu class=MyMainMenu
+end object
+MainMenu=oMainMenu</pre>
+
+<h2>MyMainMenu Class</h2>
+
+<p>Let's create our "MyMainMenu" class:</p>
+
+<pre>
+// The MainMenu. Contains all the basic components such as inline pages and/or buttons.
+class MyMainMenu extends FPage;
+
+// A reference to our ExitButton, so that we could edit properties at run-time or identify delegate events.
+var FButton ExitButton;
+
+defaultproperties
+{
+    // Relative position in percentage from parent(FScene(Canvas) in this case)
+    RelativePosition=(X=0.25,Y=0.25)
+    // Relative size in percentage from parent(FScene(Canvas) in this case)
+    RelativeSize=(X=0.5,Y=0.5)
+
+    // Let's add a button to exit the game.
+    begin object name=oExitButton class=FButton
+        // Red
+        TextColor=(R=255,G=0,B=0,A=255)
+        // Caption(We use Text because FButton extends FLabel)
+        Text="Exit"
+        // Delegate OnClick to OnExit, we'll add this function later, see below!
+        OnClick=OnExit
+
+        // Relative position in percentage from parent(MyMainMenu in this case)
+        RelativePosition=(X=0.0,Y=0.8)
+        // Relative size in percentage from parent(MyMainMenu in this case)
+        RelativeSize=(X=0.2,Y=0.2)
+    end object
+    // Assign this object to ExitButton, so that we can access it later at run-time.
+    ExitButton=oExitButton
+    Components.Add(oExitButton) // We must add our button to the components list, so it can be processed and drawn.
+}</pre>
+
+<h3>Using delegates</h3>
+
+<p>Now we have to add a method to handle the OnClick/OnExit delegate:</p>
+
+<pre>
+function OnExit( FComponent sender, bool bRight )
+{
+    // Execute a console command named "Exit", we use sender so that it is executed in a instanced component instead of this archetype(where OnClick is assigned)
+    sender.ConsoleCommand("Exit");
+}</pre>
+
+<p>Congratulations, if you succeeded on all of those steps, you will now have a Menu covering half of your screen with a button to close the game!
+I recommend looking at more components and especially the FComponent to learn about more properties!</p>
+      </section>
+    </div>
+
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-29049762-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
