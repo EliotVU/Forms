@@ -126,6 +126,11 @@ function Initialize( FController c )
 
 	if( bInitialized )
 		return;
+		
+	if( FMultiComponent(Parent) != none )
+	{
+		FMultiComponent(Parent).OnComponentInitialized( self );
+	}
 	
 	Controller.Scene.AddToPool( self );
 	OnVisibleChanged( self );
@@ -505,6 +510,22 @@ final function Color GetStateColor( optional Color defaultColor = Style.ImageCol
 final function FComponent CreateComponent( class<FComponent> componentClass, Object componentOuter )
 {
 	return new(componentOuter) componentClass;
+}
+
+final function StartClipping( Canvas C, out float x, out float y )
+{
+	local float xc, yc;
+	
+	xc = C.ClipX;
+	yc = C.ClipY;
+	C.SetClip( x, y );
+	x = xc;
+	y = yc;
+}
+
+final function StopClipping( Canvas C, float x, float y )
+{
+	C.SetClip( x, y );
 }
 
 defaultproperties

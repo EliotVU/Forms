@@ -18,6 +18,9 @@ class FMultiComponent extends FComponent
 
 var(Component, Advanced) protectedwrite editinline array<FComponent> Components;
 
+/** Called for each component that is initialized and owned by this component. */
+delegate OnComponentInitialized( FComponent component );
+
 function Initialize( FController c )
 {
 	local FComponent component;
