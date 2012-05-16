@@ -195,6 +195,10 @@ function Render( Canvas C )
 	}
 
 	C.Reset();
+	C.SetPos( 0.0, 0.0 );
+	C.SetOrigin( 0.0, 0.0 );
+	C.SetClip( Size.X, Size.Y );
+	
 	RenderDeltaTime = `STimeSince( LastRenderTime );
 	//UpdateSceneRatio();
 	super.Render( C );
@@ -205,7 +209,6 @@ function Render( Canvas C )
 			Pages[i].Render( C );
 		}
 	}
-	C.Reset();
 
 	`if( `isdefined( DEBUG ) )
 		C.SetPos( 0, 0 );

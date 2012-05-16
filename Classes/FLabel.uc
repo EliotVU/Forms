@@ -54,22 +54,6 @@ function RenderComponent( Canvas C )
 	RenderLabel( C, LeftX, TopY, WidthX, HeightY, TextColor );
 }
 
-final function StartClipping( Canvas C, out float x, out float y )
-{
-	local float xc, yc;
-	
-	xc = C.ClipX;
-	yc = C.ClipY;
-	C.SetClip( x, y );
-	x = xc;
-	y = yc;
-}
-
-final function StopClipping( Canvas C, float x, float y )
-{
-	C.SetClip( x, y );
-}
-
 final function RenderLabel( Canvas C, float X, float Y, float W, float H, Color drawColor, optional out float XL, optional out float YL )
 {
 	local float AX, AY;
@@ -127,7 +111,7 @@ final function RenderLabel( Canvas C, float X, float Y, float W, float H, Color 
 	C.SetPos( AX, AY );
 	C.DrawColor = drawColor;
 	C.Font = TextFont != none ? TextFont : C.GetDefaultCanvasFont();
-	C.DrawText( Text, true, TextFontScaling.X, TextFontScaling.Y, TextRenderInfo );
+	C.DrawText( Text, false, TextFontScaling.X, TextFontScaling.Y, TextRenderInfo );
 	
 	//if( TextRenderInfo.bClipText )
 	//{

@@ -60,7 +60,9 @@ function RenderButton( Canvas C )
 
 	if( bRenderCaption && Text != "" )
 	{
-		RenderLabel( C, LeftX + TextMoveOffset, TopY, WidthX, HeightY, (bImageUseStateColor) ? TextColor : GetStateColor( TextColor ) );
+		RenderLabel( C, LeftX + TextMoveOffset, TopY, WidthX, HeightY, 
+			(bImageUseStateColor) ? TextColor : GetStateColor( TextColor ) 
+		);
 	}
 }
 
