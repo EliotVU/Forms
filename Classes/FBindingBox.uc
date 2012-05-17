@@ -58,7 +58,6 @@ function BindChanged( FComponent sender )
 {
 	local PlayerInput myInput;
 	local name key;
-	local int i;
 
 	key = name(ActionKey.Text);
 	if( key == 'Unbound' )
