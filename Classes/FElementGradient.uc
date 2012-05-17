@@ -66,6 +66,7 @@ function RenderElement( Canvas C, FComponent Object )
 	lines = YL / float(Quality)+1;
 	orgX = C.CurX;
 	orgY = C.CurY;
+	C.PreOptimizeDrawTiles( lines, Pixel );
 	for( i = 0; i < lines; ++ i )
 	{
 		pct = float(i)/float(lines-1);
