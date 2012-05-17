@@ -78,6 +78,8 @@ var transient bool bCtrl, bAlt, bShift;
 delegate OnPageRemoved( FPage sender );
 delegate OnPageAdded( FPage sender );
 
+delegate OnPostRenderPages( Canvas C );
+
 function Initialize( FController c )
 {
 	local FPage page;
@@ -269,7 +271,7 @@ function Render( Canvas C )
 	//	and therefor no mouse position update.
 	if( bTimeOutScene && `STimeSince( LastMouseMoveTime ) > MouseSceneTimeOut )
 	{
-		return;
+		goto end;
 	}
 
 	C.Reset();
@@ -281,6 +283,8 @@ function Render( Canvas C )
 	//UpdateSceneRatio();
 	super.Render( C );
 	RenderPages( C );
+	
+	OnPostRenderPages( C );
 
 	`if( `isdefined( DEBUG ) )
 		RenderDebug( C );
@@ -290,6 +294,8 @@ function Render( Canvas C )
 	{
 		RenderCursor( C );
 	}
+	
+	end:
 	LastRenderTime = `STime;
 }
 
