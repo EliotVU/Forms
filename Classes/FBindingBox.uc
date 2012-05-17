@@ -20,6 +20,7 @@ var(Component, Advanced) `{Automated} FInputBox ActionKey;
 
 var(Component, Display) string ActionName;
 var(Component, Function) string ActionCommand;
+var int ActionIndex;
 
 function InitializeComponent()
 {
@@ -50,24 +51,51 @@ function RenderComponent( Canvas C )
 	RenderBackground( C );
 }
 
+// bUsingGamepad
+// ConsoleBuild
+
 function BindChanged( FComponent sender )
 {
+	local PlayerInput myInput;
 	local name key;
+	local int i;
 
 	key = name(ActionKey.Text);
 	if( key == 'Unbound' )
 		return;
-
-	Controller.Player().PlayerInput.SetBind( key, ActionCommand );
+		
+	if( ActionIndex == -1 )
+	{
+		`Log( "ActionIndex is negative!" );
+		return;
+	}
+		
+	myInput = Controller.Player().PlayerInput;
+	myInput.Bindings[ActionIndex].Name = key;
+	myInput.Bindings[ActionIndex].Command = ActionCommand;
+	myInput.SaveConfig();
 }
 
 final function string GetBindedKeyForCommand( string command )
 {
 	local PlayerInput myInput;
 	local int BindIndex;
+	local int i;
 
 	myInput = Controller.Player().PlayerInput;
-	BindIndex = myInput.Bindings.Find( 'Command', command ); 
+	
+	BindIndex = -1;
+	for( i = 0; i < myInput.Bindings.Length; ++ i )
+	{
+		if( myInput.Bindings[i].Command ~= command 
+			&& (myInput.bUsingGamepad || InStr( myInput.Bindings[i].Name, "XboxTypeS" ) == -1 ) 
+			)
+		{
+			BindIndex = i;
+			break;
+		}
+	}
+	ActionIndex = BindIndex;
 	return BindIndex != -1 ? string(myInput.Bindings[BindIndex].Name) : "Unbound";
 }
 
