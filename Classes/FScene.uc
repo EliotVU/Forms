@@ -35,6 +35,7 @@ var(Scene) bool														bPausedWhileVisible;
 
 // DEPRECATED!
 var(Scene, Display) deprecated bool									bConsiderAspectRatio;
+var(Scene, Display)	bool											bWiggleScene;
 
 var(Scene, Display) bool											bRenderCursor;
 var(Scene, Display) const globalconfig TextureCoordinates			CursorPointCoords;
@@ -43,6 +44,8 @@ var(Scene, Display) const globalconfig string						CursorsImageName;
 var(Scene, Display) Texture2D										CursorsImage;
 var(Scene, Display) const globalconfig float						CursorScaling;
 var(Scene, Interaction) deprecated globalconfig float				MouseSensitivity;
+var(Scene, Display) float											MouseCursorTimeOut;
+var(Scene, Display) float											MouseSceneTimeOut;
 
 var(Scene, Sound) globalconfig string								ClickSoundName;
 var(Scene, Sound) globalconfig string								HoverSoundName;
@@ -56,6 +59,7 @@ var transient Vector2D Ratio;
 
 var protectedwrite transient float RenderDeltaTime;
 var privatewrite transient float LastRenderTime;
+var privatewrite transient float LastMouseMoveTime;
 
 var(Scene, Advanced) PostProcessChain MenuPostProcessChain;
 var protected int MenuPostProcessChainIndex;
@@ -108,33 +112,99 @@ protected function LoadConfigurations()
 
 function Update( float DeltaTime )
 {
-	local FPage page;
-	local Vector2D vector2DMP;
-
 	// Lock the rotation so the player does not change its rotation when the mouse moves!
 	Controller.Player().SetRotation( LastPlayerRotation );
 
 	if( bRenderCursor )
 	{
-		LastMousePosition = MousePosition;
-		vector2DMP = LocalPlayer(Controller.Outer.Player).ViewportClient.GetMousePosition();
-		MousePosition.X = vector2DMP.X;
-		MousePosition.Y = vector2DMP.Y;
-		if( MousePosition != LastMousePosition && OnMouseMove != none )
-		{
-			OnMouseMove( self, DeltaTime );
-			if( ActiveComponent != none && ActiveComponent.OnMouseMove != none )
-			{
-				ActiveComponent.OnMouseMove( self, DeltaTime );
-			}
-		}
+		UpdateMouse( DeltaTime );
 	}
 
 	super.Update( DeltaTime );
+	UpdatePages( DeltaTime );
+}
+
+protected function UpdatePages( float DeltaTime )
+{
+	local FPage page;
+	
 	foreach Pages( page )
 	{
 		page.Update( DeltaTime );
 	} 
+}
+
+protected function UpdateMouse( float DeltaTime )
+{
+	local Vector2D vector2DMP;
+
+	LastMousePosition = MousePosition;
+	vector2DMP = LocalPlayer(Controller.Outer.Player).ViewportClient.GetMousePosition();
+	MousePosition.X = vector2DMP.X;
+	MousePosition.Y = vector2DMP.Y;
+	if( MousePosition != LastMousePosition && OnMouseMove != none )
+	{
+		LastMouseMoveTime = `STime;
+		OnMouseMove( self, DeltaTime );
+		if( ActiveComponent != none && ActiveComponent.OnMouseMove != none )
+		{
+			ActiveComponent.OnMouseMove( self, DeltaTime );
+		}
+	}
+		
+	if( bWiggleScene )
+	{
+		UpdateWiggle( DeltaTime );
+	}
+}
+
+protected function UpdateWiggle( float DeltaTime )
+{
+	local float diff;
+	
+	if( MousePosition.X <= 64.0 )
+	{
+		diff = FInterpTo( RelativePosition.X, 0.1, RenderDeltaTime, 1.0 - (MousePosition.X/65.0) );
+		SetPos( diff, RelativePosition.Y );
+	}
+	else
+	{
+		diff = FInterpTo( RelativePosition.X, 0.0, RenderDeltaTime, 2.0 );
+		SetPos( diff, RelativePosition.Y );
+	}
+	
+	if( (GetWidth() - MousePosition.X) <= 64.0 )
+	{
+		diff = FInterpTo( RelativePosition.X, -0.1, RenderDeltaTime, 1.0 - ((GetWidth() - MousePosition.X)/65.0) );
+		SetPos( diff, RelativePosition.Y );
+	}
+	else
+	{
+		diff = FInterpTo( RelativePosition.X, 0.0, RenderDeltaTime, 2.0 );
+		SetPos( diff, RelativePosition.Y );
+	}
+	
+	if( MousePosition.Y <= 64.0 )
+	{
+		diff = FInterpTo( RelativePosition.Y, 0.1, RenderDeltaTime, 1.0 - (MousePosition.Y/65.0) );
+		SetPos( RelativePosition.X, diff );
+	}
+	else
+	{
+		diff = FInterpTo( RelativePosition.Y, 0.0, RenderDeltaTime, 2.0 );
+		SetPos( RelativePosition.X, diff );
+	}
+	
+	if( (GetHeight() - MousePosition.Y) <= 64.0 )
+	{
+		diff = FInterpTo( RelativePosition.Y, -0.1, RenderDeltaTime, 1.0 - ((GetHeight() - MousePosition.Y)/65.0) );
+		SetPos( RelativePosition.X, diff );
+	}
+	else
+	{
+		diff = FInterpTo( RelativePosition.Y, 0.0, RenderDeltaTime, 2.0 );
+		SetPos( RelativePosition.X, diff );
+	}
 }
 
 protected function MouseMove( FScene scene, float DeltaTime )
@@ -172,6 +242,7 @@ protected function MouseMove( FScene scene, float DeltaTime )
 
 	if( !bCollided )
 	{
+		// Unhovered?
 		if( LastHoveredComponent != none )
 		{
 			LastHoveredComponent.LastUnhoveredTime = `STime; 
@@ -184,14 +255,19 @@ protected function MouseMove( FScene scene, float DeltaTime )
 }
 
 function Render( Canvas C )
-{
-	local int i;
-
+{	
 	// Resolution has been changed!
 	if( C.SizeX != Size.X )
 	{
 		Size.X = C.SizeX;
 		Size.Y = C.SizeY;
+	}
+	
+	// Don't put this in CanRender(), if CanRender() returns false, then Update() won't be called 
+	//	and therefor no mouse position update.
+	if( `STimeSince( LastMouseMoveTime ) > MouseSceneTimeOut )
+	{
+		return;
 	}
 
 	C.Reset();
@@ -202,6 +278,23 @@ function Render( Canvas C )
 	RenderDeltaTime = `STimeSince( LastRenderTime );
 	//UpdateSceneRatio();
 	super.Render( C );
+	RenderPages( C );
+
+	`if( `isdefined( DEBUG ) )
+		RenderDebug( C );
+	`endif
+
+	if( bRenderCursor && `STimeSince( LastMouseMoveTime ) < MouseCursorTimeOut )
+	{
+		RenderCursor( C );
+	}
+	LastRenderTime = `STime;
+}
+
+protected function RenderPages( Canvas C )
+{
+	local int i;
+	
 	for( i = Pages.Length - 1; i >= 0; -- i )
 	{
 		if( Pages[i].CanRender() )
@@ -209,24 +302,19 @@ function Render( Canvas C )
 			Pages[i].Render( C );
 		}
 	}
+}
 
-	`if( `isdefined( DEBUG ) )
-		C.SetPos( 0, 0 );
-		C.DrawColor = class'HUD'.default.WhiteColor;
-		C.DrawText( "MP:" $ MousePosition.X $ "," $ MousePosition.Y, true );
-		C.DrawText( "HC:" $ HoveredComponent, true );
-		C.DrawText( "SC:" $ SelectedComponent, true );
-		if( HoveredComponent != none )
-		{
-			C.DrawText( "P-C:" $ HoveredComponent.Parent @ HoveredComponent.Controller, true );
-		}
-	`endif
-
-	if( bRenderCursor )
+protected function RenderDebug( Canvas C )
+{
+	C.SetPos( 0, 0 );
+	C.DrawColor = class'HUD'.default.WhiteColor;
+	C.DrawText( "MP:" $ MousePosition.X $ "," $ MousePosition.Y, true );
+	C.DrawText( "HC:" $ HoveredComponent, true );
+	C.DrawText( "SC:" $ SelectedComponent, true );
+	if( HoveredComponent != none )
 	{
-		RenderCursor( C );
+		C.DrawText( "P-C:" $ HoveredComponent.Parent @ HoveredComponent.Controller, true );
 	}
-	LastRenderTime = `STime;
 }
 
 protected function RenderCursor( Canvas C )
@@ -699,6 +787,10 @@ defaultproperties
 	bRenderCursor=true
 	bConsiderAspectRatio=false
 	bPausedWhileVisible=false
+	bWiggleScene=true
+	
+	MouseCursorTimeOut=3.0
+	MouseSceneTimeOut=15.0
 
 	MenuPostProcessChainIndex=-1
 }
