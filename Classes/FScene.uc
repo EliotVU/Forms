@@ -35,7 +35,7 @@ var(Scene) bool														bPausedWhileVisible;
 
 // DEPRECATED!
 var(Scene, Display) deprecated bool									bConsiderAspectRatio;
-var(Scene, Display)	bool											bWiggleScene;
+var(Scene, Functionality)	bool									bWiggleScene;
 
 var(Scene, Display) bool											bRenderCursor;
 var(Scene, Display) const globalconfig TextureCoordinates			CursorPointCoords;
@@ -44,8 +44,10 @@ var(Scene, Display) const globalconfig string						CursorsImageName;
 var(Scene, Display) Texture2D										CursorsImage;
 var(Scene, Display) const globalconfig float						CursorScaling;
 var(Scene, Interaction) deprecated globalconfig float				MouseSensitivity;
-var(Scene, Display) float											MouseCursorTimeOut;
-var(Scene, Display) float											MouseSceneTimeOut;
+var(Scene, Interaction) bool										bTimeOutCursor;
+var(Scene, Interaction) float										MouseCursorTimeOut;
+var(Scene, Interaction) bool										bTimeOutScene;
+var(Scene, Interaction) float										MouseSceneTimeOut;
 
 var(Scene, Sound) globalconfig string								ClickSoundName;
 var(Scene, Sound) globalconfig string								HoverSoundName;
@@ -265,7 +267,7 @@ function Render( Canvas C )
 	
 	// Don't put this in CanRender(), if CanRender() returns false, then Update() won't be called 
 	//	and therefor no mouse position update.
-	if( `STimeSince( LastMouseMoveTime ) > MouseSceneTimeOut )
+	if( bTimeOutScene && `STimeSince( LastMouseMoveTime ) > MouseSceneTimeOut )
 	{
 		return;
 	}
@@ -284,7 +286,7 @@ function Render( Canvas C )
 		RenderDebug( C );
 	`endif
 
-	if( bRenderCursor && `STimeSince( LastMouseMoveTime ) < MouseCursorTimeOut )
+	if( bRenderCursor && (!bTimeOutCursor || `STimeSince( LastMouseMoveTime ) < MouseCursorTimeOut) )
 	{
 		RenderCursor( C );
 	}
@@ -789,7 +791,9 @@ defaultproperties
 	bPausedWhileVisible=false
 	bWiggleScene=true
 	
+	bTimeOutCursor=true
 	MouseCursorTimeOut=3.0
+	bTimeOutScene=true
 	MouseSceneTimeOut=15.0
 
 	MenuPostProcessChainIndex=-1
