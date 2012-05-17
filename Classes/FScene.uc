@@ -260,6 +260,8 @@ protected function MouseMove( FScene scene, float DeltaTime )
 
 function Render( Canvas C )
 {	
+	RenderDeltaTime = `STimeSince( LastRenderTime );
+	
 	// Resolution has been changed!
 	if( C.SizeX != Size.X )
 	{
@@ -273,13 +275,8 @@ function Render( Canvas C )
 	{
 		goto end;
 	}
-
-	C.Reset();
-	C.SetPos( 0.0, 0.0 );
-	C.SetOrigin( 0.0, 0.0 );
-	C.SetClip( Size.X, Size.Y );
 	
-	RenderDeltaTime = `STimeSince( LastRenderTime );
+	ResetCanvas( C );	
 	//UpdateSceneRatio();
 	super.Render( C );
 	RenderPages( C );
@@ -297,6 +294,14 @@ function Render( Canvas C )
 	
 	end:
 	LastRenderTime = `STime;
+}
+
+protected function ResetCanvas( Canvas C )
+{
+	C.Reset();
+	C.SetPos( 0.0, 0.0 );
+	C.SetOrigin( 0.0, 0.0 );
+	C.SetClip( Size.X, Size.Y );
 }
 
 protected function RenderPages( Canvas C )
