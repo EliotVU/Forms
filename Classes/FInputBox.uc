@@ -56,7 +56,7 @@ function RenderActiveInput( Canvas C )
 	//Localize( "Input", "BindNote", "Forms" );
 	S = "Press any key to bind it!";
 	C.StrLen( S, XL, YL );
-	screenY = C.ClipY - bgY*0.5 - YL;
+	screenY = C.ClipY - bgY*0.5 - YL - YL*0.5;
 	
 	C.SetPos( C.ClipX * 0.5 - XL, screenY );
 	C.DrawColor = class'HUD'.default.WhiteColor;

@@ -44,6 +44,7 @@ function InitializeComponent()
 	
 	columnSizeX = RelativeSize.X/NumColumns;
 	columnSizeY = RelativeSize.Y/NumRows;
+	pY = 0.0;
 	for( i = 0; i < NumRows; ++ i )
 	{
 		pX = 0;
