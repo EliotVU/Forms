@@ -451,20 +451,14 @@ final function string ConsoleCommand( string command )
 
 final function RenderBackground( Canvas C, Color drawColor = Style.ImageColor )
 {
-	local float UL, VL;
-	
-	if( Style.Image != none )
+	if( Style == none )
 	{
-		C.SetPos( LeftX, TopY );
-		C.DrawColor = drawColor;
-		UL = (Style.ImageCoords.UL <= 1.0) ? float(Style.Image.SizeX) : Style.ImageCoords.UL;
-		VL = (Style.ImageCoords.VL <= 1.0) ? float(Style.Image.SizeY) : Style.ImageCoords.VL;
-
-		C.DrawTileStretched( Style.Image, WidthX, HeightY, 
-			Style.ImageCoords.U, Style.ImageCoords.V, 
-			UL, VL 
-		);
+		`Log( "Attempting to draw a background for component:" @ self @ "without a style!" );
+		return;
 	}
+	
+	C.DrawColor = drawColor;
+	Style.DrawBackground( C, WidthX, HeightY );
 }
 
 final function bool IsHovered()
@@ -507,7 +501,7 @@ final function Color GetStateColor( optional Color defaultColor = Style.ImageCol
 /** Create a new instance of @componentClass. 
  *	Used to create components at run-time.
  */
-final function FComponent CreateComponent( class<FComponent> componentClass, Object componentOuter )
+final function FComponent CreateComponent( class<FComponent> componentClass, optional Object componentOuter = self )
 {
 	return new(componentOuter) componentClass;
 }
