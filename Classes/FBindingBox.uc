@@ -100,6 +100,14 @@ final function string GetBindedKeyForCommand( string command )
 
 defaultproperties
 {
+	`if( `isdefined(DEBUG) )
+		bSupportSelection=true
+		bSupportHovering=true
+	`else
+		bSupportSelection=false
+		bSupportHovering=false
+	`endif
+	
 	ActionName="None"
 	ActionCommand=""
 

@@ -151,7 +151,7 @@ function Free()
 defaultproperties
 {
 	HoverColor=(R=255,G=255,B=0,A=255)
-	FocusColor=(R=100,G=100,B=100,A=255)
+	FocusColor=(R=180,G=180,B=180,A=255)
 	ActiveColor=(R=200,G=200,B=200,A=255)
 	DisabledColor=(R=0,G=0,B=0,A=255)
 	

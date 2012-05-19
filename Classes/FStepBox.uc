@@ -32,7 +32,7 @@ function InitializeComponent()
 {
 	Previous = FButton(CreateComponent( class'FButton' ));
 	Previous.SetPos( 0.0, 0.0 );
-	Previous.SetSize( 0.2, 1.0 );
+	Previous.SetSize( 0.15, 1.0 );
 	Previous.SetMargin( 0.0, 0.0, 0.0, 0.0 );
 	Previous.OnClick = Click;
 	Previous.OnDoubleClick = Click;
@@ -42,15 +42,15 @@ function InitializeComponent()
 	AddComponent( Previous );
 
 	SelectedChoice = FLabel(CreateComponent( class'FLabel' ));
-	SelectedChoice.SetPos( 0.20, 0.0 );
-	SelectedChoice.SetSize( 0.8, 1.0 );
+	SelectedChoice.SetPos( 0.15, 0.0 );
+	SelectedChoice.SetSize( 0.7, 1.0 );
 	SelectedChoice.SetMargin( 0.0, 0.0, 0.0, 0.0 );
 	SelectedChoice.TextAlign = TA_Center;
 	AddComponent( SelectedChoice );
 
 	Next = FButton(CreateComponent( class'FButton' ));
 	Next.SetPos( 1.0, 0.0 );
-	Next.SetSize( 0.2, 1.0 );
+	Next.SetSize( 0.15, 1.0 );
 	Next.SetMargin( 0.0, 0.0, 0.0, 0.0 );
 	Next.bRenderCaption = false;
 	Next.OnClick = Click;
@@ -121,6 +121,14 @@ function SetValue( string value )
 defaultproperties
 {
 	Padding=(X=2,Y=2,W=2,Z=2)
+	
+	`if( `isdefined(DEBUG) )
+		bSupportSelection=true
+		bSupportHovering=true
+	`else
+		bSupportSelection=false
+		bSupportHovering=false
+	`endif
 	
 	begin object name=oPreviousButtonStyle class=FStyle
 	end object

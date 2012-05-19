@@ -36,12 +36,19 @@ var(Component, Positioning) privatewrite Vector2D RelativePosition;
 var(Component, Positioning) privatewrite Vector2D RelativeSize;
 
 /**
- *	X = Margin away from the right.
- *	W = Margin away from the left.
- *	Y = Margin away from the bottom.
- *	Z = Margin away from the top.
+ *	X = Right	Margin
+ *	W = Left	Margin
+ *	Y = Bottom	Margin
+ *	Z = Top		Margin
  */
 var(Component, Positioning) privatewrite Vector4 Margin;
+
+/**
+ *	X = Right	Padding
+ *	W = Left	Padding
+ *	Y = Bottom	Padding
+ *	Z = Top		Padding
+ */
 var(Component, Positioning) privatewrite Vector4 Padding;
 
 struct Boundary
@@ -285,18 +292,18 @@ final function SetSize( float X, float Y )
 
 final function SetMargin( float leftPixels, float topPixels, float rightPixels, float bottomPixels )
 {
-	Margin.X = leftPixels;
-	Margin.Y = topPixels;
-	Margin.W = rightPixels;
-	Margin.Z = bottomPixels;
+	Margin.X = rightPixels;
+	Margin.Y = bottomPixels;
+	Margin.W = leftPixels;
+	Margin.Z = topPixels;
 }
 
 final function SetPadding( float leftPixels, float topPixels, float rightPixels, float bottomPixels )
 {
-	Padding.X = leftPixels;
-	Padding.Y = topPixels;
-	Padding.W = rightPixels;
-	Padding.Z = bottomPixels;
+	Padding.X = rightPixels;
+	Padding.Y = bottomPixels;
+	Padding.W = leftPixels;
+	Padding.Z = topPixels;
 }
 
 /** Calculates the screen height for this component. */
@@ -379,7 +386,7 @@ function bool CanRender()
 
 function bool CanInteract()
 {
-	return bEnabled && CanRender();
+	return (bEnabled || Scene().bRenderRectangles) && CanRender();
 }
 
 function SetVisible( bool v )
