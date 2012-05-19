@@ -55,12 +55,19 @@ var(Component, Positioning) privatewrite Boundary HeightBoundary;
 /** The width of the component will be set to that of height in pixels. */
 var(Component, Positioning) bool bJustify;
 
-/** The side(of RelativePosition) that the component will stick to. */
+/** The X(of RelativePosition) that the component will stick to. */
 var(Component, Positioning) enum EHorizontalDock
 {
 	HD_Left,
 	HD_Right
 } HorizontalDock;
+
+/** The Y(of RelativePosition) that the component will stick to. */
+var(Component, Positioning) enum EVerticalDock
+{
+	VD_Top,
+	VD_Bottom
+} VerticalDock;
 
 /** How to handle positioning for this component. */
 var(Component, Positioning) enum EPositioning
@@ -333,8 +340,11 @@ final function float GetCachedWidth()
 /** Calculates the top screen position for this component. */
 function float GetTop()
 {
-	return ((Parent.GetTop() + Parent.GetHeight() * RelativePosition.Y) + Margin.Z + Parent.Padding.Z) 
-		+ ((Positioning < EPositioning.P_Fixed) ? Parent.OriginOffset.Y : 0.0f);
+	local float y, oy;
+	
+	y = (Parent.GetTop() + Parent.GetHeight() * RelativePosition.Y);
+	oy = (Margin.Z + Parent.Padding.Z) + ((Positioning < EPositioning.P_Fixed) ? Parent.OriginOffset.Y : 0.0f);
+	return (VerticalDock == VD_Bottom) ? y - GetHeight() - oy : y + oy;
 }
 
 /** Retrieves the cached Top that was calculated the last time this component was rendered. Recommend for use within Tick functions. */
@@ -349,10 +359,7 @@ function float GetLeft()
 	local float x, ox;
 	
 	x = (Parent.GetLeft() + Parent.GetWidth() * RelativePosition.X);
-			
-	ox = (Margin.W + Parent.Padding.W) 
-			+ ((Positioning < EPositioning.P_Fixed) ? Parent.OriginOffset.X : 0.0f);
-			
+	ox = (Margin.W + Parent.Padding.W) + ((Positioning < EPositioning.P_Fixed) ? Parent.OriginOffset.X : 0.0f);	
 	return (HorizontalDock == HD_Right) ? x - GetWidth() - ox : x + ox;
 }
 
@@ -546,6 +553,7 @@ defaultproperties
 	Style=oStyle
 
 	HorizontalDock=HD_Left
+	VerticalDock=VD_Top
 
 	RelativePosition=(X=0.0,Y=0.0)
 	Margin=(X=2,Y=2,Z=2,W=2)
