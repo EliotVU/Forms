@@ -102,8 +102,6 @@ defaultproperties
 {
 	ActionName="None"
 	ActionCommand=""
-	
-	Padding=(X=0,Y=0,W=0,Z=0)
 
 	// TODO: Find out why "instanced" does not work or wait for Epic Games to support nested "Component" classes
 	/*begin object name=oLAction class=FLabel

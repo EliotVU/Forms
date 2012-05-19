@@ -56,11 +56,6 @@ defaultproperties
 	TextColor=(R=255,G=255,B=255,A=255)
 	TextAlign=TA_Left
 
-	begin object name=oStyle
-		//ImageColor=(R=33,G=33,B=33,A=255)
-	end object
-	Style=oStyle
-
 	UncheckedColor=(R=255,G=0,B=0,A=255)
 	CheckedColor=(R=0,G=255,B=0,A=255)
 
