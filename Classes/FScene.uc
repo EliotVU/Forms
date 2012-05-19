@@ -231,9 +231,11 @@ protected function MouseMove( FScene scene, float DeltaTime )
 					HoveredComponent.OnHover( HoveredComponent );
 					HoveredComponent.InteractionState = HoveredComponent.InteractionState | ES_Hover;
 					HoveredComponent.LastHoveredTime = `STime;
+					HoveredComponent.LastStateChangeTime = HoveredComponent.LastHoveredTime;
 					if( LastHoveredComponent != none )
 					{
 						LastHoveredComponent.LastUnhoveredTime = `STime; 
+						LastHoveredComponent.LastStateChangeTime = LastHoveredComponent.LastUnhoveredTime;
 						LastHoveredComponent.OnUnHover( LastHoveredComponent );
 						LastHoveredComponent.InteractionState = LastHoveredComponent.InteractionState & ~ES_Hover;
 					}

@@ -106,6 +106,8 @@ var transient bool bInitialized;
 var transient float LastHoveredTime, LastUnhoveredTime;
 var transient float LastFocusedTime, LastUnfocusedTime;
 var transient float LastActiveTime, LastUnactiveTime;
+var transient float LastStateChangeTime;
+var transient Color LastStateColor;
 
 // KB/M EVENTS - Only called if hovered or focused!
 delegate OnClick( FComponent sender, optional bool bRight );
@@ -430,6 +432,7 @@ function Focus()
 	Scene().Focus();
 
 	LastFocusedTime = `STime;
+	LastStateChangeTime = LastFocusedTime;
 	InteractionState = InteractionState | ES_Selected;
 	OnFocus( self );
 }
@@ -438,6 +441,7 @@ function Focus()
 function UnFocus()
 {
 	LastUnfocusedTime = `STime;
+	LastStateChangeTime = LastUnfocusedTime;
 	InteractionState = InteractionState & ~ES_Selected;
 	OnUnFocus( self );
 }
@@ -445,6 +449,7 @@ function UnFocus()
 function Active()
 {
 	LastActiveTime = `STime;
+	LastStateChangeTime = LastActiveTime;
 	InteractionState = InteractionState | ES_Active;
 	OnActive( self );
 }
@@ -452,6 +457,7 @@ function Active()
 function UnActive()
 {
 	LastUnactiveTime = `STime;
+	LastStateChangeTime = LastUnactiveTime;
 	InteractionState = InteractionState & ~ES_Active;
 	OnUnActive( self );
 }
@@ -504,23 +510,39 @@ function bool IsActive()
 /** Returns a color based on this component's state such as hover, focus, selected or disabled! */
 final function Color GetStateColor( optional Color defaultColor = Style.ImageColor )
 {
+	local Color newStateColor;
+	
 	if( !CanInteract() )
 	{
-		return Style.DisabledColor;
+		newStateColor = Style.DisabledColor;
 	}
 	else if( IsActive() )
 	{
-		return Style.ActiveColor;	
+		FadingSwapColor( newStateColor, Style.ActiveColor, LastStateChangeTime );	
 	}
 	else if( IsHovered() )
 	{
-		return Style.HoverColor;
+		FadingSwapColor( newStateColor, Style.HoverColor, LastStateChangeTime );
 	}
 	else if( HasFocus() )
 	{
-		return Style.FocusColor;
+		FadingSwapColor( newStateColor, Style.FocusColor, LastStateChangeTime );	
 	}
-	return defaultColor;
+	else
+	{
+		FadingSwapColor( newStateColor, defaultColor, LastStateChangeTime );	
+	}
+	LastStateColor = newStateColor;
+	return newStateColor;
+}
+
+final function FadingSwapColor( out Color newColor, Color destColor, float oldColorTime )
+{
+	local float pct;
+	
+	pct = (0.0 + FMin( `STimeSince( oldColorTime ), 1.0 ));
+	newColor = LastStateColor + destColor * pct - LastStateColor  * pct;
+	newColor.A = destColor.A;
 }
 
 /** Create a new instance of @componentClass. 
