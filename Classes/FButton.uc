@@ -45,7 +45,7 @@ function RenderComponent( Canvas C )
 	C.SetPos( LeftX, TopY );
 	// If no caption, then colorize the background based on the component's state.
 	C.DrawColor = (bRenderCaption && !bImageUseStateColor) ? Style.ImageColor : GetStateColor();
-	C.DrawTileStretched( Style.Image, WidthX, HeightY, 0, 0, Style.Image.SizeX, Style.Image.SizeY );
+	RenderBackground( C, C.DrawColor );
 	RenderButton( C );
 }
 

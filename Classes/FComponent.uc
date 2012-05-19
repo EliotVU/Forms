@@ -34,6 +34,13 @@ var(Component, Function) const bool bSupportHovering;
 /** The relative position of this component, relative starting from the parent's position, in percentage! */
 var(Component, Positioning) privatewrite Vector2D RelativePosition;
 var(Component, Positioning) privatewrite Vector2D RelativeSize;
+
+/**
+ *	X = Margin away from the right.
+ *	W = Margin away from the left.
+ *	Y = Margin away from the bottom.
+ *	Z = Margin away from the top.
+ */
 var(Component, Positioning) privatewrite Vector4 Margin;
 var(Component, Positioning) privatewrite Vector4 Padding;
 
@@ -339,10 +346,14 @@ final function float GetCachedTop()
 /** Calculates the left screen position for this component. */
 function float GetLeft()
 {
-	return ((HorizontalDock == HD_Right 
-		? (Parent.GetLeft() + Parent.GetWidth() * RelativePosition.X) - GetWidth() 
-		: (Parent.GetLeft() + Parent.GetWidth() * RelativePosition.X)) + Margin.W + Parent.Padding.W) 
+	local float x, ox;
+	
+	x = (Parent.GetLeft() + Parent.GetWidth() * RelativePosition.X);
+			
+	ox = (Margin.W + Parent.Padding.W) 
 			+ ((Positioning < EPositioning.P_Fixed) ? Parent.OriginOffset.X : 0.0f);
+			
+	return (HorizontalDock == HD_Right) ? x - GetWidth() - ox : x + ox;
 }
 
 /** Retrieves the cached Left that was calculated the last time this component was rendered. Recommend for use within Tick functions. */

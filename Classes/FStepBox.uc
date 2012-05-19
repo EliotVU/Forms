@@ -30,9 +30,10 @@ delegate OnValueChanged( FComponent sender );
 
 function InitializeComponent()
 {
-	Previous = new(self) class'FButton';
+	Previous = FButton(CreateComponent( class'FButton' ));
 	Previous.SetPos( 0.0, 0.0 );
-	Previous.SetSize( 0.3, 1.0 );
+	Previous.SetSize( 0.2, 1.0 );
+	Previous.SetMargin( 0.0, 0.0, 0.0, 0.0 );
 	Previous.OnClick = Click;
 	Previous.OnDoubleClick = Click;
 	Previous.bRenderCaption = false;
@@ -40,15 +41,17 @@ function InitializeComponent()
 	Previous.SetStyle( PreviousButtonStyle );
 	AddComponent( Previous );
 
-	SelectedChoice = new(self) class'FLabel';
-	SelectedChoice.SetPos( 0.30, 0.0 );
-	SelectedChoice.SetSize( 0.4, 1.0 );
+	SelectedChoice = FLabel(CreateComponent( class'FLabel' ));
+	SelectedChoice.SetPos( 0.20, 0.0 );
+	SelectedChoice.SetSize( 0.8, 1.0 );
+	SelectedChoice.SetMargin( 0.0, 0.0, 0.0, 0.0 );
 	SelectedChoice.TextAlign = TA_Center;
 	AddComponent( SelectedChoice );
 
-	Next = new(self) class'FButton';
+	Next = FButton(CreateComponent( class'FButton' ));
 	Next.SetPos( 1.0, 0.0 );
-	Next.SetSize( 0.3, 1.0 );
+	Next.SetSize( 0.2, 1.0 );
+	Next.SetMargin( 0.0, 0.0, 0.0, 0.0 );
 	Next.bRenderCaption = false;
 	Next.OnClick = Click;
 	Next.OnDoubleClick = Click;
@@ -117,6 +120,8 @@ function SetValue( string value )
 
 defaultproperties
 {
+	Padding=(X=2,Y=2,W=2,Z=2)
+	
 	begin object name=oPreviousButtonStyle class=FStyle
 	end object
 	PreviousButtonStyle=oPreviousButtonStyle
