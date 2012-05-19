@@ -613,7 +613,7 @@ function bool KeyInput( name Key, EInputEvent EventType )
 						`if( `isdefined( DEBUG ) )
 							if( bCtrl )
 							{
-								Controller.Player().ConsoleCommand( "editobject name=" $ inputComponent.Name );
+								Controller.Player().ConsoleCommand( "editobject name=" $ inputComponent );
 								break;
 							}
 						`endif
