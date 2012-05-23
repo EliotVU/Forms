@@ -25,7 +25,7 @@ function RenderImage( Canvas C )
 {
 	C.SetPos( LeftX, TopY );
 	C.DrawColor = Style.ImageColor;
-	C.DrawTile( Style.Image, WidthX, HeightY, 0, 0, Style.Image.SizeX, Style.Image.SizeY );
+	Style.DrawBackground( C, WidthX, HeightY );
 }
 
 defaultproperties
