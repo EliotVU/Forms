@@ -21,21 +21,28 @@ class FComponent extends FObject
 	abstract;
 
 /** Cannot be used(same for other objects) from delegate events if that delegate is initialized via the DefaultProperties block! */
-var transient FController Controller;
+var transient editconst FController Controller;
 
 /** Cannot be used(same for other objects) from delegate events if that delegate is initialized via the DefaultProperties block! */
-var(Component, Advanced) FComponent Parent;
+var(Component, Advanced) noclear editconst FComponent Parent;
 
+/** Is this component visible? */
 var(Component, Function) protectedwrite bool bVisible;
+
+/** Is this component interactable? */
 var(Component, Function) protectedwrite bool bEnabled;
+
 var(Component, Function) const bool bSupportSelection;
 var(Component, Function) const bool bSupportHovering;
 
 /** The relative position of this component, relative starting from the parent's position, in percentage! */
 var(Component, Positioning) privatewrite Vector2D RelativePosition;
+
+/** The relative size of this component, relative starting from the parent's size, in percentage! */
 var(Component, Positioning) privatewrite Vector2D RelativeSize;
 
 /**
+ *  X, W, Y, Z margin in pixels:
  *	X = Right	Margin
  *	W = Left	Margin
  *	Y = Bottom	Margin
@@ -44,6 +51,7 @@ var(Component, Positioning) privatewrite Vector2D RelativeSize;
 var(Component, Positioning) privatewrite Vector4 Margin;
 
 /**
+ *  X, W, Y, Z padding in pixels:
  *	X = Right	Padding
  *	W = Left	Padding
  *	Y = Bottom	Padding
@@ -56,7 +64,10 @@ struct Boundary
 	var float Min, Max;
 	var bool bEnabled;
 };
+/** Max/Min width for this component. */
 var(Component, Positioning) privatewrite Boundary WidthBoundary;
+
+/** Max/Min height for this component. */
 var(Component, Positioning) privatewrite Boundary HeightBoundary;
 
 /** The width of the component will be set to that of height in pixels. */
@@ -65,14 +76,18 @@ var(Component, Positioning) bool bJustify;
 /** The X(of RelativePosition) that the component will stick to. */
 var(Component, Positioning) enum EHorizontalDock
 {
+	/** Start drawing from RelativePosition X. */
 	HD_Left,
+	/** End drawing at RelativePosition X. */
 	HD_Right
 } HorizontalDock;
 
 /** The Y(of RelativePosition) that the component will stick to. */
 var(Component, Positioning) enum EVerticalDock
 {
+	/** Start drawing from RelativePosition Y. */
 	VD_Top,
+	/** End drawing at RelativePosition Y. */
 	VD_Bottom
 } VerticalDock;
 
@@ -97,17 +112,23 @@ const ES_Selected		= 0x02;
 const ES_Active			= 0x04;
 
 /** The current interaction state, e.g. Hover, Selected or Active. */
-var transient byte InteractionState;
-var protectedwrite transient float TopY, LeftX, WidthX, HeightY;
+var transient editconst byte InteractionState;
+
+// This component's cached positions and size.
+var protectedwrite transient editconst float TopY, LeftX, WidthX, HeightY;
+
+// A dynamic position offset(Controlled by scrolling).
 var transient Vector2D OriginOffset;
-var transient bool bInitialized;
+
+// This component has been initialized?
+var transient editconst bool bInitialized;
 
 /** Useful todo animations when hovering/unhovering. RealTimeSeconds! */
-var transient float LastHoveredTime, LastUnhoveredTime;
-var transient float LastFocusedTime, LastUnfocusedTime;
-var transient float LastActiveTime, LastUnactiveTime;
-var transient float LastStateChangeTime;
-var transient Color LastStateColor;
+var transient editconst float LastHoveredTime, LastUnhoveredTime;
+var transient editconst float LastFocusedTime, LastUnfocusedTime;
+var transient editconst float LastActiveTime, LastUnactiveTime;
+var transient editconst float LastStateChangeTime;
+var transient editconst Color LastStateColor;
 
 // KB/M EVENTS - Only called if hovered or focused!
 delegate OnClick( FComponent sender, optional bool bRight );
@@ -124,7 +145,7 @@ delegate OnVisibleChanged( FComponent sender );
 delegate OnEnabledChanged( FComponent sender );
 
 // DRAWING
-delegate OnRender( FComponent sender, Canvas C );
+delegate OnPostRender( FComponent sender, Canvas C );
 
 // UPDATING
 /**
@@ -218,7 +239,7 @@ function Render( Canvas C )
 	C.SetPos( LeftX, TopY );
 	RenderStyle( C );
 	RenderComponent( C );
-	OnRender( self, C );
+	OnPostRender( self, C );
 
 	`if( `isdefined( DEBUG ) )
 		if( Controller.Scene.bRenderRectangles )
@@ -280,13 +301,13 @@ final function SetStyle( FStyle newStyle )
 	Controller.Scene.AddToPool( Style );
 }
 
-final function SetPos( float X, float Y )
+final function SetPos( const float X, const float Y )
 {
 	RelativePosition.X = X;
 	RelativePosition.Y = Y;
 }
 
-final function SetSize( float X, float Y )
+final function SetSize( const float X, const float Y )
 {
 	RelativeSize.X = X;
 	RelativeSize.Y = Y;
@@ -548,9 +569,9 @@ final function FadingSwapColor( out Color newColor, Color destColor, float oldCo
 /** Create a new instance of @componentClass. 
  *	Used to create components at run-time.
  */
-final function FComponent CreateComponent( class<FComponent> componentClass, optional Object componentOuter = self )
+final function FComponent CreateComponent( class<FComponent> componentClass, optional Object componentOuter = self, optional FComponent componentTemplate = none )
 {
-	return new(componentOuter) componentClass;
+	return new(componentOuter) componentClass (componentTemplate);
 }
 
 final function StartClipping( Canvas C, out float x, out float y )
@@ -578,6 +599,7 @@ defaultproperties
 	bClipComponent=false
 
 	begin object name=oStyle class=FStyle
+		// Styles...	
 	end object
 	Style=oStyle
 
