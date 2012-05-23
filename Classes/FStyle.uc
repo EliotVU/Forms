@@ -146,6 +146,9 @@ function DrawShadow( Canvas C, float width, float height )
 function Free()
 {
 	Elements.Length = 0;
+	Image = none;
+	Shadow = none;
+	Material = none;
 }
 
 defaultproperties

@@ -28,6 +28,22 @@ var(Component, Display) privatewrite editinline FStyle
 
 delegate OnValueChanged( FComponent sender );
 
+function Free()
+{
+	super.Free();
+	if( PreviousButtonStyle != none )
+	{
+		PreviousButtonStyle.Free();
+		PreviousButtonStyle = none;
+	}
+	
+	if( NextButtonStyle != none )
+	{
+		NextButtonStyle.Free();
+		NextButtonStyle = none;
+	}
+}
+
 function InitializeComponent()
 {
 	Previous = FButton(CreateComponent( class'FButton' ));

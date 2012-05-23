@@ -99,6 +99,8 @@ function SetActivePage( FPage newPage )
 
 	C = ActivePage;
 	ActivePage = newPage;
+	// Make sure the page gets garbage collected!
+	Scene().AddToPool( ActivePage );
 	OnSwitch( C, newPage );	
 }
 

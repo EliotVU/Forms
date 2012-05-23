@@ -352,6 +352,16 @@ function Free()
 	SetVisible( false );
 	Pages.Length = 0;
 	MenuPostProcessChain = none;
+	CursorsImage = none;
+	ClickSound = none;
+	HoverSound = none;
+	MenuPostProcessChain = none;
+	
+	ActiveComponent = none;
+	HoveredComponent = none;
+	SelectedComponent = none;
+	LastSelectedComponent = none;
+	LastHoveredComponent = none;
 	
 	FreeObjects();
 	super.Free();
