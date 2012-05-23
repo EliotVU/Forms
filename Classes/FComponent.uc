@@ -335,8 +335,9 @@ function float GetHeight()
 	local float h;
 	
 	h = (RelativeSize.Y > 1.0 
-		? Parent.GetHeight() + RelativeSize.Y 
-		: Parent.GetHeight() * RelativeSize.Y) - (Margin.Y << 1) - (Parent.Padding.Y << 1);
+		? RelativeSize.Y 
+		: Parent.GetHeight() * RelativeSize.Y) 
+		- (Margin.Y << 1) - (Parent.Padding.Y << 1);
 		
 	return HeightBoundary.bEnabled ? FClamp( h, HeightBoundary.Min, HeightBoundary.Max ) : h;
 }
@@ -355,8 +356,9 @@ function float GetWidth()
 	w = (bJustify 
 		? GetHeight() 
 		: RelativeSize.X > 1.0 
-			? Parent.GetWidth() + RelativeSize.X 
-			: Parent.GetWidth() * RelativeSize.X) - (Margin.X << 1) - (Parent.Padding.X << 1);
+			? RelativeSize.X 
+			: Parent.GetWidth() * RelativeSize.X) 
+			- (Margin.X << 1) - (Parent.Padding.X << 1);
 	
 	return WidthBoundary.bEnabled ? FClamp( w, WidthBoundary.Min, WidthBoundary.Max ) : w;
 }
