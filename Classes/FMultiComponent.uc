@@ -13,8 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-class FMultiComponent extends FComponent
-	abstract;
+class FMultiComponent extends FComponent;
 
 var(Component, Advanced) protectedwrite editinline array<FComponent> Components;
 
