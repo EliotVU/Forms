@@ -15,9 +15,19 @@
 */
 class FLabel extends FComponent;
 
+/* LIST OF FONTS
+Font'EngineFonts.SmallFont'
+Font'EngineFonts.TinyFont'
+MultiFont'UI_Fonts.MultiFonts.MF_HugeFont'
+MultiFont'UI_Fonts.MultiFonts.MF_HudSmall'
+MultiFont'UI_Fonts_Final.HUD.MF_Medium'
+*/
+
 var(Component, Display) privatewrite string			Text;
+/** Whether this label text should be localized(translated). */
+var(Component, Display) bool						bLocalizeText;
 var(Component, Display) Color						TextColor;
-var(Component, Display) const Font					TextFont;
+var(Component, Display) Font						TextFont;
 var(Component, Display) const FontRenderInfo		TextRenderInfo;
 var(Component, Display) const Vector2D				TextFontScaling;
 
@@ -48,6 +58,15 @@ var(Component, Positioning) const Vector2D			RelativeOffset;
 
 delegate OnTextChanged( FComponent sender );
 
+function InitializeComponent()
+{
+	super.InitializeComponent();
+	if( bLocalizeText )
+	{
+		Text = Localize( string(Name), Text, string(GetPackageName()) );
+	}
+}
+
 function RenderComponent( Canvas C )
 {
 	super.RenderComponent( C );
@@ -58,10 +77,12 @@ final function RenderLabel( Canvas C, float X, float Y, float W, float H, Color 
 {
 	local float AX, AY;
 //	local float cX, cY;
+	local FontRenderInfo renderInfo;
 
 	X += RelativeOffset.X;
 	Y += RelativeOffset.Y;
 
+	C.Font = TextFont != none ? TextFont : C.GetDefaultCanvasFont();
 	if( bClipComponent )
 	{
 		C.TextSize( Text, XL, YL );	
@@ -110,8 +131,14 @@ final function RenderLabel( Canvas C, float X, float Y, float W, float H, Color 
 
 	C.SetPos( AX, AY );
 	C.DrawColor = drawColor;
-	C.Font = TextFont != none ? TextFont : C.GetDefaultCanvasFont();
-	C.DrawText( Text, false, TextFontScaling.X, TextFontScaling.Y, TextRenderInfo );
+	renderInfo = C.CreateFontRenderInfo( 
+		TextRenderInfo.bClipText, 
+		TextRenderInfo.bEnableShadow,
+		TextRenderInfo.GlowInfo.GlowColor,
+		TextRenderInfo.GlowInfo.GlowOuterRadius,
+		TextRenderInfo.GlowInfo.GlowInnerRadius
+	);
+	C.DrawText( Text, false, TextFontScaling.X, TextFontScaling.Y, renderInfo );
 	
 	//if( TextRenderInfo.bClipText )
 	//{
@@ -147,6 +174,7 @@ defaultproperties
 	RelativeOffset=(X=0.0,Y=0.0)
 
 	Text="Label"
+	TextFont=Font'EngineFonts.SmallFont'
 	TextColor=(R=255,G=255,B=255,A=255)
 	TextAlign=TA_Left
 	TextVAlign=TA_Center
