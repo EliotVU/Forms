@@ -15,12 +15,19 @@
 */
 class FTabControl extends FMultiComponent;
 
-var(Component, Advanced) editinline FPage ActivePage;
+var(Component, Advanced) `{Automated} FPage ActivePage;
 
 /** The parent instance for the TabPages if not none! */
 var FPage TabPagesParent;
 
 delegate OnSwitch( FPage oldPage, FPage newPage );
+
+function Free()
+{
+	super.Free();
+	TabPagesParent = none;
+	ActivePage = none;
+}
 
 function Initialize( FController c )
 {
@@ -54,12 +61,6 @@ function Update( float DeltaTime )
 	{
 		ActivePage.Update( DeltaTime );
 	}
-}
-
-function Free()
-{
-	super.Free();
-	ActivePage = none;
 }
 
 // Ignore self

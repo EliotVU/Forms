@@ -17,6 +17,12 @@ class FScrollPage extends FPage;
 
 var `{Automated} FScrollBar ScrollBar;
 
+function Free()
+{
+	super.Free();
+	ScrollBar = none;
+}
+
 function InitializeComponent()
 {
 	ScrollBar = new(self) class'FScrollBar';

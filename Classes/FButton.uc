@@ -51,12 +51,12 @@ function RenderComponent( Canvas C )
 
 function RenderButton( Canvas C )
 {
-	if( HasFocus() )
-	{
-		C.SetPos( LeftX, C.CurY );
-		C.DrawColor = Style.FocusColor;
-		C.DrawBox( WidthX, HeightY );
-	}
+	//if( HasFocus() )
+	//{
+		//C.SetPos( LeftX, C.CurY );
+		//C.DrawColor = Style.FocusColor;
+		//C.DrawBox( WidthX, HeightY );
+	//}
 
 	if( bRenderCaption && Text != "" )
 	{

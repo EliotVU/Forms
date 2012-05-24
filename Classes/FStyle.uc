@@ -145,7 +145,14 @@ function DrawShadow( Canvas C, float width, float height )
 
 function Free()
 {
+	local FElement el;
+	
+	foreach Elements( el )
+	{
+		el.Free();
+	}
 	Elements.Length = 0;
+	
 	Image = none;
 	Shadow = none;
 	Material = none;

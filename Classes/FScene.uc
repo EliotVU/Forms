@@ -323,6 +323,7 @@ protected function RenderDebug( Canvas C )
 {
 	C.SetPos( 0, 0 );
 	C.DrawColor = class'HUD'.default.WhiteColor;
+	C.DrawColor.A = 100;
 	C.DrawText( "MP:" $ MousePosition.X $ "," $ MousePosition.Y, true );
 	C.DrawText( "HC:" $ HoveredComponent, true );
 	C.DrawText( "SC:" $ SelectedComponent, true );

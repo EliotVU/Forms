@@ -26,6 +26,12 @@ var() protected transient float VisibleHeight;
 var protected transient float ClickOffset;
 var protected transient float InterpolatedValue;
 
+function Free()
+{
+	super.Free();
+	MaskComponent = none;
+}
+
 /** Must be called after all components in MaskComponent have been initialized! */
 function InitializeScrollBar()
 {

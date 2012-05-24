@@ -31,6 +31,10 @@ delegate OnValueChanged( FComponent sender );
 function Free()
 {
 	super.Free();
+	Previous = none;
+	SelectedChoice = none;
+	Next = none;
+	
 	if( PreviousButtonStyle != none )
 	{
 		PreviousButtonStyle.Free();

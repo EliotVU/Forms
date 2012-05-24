@@ -65,10 +65,10 @@ struct Boundary
 	var bool bEnabled;
 };
 /** Max/Min width for this component. */
-var(Component, Positioning) privatewrite Boundary WidthBoundary;
+var(Component, Positioning) Boundary WidthBoundary;
 
 /** Max/Min height for this component. */
-var(Component, Positioning) privatewrite Boundary HeightBoundary;
+var(Component, Positioning) Boundary HeightBoundary;
 
 /** The width of the component will be set to that of height in pixels. */
 var(Component, Positioning) bool bJustify;

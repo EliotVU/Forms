@@ -32,6 +32,12 @@ var protected byte W, H;
 var protected Vector ColorVect1, ColorVect2;
 var protected float ColorA1, ColorA2;
 
+function Free()
+{
+	super.Free();
+	Pixel = none;
+}
+
 function Initialize()
 {
 	Refresh();

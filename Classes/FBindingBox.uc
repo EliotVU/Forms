@@ -22,6 +22,13 @@ var(Component, Display) string ActionName;
 var(Component, Function) string ActionCommand;
 var int ActionIndex;
 
+function Free()
+{
+	super.Free();
+	ActionLabel = none;
+	ActionKey = none;
+}
+
 function InitializeComponent()
 {
 	local string bindKey;

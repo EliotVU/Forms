@@ -28,6 +28,12 @@ var transient IntPoint RelativeMousePosition;
 
 delegate OnValueChanged( FComponent sender );
 
+function Free()
+{
+	super.Free();
+	ProgressImage = none;
+}
+
 function MouseButtonPressed( FComponent sender, optional bool bRight )
 {
 	StartSliding();

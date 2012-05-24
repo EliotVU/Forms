@@ -22,6 +22,12 @@ var config const editconst TextureCoordinates	TrackImageNameCoords;
 
 var(Style, Colors) const Color TrackImageColor;
 
+function Free()
+{
+	super.Free();
+	TrackImage = none;
+}
+
 function Initialize()
 {
 	if( TrackImageName != "" )

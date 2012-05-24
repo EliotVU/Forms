@@ -58,6 +58,12 @@ var(Component, Positioning) const Vector2D			RelativeOffset;
 
 delegate OnTextChanged( FComponent sender );
 
+function Free()
+{
+	super.Free();
+	TextFont = none;
+}
+
 function InitializeComponent()
 {
 	super.InitializeComponent();

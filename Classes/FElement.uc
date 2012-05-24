@@ -18,6 +18,7 @@ class FElement extends Object;
 function Initialize();
 function Refresh();
 function RenderElement( Canvas C, FComponent Object );
+function Free();
 
 defaultproperties
 {

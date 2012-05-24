@@ -16,10 +16,10 @@
 class FTabButton extends FButton;
 
 /** The FPage this button controls. */
-var(Component, Display) editinline FPage TabPage;
+var(Component, Display) `{Automated} FPage TabPage;
 
 /** The FTabControler this button is associated with. */
-var(Component, Advanced) editinline FTabControl TabControl;
+var(Component, Advanced) `{Automated} FTabControl TabControl;
 
 /** When the set FPage is visibile, this button will be drawn using this color. */
 var(Component, Display) const Color ActiveColor;
@@ -42,7 +42,12 @@ function Initialize( FController c )
 function RenderComponent( Canvas C )
 {
 	super(FComponent).RenderComponent( C );
-	RenderBackground( C, TabControl.ActivePage == TabPage ? ActiveColor : Style.ImageColor );
+	C.DrawColor = ((TabControl.ActivePage == TabPage)
+		? Style.ActiveColor 
+		: (bRenderCaption && !bImageUseStateColor) 
+			? Style.ImageColor 
+			: GetStateColor());
+	RenderBackground( C, C.DrawColor );
 	RenderButton( C );
 }
 
@@ -55,6 +60,8 @@ function Free()
 
 defaultproperties
 {
-	ActiveColor=(R=94,G=94,B=94,A=255)
+	begin object name=oStyle
+		ActiveColor=(R=94,G=94,B=94,A=255)
+	end object
 	bAnimateOnHover=true
 }
