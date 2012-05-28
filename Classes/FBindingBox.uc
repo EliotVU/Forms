@@ -15,41 +15,64 @@
 */
 class FBindingBox extends FMultiComponent;
 
+const UNBOUND = "Unbound";
+
 var(Component, Advanced) `{Automated} FLabel ActionLabel;
+
 var(Component, Advanced) `{Automated} FInputBox ActionKey;
+var(Component, Advanced) `{Automated} FInputBox ActionSecondaryKey;
+
+var int PrimaryKeyIndex;
+var int SecondaryKeyIndex;
+
+var(Component, Function) bool bBindSecondary;
 
 var(Component, Display) string ActionName;
 var(Component, Function) string ActionCommand;
-var int ActionIndex;
 
 function Free()
 {
 	super.Free();
 	ActionLabel = none;
 	ActionKey = none;
+	ActionSecondaryKey = none;
 }
 
 function InitializeComponent()
 {
 	local string bindKey;
-
-	bindKey = GetBindedKeyForCommand( ActionCommand );
-	ActionLabel = new(self) class'FLabel';
+	
+	ActionLabel = FLabel(CreateComponent( class'FLabel' ));
 	ActionLabel.SetPos( 0.0, 0.0 );
-	ActionLabel.SetSize( 0.5, 1.0 );
+	ActionLabel.SetSize( 0.4, 1.0 );
 	ActionLabel.SetMargin( 0,0,0,0 );
 	ActionLabel.SetText( ActionName );
 	AddComponent( ActionLabel );
 
-	ActionKey = new(self) class'FInputBox';
-	ActionKey.SetPos( 0.5, 0.0 );
-	ActionKey.SetSize( 0.5, 1.0 );
+	ActionKey = FInputBox(CreateComponent( class'FInputBox' ));
+	ActionKey.SetPos( 0.4, 0.0 );
+	ActionKey.SetSize( 0.3, 1.0 );
 	ActionKey.SetMargin( 0,0,0,0 );
-	ActionKey.SetText( bindKey );
+	ActionKey.SetText( GetBindedKeyForCommand( ActionCommand, PrimaryKeyIndex, true ) );
 	ActionKey.OnTextChanged = BindChanged;
 	//ActionKey.OnDoubleClick = none;
 	//ActionKey.OnClick = ActionKey.StartEdit;
 	AddComponent( ActionKey );
+	
+	if( !bBindSecondary )
+		return;
+		
+	bindKey = GetBindedKeyForCommand( ActionCommand, SecondaryKeyIndex );
+	if( bindKey != UNBOUND )
+	{
+		ActionSecondaryKey = FInputBox(CreateComponent( class'FInputBox' ));
+		ActionSecondaryKey.SetPos( 0.7, 0.0 );
+		ActionSecondaryKey.SetSize( 0.3, 1.0 );
+		ActionSecondaryKey.SetMargin( 0,0,0,0 );
+		ActionSecondaryKey.SetText( bindKey );
+		ActionSecondaryKey.OnTextChanged = BindChanged;
+		AddComponent( ActionSecondaryKey );
+	}
 }
 
 function RenderComponent( Canvas C )
@@ -65,44 +88,68 @@ function BindChanged( FComponent sender )
 {
 	local PlayerInput myInput;
 	local name key;
+	local int keyIndex;
 
-	key = name(ActionKey.Text);
-	if( key == 'Unbound' )
+	switch( sender )
+	{
+		case ActionKey:
+			key = name(ActionKey.Text);
+			keyIndex = PrimaryKeyIndex;
+			break;
+	
+		case ActionSecondaryKey:
+			key = name(ActionSecondaryKey.Text);
+			keyIndex = SecondaryKeyIndex;
+			break;
+	}
+	
+	if( key == name(UNBOUND) )
 		return;
 		
-	if( ActionIndex == -1 )
+	if( keyIndex == INDEX_NONE )
 	{
-		`Log( "ActionIndex is negative!" );
+		`Log( "keyIndex is negative! Could'nt bind action" @ ActionCommand );
 		return;
 	}
 		
 	myInput = Controller.Player().PlayerInput;
-	myInput.Bindings[ActionIndex].Name = key;
-	myInput.Bindings[ActionIndex].Command = ActionCommand;
+	myInput.Bindings[keyIndex].Name = key;
+	myInput.Bindings[keyIndex].Command = ActionCommand;
 	myInput.SaveConfig();
 }
 
-final function string GetBindedKeyForCommand( string command )
+final function string GetBindedKeyForCommand( string command, out int bindIndex, optional bool second )
 {
 	local PlayerInput myInput;
-	local int BindIndex;
 	local int i;
 
 	myInput = Controller.Player().PlayerInput;
 	
-	BindIndex = -1;
+	bindIndex = INDEX_NONE;
 	for( i = 0; i < myInput.Bindings.Length; ++ i )
 	{
 		if( myInput.Bindings[i].Command ~= command 
 			&& (myInput.bUsingGamepad || InStr( myInput.Bindings[i].Name, "XboxTypeS" ) == -1 ) 
 			)
-		{
-			BindIndex = i;
-			break;
+		{	
+			if( (second && bindIndex != INDEX_NONE) )
+			{
+				bindIndex = i;		
+				break;
+			}
+			
+			
+			if( bindIndex == INDEX_NONE )
+			{
+				bindIndex = i;
+				if( !second )
+				{
+					break;
+				}
+			}
 		}
 	}
-	ActionIndex = BindIndex;
-	return BindIndex != -1 ? string(myInput.Bindings[BindIndex].Name) : "Unbound";
+	return bindIndex != INDEX_NONE ? string(myInput.Bindings[bindIndex].Name) : UNBOUND;
 }
 
 defaultproperties
@@ -117,6 +164,7 @@ defaultproperties
 	
 	ActionName="None"
 	ActionCommand=""
+	bBindSecondary=true
 
 	// TODO: Find out why "instanced" does not work or wait for Epic Games to support nested "Component" classes
 	/*begin object name=oLAction class=FLabel
