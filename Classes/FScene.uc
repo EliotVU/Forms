@@ -96,6 +96,13 @@ function Initialize( FController c )
 	LocalPlayer(C.Player().Player).ViewportClient.GetViewportSize( Size );
 }
 
+function InitializeComponent()
+{
+	super.InitializeComponent();
+	OnFocus = ComponentFocussed;
+	OnUnFocus = ComponentUnfocussed;
+}
+
 protected function LoadConfigurations()
 {
 	if( ClickSoundName != "" )
@@ -228,16 +235,10 @@ protected function MouseMove( FScene scene, float DeltaTime )
 				{
 					PlayHoverSound();
 
-					HoveredComponent.OnHover( HoveredComponent );
-					HoveredComponent.InteractionState = HoveredComponent.InteractionState | ES_Hover;
-					HoveredComponent.LastHoveredTime = `STime;
-					HoveredComponent.LastStateChangeTime = HoveredComponent.LastHoveredTime;
+					HoveredComponent.Hover();
 					if( LastHoveredComponent != none )
 					{
-						LastHoveredComponent.LastUnhoveredTime = `STime; 
-						LastHoveredComponent.LastStateChangeTime = LastHoveredComponent.LastUnhoveredTime;
-						LastHoveredComponent.OnUnHover( LastHoveredComponent );
-						LastHoveredComponent.InteractionState = LastHoveredComponent.InteractionState & ~ES_Hover;
+						LastHoveredComponent.UnHover();
 					}
 					LastHoveredComponent = HoveredComponent;
 				}
@@ -251,13 +252,19 @@ protected function MouseMove( FScene scene, float DeltaTime )
 		// Unhovered?
 		if( LastHoveredComponent != none )
 		{
-			LastHoveredComponent.LastUnhoveredTime = `STime; 
-			LastHoveredComponent.OnUnHover( LastHoveredComponent );
-			LastHoveredComponent.InteractionState = LastHoveredComponent.InteractionState & ~ES_Hover;
+			LastHoveredComponent.UnHover();
 			LastHoveredComponent = none;	
 		}
 		HoveredComponent = none;
 	}
+}
+
+protected function ResetCanvas( Canvas C )
+{
+	C.Reset();
+	C.SetPos( 0.0, 0.0 );
+	C.SetOrigin( 0.0, 0.0 );
+	C.SetClip( Size.X, Size.Y );
 }
 
 function Render( Canvas C )
@@ -281,11 +288,22 @@ function Render( Canvas C )
 	ResetCanvas( C );	
 	//UpdateSceneRatio();
 	super.Render( C );
+	`if( `isdefined( DEBUG ) )
+		if( bRenderRectangles )
+		{
+			RenderGrid( C );
+		}
+	`endif
 	RenderPages( C );
 	
 	OnPostRenderPages( C );
-
+	
 	`if( `isdefined( DEBUG ) )
+		if( bRenderRectangles )
+		{
+			RenderGridBar( C, false );
+			RenderGridBar( C, true );
+		}
 		RenderDebug( C );
 	`endif
 
@@ -298,12 +316,123 @@ function Render( Canvas C )
 	LastRenderTime = `STime;
 }
 
-protected function ResetCanvas( Canvas C )
+protected function RenderGrid( Canvas C )
 {
-	C.Reset();
-	C.SetPos( 0.0, 0.0 );
-	C.SetOrigin( 0.0, 0.0 );
-	C.SetClip( Size.X, Size.Y );
+	const gridSize = 28;
+	local int gridRows, gridColumns;
+	local float X, Y;
+	local int i;
+	
+	gridRows = HeightY/gridSize;
+	gridColumns = WidthX/gridSize;	
+	
+	// Grid color
+	C.SetDrawColor( 40, 40, 40, 74 );
+	
+	X = LeftX;
+	Y = TopY;
+	for( i = 0; i < gridRows; ++ i )
+	{
+		Y += gridSize;
+		C.SetPos( X, Y );
+		C.DrawRect( WidthX, 1 );
+	}
+	
+	X = LeftX;
+	Y = TopY;
+	for( i = 0; i < gridColumns; ++ i )
+	{
+		X += gridSize;
+		C.SetPos( X, Y );
+		C.DrawRect( 1, HeightY );
+	}
+}
+
+protected function RenderGridBar( Canvas C, bool bVertical )
+{
+	const gridSnap = 6.00;
+	local float gridAmount;
+	local float X, Y;
+	local float XL, YL;
+	local int i;
+	local string s;
+	
+	gridAmount = bVertical ? HeightY/gridSize : WidthX/gridSize;
+	X = LeftX;
+	Y = TopY;
+
+	C.SetPos( X, Y );
+	C.SetDrawColor( 255, 255, 255, 150 );
+	if( bVertical )
+	{
+		C.SetPos( X, Y + gridSize );
+		C.DrawRect( gridSize, HeightY - gridSize );
+	}
+	else
+	{
+		C.DrawRect( WidthX, gridSize );
+	}
+	
+	C.SetDrawColor( 200, 0, 0, 200 );
+	if( bVertical )
+	{
+		C.SetPos( X + (gridSize - 1), Y + gridSize );
+		C.DrawRect( 1, HeightY - gridSize );
+	}
+	else
+	{
+		C.SetPos( X + gridSize, Y + (gridSize - 1) );
+		C.DrawRect( WidthX - gridSize, 1 );	
+	}
+	
+	X = LeftX;
+	Y = TopY;
+	C.Font = Font'EngineFonts.TinyFont';
+	for( i = 1; i < WidthX/gridSize - 1; ++ i )
+	{
+		C.SetDrawColor( 140, 0, 0, 200 );
+		if( bVertical )
+		{
+			Y += gridSize;
+			C.SetPos( X + gridSize*0.5, Y );
+			C.DrawRect( gridSize*0.5, 1 );	
+		}
+		else
+		{
+			X += gridSize;
+			C.SetPos( X, Y + gridSize*0.5 );
+			C.DrawRect( 1, gridSize*0.5 );	
+		}
+		
+		s = string(int(((gridSize*i)/(gridSize*(gridAmount)))*100));
+		if( int(s) < 10 )
+		{
+			s = "0" $ s;
+		}
+		C.StrLen( s, XL, YL );
+		if( bVertical )
+		{
+			C.SetPos( (X + gridSize*0.5) - XL*0.5, Y - YL*0.5 );
+		}
+		else
+		{
+			C.SetPos( X - XL*0.5, (Y + gridSize*0.5) - YL*0.5 );
+		}
+		C.SetDrawColor( 70, 70, 70, 200 );
+		C.DrawText( s );
+	}
+	
+	C.SetDrawColor( 0, 0, 200 );
+	if( bVertical )
+	{
+		C.SetPos( LeftX, MousePosition.Y - MousePosition.Y%gridSnap );
+		C.DrawRect( gridSize, 1 );
+	}
+	else
+	{
+		C.SetPos( MousePosition.X - MousePosition.X%gridSnap, TopY );
+		C.DrawRect( 1, gridSize );
+	}
 }
 
 protected function RenderPages( Canvas C )
@@ -324,7 +453,6 @@ protected function RenderDebug( Canvas C )
 	C.SetPos( 0, 0 );
 	C.DrawColor = class'HUD'.default.WhiteColor;
 	C.DrawColor.A = 100;
-	C.DrawText( "MP:" $ MousePosition.X $ "," $ MousePosition.Y, true );
 	C.DrawText( "HC:" $ HoveredComponent, true );
 	C.DrawText( "SC:" $ SelectedComponent, true );
 	if( HoveredComponent != none )
@@ -335,16 +463,54 @@ protected function RenderDebug( Canvas C )
 
 protected function RenderCursor( Canvas C )
 {
+	local float cursorSizeX, cursorSizeY;
+	
+	// Fun stuff.
+	//if( SelectedComponent != none )
+	//{
+		//Player().myHUD.Canvas = C;
+		//Player().myHUD.Draw2DLine( 
+			//SelectedComponent.GetLeft() + SelectedComponent.GetWidth()*0.5, 
+			//SelectedComponent.GetTop() + SelectedComponent.GetHeight()*0.5,
+			//MousePosition.X, MousePosition.Y,
+			//class'HUD'.default.RedColor
+		//);
+	//}
+	
 	C.SetPos( MousePosition.X, MousePosition.Y );
 	C.DrawColor = class'HUD'.default.WhiteColor;
-	if( hoveredComponent != none && hoveredComponent.bSupportSelection )
+	if( HoveredComponent != none && HoveredComponent.bSupportSelection )
 	{
-		C.DrawTile( CursorsImage, CursorTouchCoords.UL * CursorScaling, CursorTouchCoords.VL * CursorScaling, CursorTouchCoords.U, CursorTouchCoords.V, CursorTouchCoords.UL, CursorTouchCoords.VL );
+		cursorSizeX = CursorTouchCoords.UL * CursorScaling;
+		cursorSizeY = CursorTouchCoords.VL * CursorScaling;
+	
+		C.DrawTile( CursorsImage, cursorSizeX, cursorSizeY, 
+			CursorTouchCoords.U, CursorTouchCoords.V, CursorTouchCoords.UL, CursorTouchCoords.VL 
+		);
 	} 
 	else
 	{
-		C.DrawTile( CursorsImage, CursorPointCoords.UL * CursorScaling, CursorPointCoords.VL * CursorScaling, CursorPointCoords.U, CursorPointCoords.V, CursorPointCoords.UL, CursorPointCoords.VL );
-	}	
+		cursorSizeX = CursorPointCoords.UL * CursorScaling;
+		cursorSizeY = CursorPointCoords.VL * CursorScaling;
+		
+		C.DrawTile( CursorsImage, cursorSizeX, cursorSizeY, 
+			CursorPointCoords.U, CursorPointCoords.V, CursorPointCoords.UL, CursorPointCoords.VL 
+		);
+	}
+	
+	`if( `isdefined( DEBUG ) )
+		if( bRenderRectangles )
+		{
+			C.SetDrawColor( 240, 240, 240, 200 );
+			
+			C.SetPos( MousePosition.X, MousePosition.Y + cursorSizeY + 8 );	
+			C.Font = Font'EngineFonts.TinyFont';
+			C.DrawText( "X:" @ MousePosition.X );
+
+			C.SetPos( MousePosition.X + cursorSizeX + 8, MousePosition.Y );	
+			C.DrawText( "Y:" @ MousePosition.Y );
+		}
+	`endif
 }
 
 function Free()
@@ -352,7 +518,6 @@ function Free()
 	// To make sure we remove postprocess and undo pause.
 	SetVisible( false );
 	Pages.Length = 0;
-	MenuPostProcessChain = none;
 	CursorsImage = none;
 	ClickSound = none;
 	HoverSound = none;
@@ -434,7 +599,7 @@ final simulated function FPage OpenPage( class<FPage> pageClass )
 
 final function AddPage( FPage page )
 {
-	if( Pages.Find( page ) != -1 )
+	if( Pages.Find( page ) != INDEX_NONE )
 		return;
 
 	`if( `isdefined( DEBUG ) )
@@ -452,7 +617,6 @@ final function AddPage( FPage page )
 	OnPageAdded( page );
 }
 
-// TODO: Handle free'ing
 final simulated function ClosePage( optional bool bCloseAll )
 {
 	if( Pages.Length == 0 )
@@ -518,9 +682,9 @@ function OnVisibleChanged( FComponent sender )
 	if( bVisible )
 	{
 		Controller.Player().PlayerInput.ResetInput();
-		if( MenuPostProcessChainIndex == -1 && MenuPostProcessChain != none )
+		if( MenuPostProcessChainIndex == INDEX_NONE && MenuPostProcessChain != none )
 		{
-			MenuPostProcessChainIndex = LocalPlayer(Controller.Player().Player).InsertPostProcessingChain( MenuPostProcessChain, 0, false ) ? 0 : -1;
+			MenuPostProcessChainIndex = LocalPlayer(Controller.Player().Player).InsertPostProcessingChain( MenuPostProcessChain, 0, false ) ? 0 : INDEX_NONE;
 		}
 
 		if( bPausedWhileVisible )
@@ -530,10 +694,10 @@ function OnVisibleChanged( FComponent sender )
 	}
 	else
 	{
-		if( MenuPostProcessChainIndex != -1 )
+		if( MenuPostProcessChainIndex != INDEX_NONE )
 		{
 			LocalPlayer(Controller.Player().Player).RemovePostProcessingChain( MenuPostProcessChainIndex );
-			MenuPostProcessChainIndex = -1;
+			MenuPostProcessChainIndex = INDEX_NONE;
 		}
 
 		if( bPausedWhileVisible )
@@ -750,16 +914,8 @@ function Click( FComponent sender, optional bool bRight )
 	LastSelectedComponent = SelectedComponent;
 }
 
-function Focus()
-{
-	OnFocus( self );
-}
-
-function UnFocus()
-{
-	SelectedComponent = none;
-	OnUnFocus( self );
-}
+function ComponentFocussed( FComponent sender );
+function ComponentUnfocussed( FComponent sender );
 
 final function PlayHoverSound()
 {
@@ -820,5 +976,5 @@ defaultproperties
 	bTimeOutScene=true
 	MouseSceneTimeOut=15.0
 
-	MenuPostProcessChainIndex=-1
+	MenuPostProcessChainIndex=INDEX_NONE
 }
