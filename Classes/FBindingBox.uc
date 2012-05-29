@@ -49,15 +49,19 @@ function InitializeComponent()
 	ActionLabel.SetText( ActionName );
 	AddComponent( ActionLabel );
 
-	ActionKey = FInputBox(CreateComponent( class'FInputBox' ));
-	ActionKey.SetPos( 0.4, 0.0 );
-	ActionKey.SetSize( 0.3, 1.0 );
-	ActionKey.SetMargin( 0,0,0,0 );
-	ActionKey.SetText( GetBindedKeyForCommand( ActionCommand, PrimaryKeyIndex, true ) );
-	ActionKey.OnTextChanged = BindChanged;
-	//ActionKey.OnDoubleClick = none;
-	//ActionKey.OnClick = ActionKey.StartEdit;
-	AddComponent( ActionKey );
+	bindKey = GetBindedKeyForCommand( ActionCommand, PrimaryKeyIndex, true );
+	if( bindKey != UNBOUND )
+	{
+		ActionKey = FInputBox(CreateComponent( class'FInputBox' ));
+		ActionKey.SetPos( 0.4, 0.0 );
+		ActionKey.SetSize( 0.3, 1.0 );
+		ActionKey.SetMargin( 0,0,0,0 );
+		ActionKey.SetText( bindKey );
+		ActionKey.OnTextChanged = BindChanged;
+		//ActionKey.OnDoubleClick = none;
+		//ActionKey.OnClick = ActionKey.StartEdit;
+		AddComponent( ActionKey );
+	}
 	
 	if( !bBindSecondary )
 		return;
@@ -112,19 +116,19 @@ function BindChanged( FComponent sender )
 		return;
 	}
 		
-	myInput = Controller.Player().PlayerInput;
+	myInput = Player().PlayerInput;
 	myInput.Bindings[keyIndex].Name = key;
 	myInput.Bindings[keyIndex].Command = ActionCommand;
 	myInput.SaveConfig();
 }
 
+// 'second' is actually primary assuming that the bindings are configured in reverse order.
 final function string GetBindedKeyForCommand( string command, out int bindIndex, optional bool second )
 {
 	local PlayerInput myInput;
 	local int i;
 
-	myInput = Controller.Player().PlayerInput;
-	
+	myInput = Player().PlayerInput;
 	bindIndex = INDEX_NONE;
 	for( i = 0; i < myInput.Bindings.Length; ++ i )
 	{
@@ -154,13 +158,8 @@ final function string GetBindedKeyForCommand( string command, out int bindIndex,
 
 defaultproperties
 {
-	`if( `isdefined(DEBUG) )
-		bSupportSelection=true
-		bSupportHovering=true
-	`else
-		bSupportSelection=false
-		bSupportHovering=false
-	`endif
+	bSupportSelection=`devmode
+	bSupportHovering=`devmode
 	
 	ActionName="None"
 	ActionCommand=""

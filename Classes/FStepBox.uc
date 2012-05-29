@@ -50,6 +50,7 @@ function Free()
 
 function InitializeComponent()
 {
+	super.InitializeComponent();
 	Previous = FButton(CreateComponent( class'FButton' ));
 	Previous.SetPos( 0.0, 0.0 );
 	Previous.SetSize( 0.15, 1.0 );
@@ -142,13 +143,8 @@ defaultproperties
 {
 	Padding=(X=2,Y=2,W=2,Z=2)
 	
-	`if( `isdefined(DEBUG) )
-		bSupportSelection=true
-		bSupportHovering=true
-	`else
-		bSupportSelection=false
-		bSupportHovering=false
-	`endif
+	bSupportSelection=`devmode
+	bSupportHovering=`devmode
 	
 	begin object name=oPreviousButtonStyle class=FStyle
 	end object

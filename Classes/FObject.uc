@@ -15,7 +15,7 @@
 */
 class FObject extends Object
 	hidecategories(None,Object)
-	autocollapsecategories(all)
+	autocollapsecategories(Component)
 	abstract;
 
 function Free();

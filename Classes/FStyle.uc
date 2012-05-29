@@ -139,7 +139,7 @@ function DrawShadow( Canvas C, float width, float height )
 	C.DrawColor = ShadowColor;
 	C.SetPos( C.CurX - ShadowSize, C.CurY - ShadowSize );
 	C.SetClip( C.ClipX + ShadowSize, C.ClipY + ShadowSize );
-	C.DrawTile( Image, width + ShadowSize*2, height + ShadowSize*2, ShadowCoords.U, ShadowCoords.V, UL, VL );
+	C.DrawTile( Image, width + ShadowSize*2, height + ShadowSize*2, ShadowCoords.U, ShadowCoords.V, UL, VL, ColorToLinearColor( ShadowColor ) );
 	C.SetClip( C.ClipX - ShadowSize, C.ClipY - ShadowSize );
 }
 

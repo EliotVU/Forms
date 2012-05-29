@@ -69,7 +69,7 @@ function InitializeComponent()
 	super.InitializeComponent();
 	if( bLocalizeText )
 	{
-		Text = Localize( string(Name), Text, string(GetPackageName()) );
+		Text = Localize( string(Name), Text, "Forms" );
 	}
 }
 
@@ -190,12 +190,6 @@ defaultproperties
 	TextDecorationSize=1
 	TextDecorationColor=(R=255,G=255,B=255,A=255)
 
-	`if( `isdefined( DEBUG ) )
-		bEnabled=true
-	`else
-		// Disable any interaction
-		bEnabled=false
-	`endif
-
+	bEnabled=`devmode
 	bClipComponent=true
 }

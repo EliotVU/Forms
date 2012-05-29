@@ -76,4 +76,6 @@ defaultproperties
 		DisabledColor=(R=255,G=0,B=0,A=255)
 	end object
 	Style=oStyle
+	
+	bEnabled=true
 }

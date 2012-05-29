@@ -44,21 +44,10 @@ final function bool OnKeyInput( int ControllerId, name Key, EInputEvent EventTyp
 	if( Scene == none )
 		return false;
 
-	if( Scene.CanInteract() )
+	if( Scene.CanInteract() && Scene.OnKeyInput( Key, EventType ) )
 	{
-		`if( `DEBUG )
-			Player().ClientMessage( string(Key) );
-		`endif
-
-		if( Scene.OnKeyInput( Key, EventType ) )
-		{
-			// HACK: Don't break "ShowMenu"
-			if( Key == 'Escape' )
-			{
-				return false;
-			}
-			return true;
-		}
+		// HACK: Don't break "ShowMenu"
+		return Key != 'Escape';
 	}
 	return false;
 }

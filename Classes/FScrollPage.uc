@@ -25,7 +25,8 @@ function Free()
 
 function InitializeComponent()
 {
-	ScrollBar = new(self) class'FScrollBar';
+	super.InitializeComponent();
+	ScrollBar = FScrollBar(CreateComponent( class'FScrollBar' ));
 	ScrollBar.MaskComponent = self;
 	AddComponent( ScrollBar );
 

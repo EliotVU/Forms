@@ -2,4 +2,10 @@
 `define STimeSince(Time)		(`STime - `Time)
 `define Automated				editinline 
 
+`if( `isdefined( DEBUG ) )
+	`define devmode true
+`else
+	`define devmode false
+`endif
+
 

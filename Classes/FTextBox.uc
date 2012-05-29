@@ -48,7 +48,7 @@ function RenderComponent( Canvas C )
 		// Carret
 		if( bCarret )
 		{
-			if( (class'WorldInfo'.static.GetWorldInfo().RealTimeSeconds - LastCarretMoveTime) % 0.5 <= 0.4 )
+			if( (`STime - LastCarretMoveTime) % 0.5 <= 0.4 )
 			{
 				S = Left( Text, CarretIndex );
 				C.StrLen( S, XL, YL );
@@ -67,14 +67,14 @@ function StartEdit( FComponent sender, optional bool bRight )
 
 	super.StartEdit( sender, bRight );
 	CarretIndex = Len( Text );
-	LastCarretMoveTime = class'WorldInfo'.static.GetWorldInfo().RealTimeSeconds;
+	LastCarretMoveTime = `STime;
 }
 
 function StopEdit( FComponent sender )
 {
 	super.StopEdit( sender );
 	CarretIndex = 0;
-	LastCarretMoveTime = class'WorldInfo'.static.GetWorldInfo().RealTimeSeconds;
+	LastCarretMoveTime = `STime;
 }
 
 function bool KeyInput( name Key, EInputEvent EventType )
@@ -137,13 +137,13 @@ function bool KeyInput( name Key, EInputEvent EventType )
 final function MoveCarretLeft()
 {
 	CarretIndex = Max( CarretIndex-1, 0 );
-	LastCarretMoveTime = class'WorldInfo'.static.GetWorldInfo().RealTimeSeconds;
+	LastCarretMoveTime = `STime;
 }
 
 final function MoveCarretRight()
 {
 	CarretIndex = Min( CarretIndex+1, Len( Text ) );	
-	LastCarretMoveTime = class'WorldInfo'.static.GetWorldInfo().RealTimeSeconds;
+	LastCarretMoveTime = `STime;
 }
 
 function bool CharInput( string Unicode )
