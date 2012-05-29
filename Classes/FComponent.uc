@@ -166,7 +166,7 @@ delegate OnUnActive( FComponent sender );
 function Initialize( FController c )
 {
 	Controller = c;
-	`Log( Name $ "Initialize" );
+	`Log( Name $ "Initialize",, 'FormsInit' );
 
 	if( bInitialized )
 		return;
@@ -237,8 +237,12 @@ function Render( Canvas C )
 	}
 
 	C.SetPos( LeftX, TopY );
-	RenderStyle( C );
-	RenderComponent( C );
+	if( Style != none )
+	{
+		RenderStyle( C );
+		C.SetPos( LeftX, TopY );
+		RenderComponent( C );
+	}
 	OnPostRender( self, C );
 
 	`if( `isdefined( DEBUG ) )
@@ -268,11 +272,6 @@ function Render( Canvas C )
 /** Draw all assigned elements from the Style object, these elements could be borders or backgrounds etcetera. */
 function RenderStyle( Canvas C )
 {
-	if( Style == none )
-	{
-		`Log( Name @ "has no Style reference!" );
-		return;
-	}
 	Style.Render( C );
 	Style.RenderElements( C, self );
 }
@@ -296,6 +295,9 @@ function Free()
 
 final function SetStyle( FStyle newStyle )
 {
+	if( newStyle == none )
+		return;
+		
 	Style = newStyle;
 	Style.Initialize();
 	Controller.Scene.AddToPool( Style );
@@ -450,39 +452,65 @@ final function bool Collides( IntPoint mousePosition )
 }
 
 /** Notify that the component is selected! */
-function Focus()
+final function Focus()
 {
-	Scene().Focus();
-
 	LastFocusedTime = `STime;
 	LastStateChangeTime = LastFocusedTime;
 	InteractionState = InteractionState | ES_Selected;
 	OnFocus( self );
+	
+	Scene().OnFocus( self );
 }
 
 /** Notify that the component is no longer selected! */
-function UnFocus()
+final function UnFocus()
 {
 	LastUnfocusedTime = `STime;
 	LastStateChangeTime = LastUnfocusedTime;
 	InteractionState = InteractionState & ~ES_Selected;
 	OnUnFocus( self );
+	
+	Scene().OnUnFocus( self );
 }
 
-function Active()
+final function Active()
 {
 	LastActiveTime = `STime;
 	LastStateChangeTime = LastActiveTime;
 	InteractionState = InteractionState | ES_Active;
 	OnActive( self );
+	
+	Scene().OnActive( self );
 }
 
-function UnActive()
+final function UnActive()
 {
 	LastUnactiveTime = `STime;
 	LastStateChangeTime = LastUnactiveTime;
 	InteractionState = InteractionState & ~ES_Active;
 	OnUnActive( self );
+	
+	Scene().OnUnActive( self );
+}
+
+final function Hover()
+{
+	LastHoveredTime = `STime;
+	LastStateChangeTime = LastHoveredTime;
+	InteractionState = InteractionState | ES_Hover;
+	OnHover( self );
+	
+	Scene().OnHover( self );
+}
+
+final function UnHover()
+{
+	LastUnhoveredTime = `STime; 
+	LastStateChangeTime = LastUnhoveredTime;
+	InteractionState = InteractionState & ~ES_Hover;
+	OnUnHover( self );
+	
+	Scene().OnUnHover( self );
 }
 
 //=====================================================
@@ -561,10 +589,11 @@ final function Color GetStateColor( optional Color defaultColor = Style.ImageCol
 
 final function FadingSwapColor( out Color newColor, Color destColor, float oldColorTime )
 {
+	const FadingSwapTime = 4.0;
 	local float pct;
 	
-	pct = (0.0 + FMin( `STimeSince( oldColorTime ), 1.0 ));
-	newColor = LastStateColor + destColor * pct - LastStateColor  * pct;
+	pct = FMin( `STimeSince( oldColorTime ) / FadingSwapTime, 1.0 );
+	newColor = LastStateColor+destColor * pct-LastStateColor  * pct;
 	newColor.A = destColor.A;
 }
 
