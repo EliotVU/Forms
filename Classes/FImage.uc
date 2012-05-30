@@ -30,13 +30,8 @@ function RenderImage( Canvas C )
 
 defaultproperties
 {
-	RelativePosition=(X=0.01,Y=0.01)
-	RelativeSize=(X=0.2,Y=0.2)
+	RelativePosition=(X=0.0,Y=0.0)
+	RelativeSize=(X=64,Y=64)
 
-	`if( `isdefined( DEBUG ) )
-		bEnabled=true
-	`else
-		// Disable any interaction
-		bEnabled=false
-	`endif
+	bEnabled=`devmode
 }

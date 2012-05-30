@@ -969,7 +969,7 @@ defaultproperties
 	bRenderCursor=true
 	bConsiderAspectRatio=false
 	bPausedWhileVisible=false
-	bWiggleScene=true
+	bWiggleScene=false
 	
 	bTimeOutCursor=true
 	MouseCursorTimeOut=3.0

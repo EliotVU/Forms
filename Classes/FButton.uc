@@ -23,18 +23,20 @@ var(Component, Display) float AnimateOffset;
 var protected transient float TextMoveOffset;
 
 // TODO: Using DeltaTime from Tick breaks the speed O_O
-function Update( float DeltaTime )
+function Update( float deltaTime )
 {
-	super.Update( DeltaTime );
+	// FIXME: deltaTime is always -1.0.
+	deltaTime = Scene().RenderDeltaTime;
+	super.Update( deltaTime );
 	if( bAnimateOnHover )
 	{
 		if( IsHovered() )
 		{
-			TextMoveOffset = FMin( TextMoveOffset + AnimateSpeed * Scene().RenderDeltaTime, AnimateOffset );
+			TextMoveOffset = FMin( TextMoveOffset + AnimateSpeed*deltaTime, AnimateOffset );
 		}
 		else if( TextMoveOffset > 0.0 )
 		{
-			TextMoveOffset = FMax( TextMoveOffset - AnimateSpeed * Scene().RenderDeltaTime, 0.0 );
+			TextMoveOffset = FMax( TextMoveOffset - AnimateSpeed*deltaTime, 0.0 );
 		}
 	}
 }
@@ -78,6 +80,6 @@ defaultproperties
 
 	bEnabled=true
 
-	AnimateSpeed=10
+	AnimateSpeed=15
 	AnimateOffset=6
 }

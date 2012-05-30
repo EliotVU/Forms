@@ -68,6 +68,7 @@ function Update( float DeltaTime )
  */
 function Free()
 {
+	OnComponentInitialized = none;
 	Components.Length = 0;
 	super.Free();
 }
