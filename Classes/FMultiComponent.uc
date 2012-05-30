@@ -21,7 +21,7 @@ var(Component, Advanced) protectedwrite editinline array<FComponent> Components;
 /** Called for each component that is initialized and owned by this component. */
 delegate OnComponentInitialized( FComponent component );
 
-function Initialize( FController c )
+function Initialize( FIController c )
 {
 	local FComponent component;
 
@@ -113,7 +113,7 @@ function RemoveComponent( FComponent component, optional bool freeComponent = fa
 
 	if( freeComponent )
 	{
-		Controller.Scene.FreeObject( component );
+		Scene().FreeObject( component );
 	}
 }
 

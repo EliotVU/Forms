@@ -21,7 +21,7 @@ class FComponent extends FObject
 	abstract;
 
 /** Cannot be used(same for other objects) from delegate events if that delegate is initialized via the DefaultProperties block! */
-var transient editconst FController Controller;
+var transient editconst FIController Controller;
 
 /** Cannot be used(same for other objects) from delegate events if that delegate is initialized via the DefaultProperties block! */
 var(Component, Advanced) noclear editconst FComponent Parent;
@@ -163,7 +163,7 @@ delegate OnActive( FComponent sender );
 delegate OnUnActive( FComponent sender );
 
 /** Initializes this object. */
-function Initialize( FController c )
+function Initialize( FIController c )
 {
 	Controller = c;
 	`Log( Name $ "Initialize",, 'FormsInit' );
@@ -176,7 +176,7 @@ function Initialize( FController c )
 		FMultiComponent(Parent).OnComponentInitialized( self );
 	}
 	
-	Controller.Scene.AddToPool( self );
+	Scene().AddToPool( self );
 	OnVisibleChanged( self );
 	OnEnabledChanged( self );
 
@@ -246,7 +246,7 @@ function Render( Canvas C )
 	OnPostRender( self, C );
 
 	`if( `isdefined( DEBUG ) )
-		if( Controller.Scene.bRenderRectangles )
+		if( Scene().bRenderRectangles )
 		{
 			C.SetPos( 0, 0 );	
 			C.DrawColor = class'HUD'.default.GreenColor;
@@ -300,7 +300,7 @@ final function SetStyle( FStyle newStyle )
 		
 	Style = newStyle;
 	Style.Initialize();
-	Controller.Scene.AddToPool( Style );
+	Scene().AddToPool( Style );
 }
 
 final function SetPos( const float X, const float Y )
@@ -518,7 +518,7 @@ final function UnHover()
 
 final function FScene Scene()
 {
-	return Controller.Scene;
+	return Controller.Scene();
 }
 
 final function PlayerController Player()
@@ -528,7 +528,7 @@ final function PlayerController Player()
 
 final function string ConsoleCommand( string command )
 {
-	return Controller.Outer.ConsoleCommand( command );
+	return Controller.Player().ConsoleCommand( command );
 }
 
 final function RenderBackground( Canvas C, Color drawColor = Style.ImageColor )

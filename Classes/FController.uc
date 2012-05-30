@@ -17,20 +17,20 @@
 // FController: The Input processing, updating and drawing redirector for the 'FScene' class.
 // Within: We use within so we don't have to cast PlayerController on the Outer reference!
 //=============================================================================
-class FController extends Interaction within UDKPlayerController
+class FController extends Interaction within UDKPlayerController implements(FIController)
 	config(Forms);
 
 /** Pointer to our FScene instance. All events are redirected to the Scene and processed by the Scene. */
-var() privatewrite editinline FScene Scene;
+var() privatewrite editinline FScene ScenePointer;
 
 final function InitializeScene( optional class<FScene> sceneClass = class'FScene' )
 {
-	if( Scene == none )
+	if( ScenePointer == none )
 	{
-		Scene = new( none, "Forms" ) sceneClass;
-		if( Scene != none )
+		ScenePointer = new( none, "Forms" ) sceneClass;
+		if( ScenePointer != none )
 		{
-			Scene.Initialize( self );
+			ScenePointer.Initialize( self );
 		}
 		else
 		{
@@ -41,10 +41,10 @@ final function InitializeScene( optional class<FScene> sceneClass = class'FScene
 
 final function bool OnKeyInput( int ControllerId, name Key, EInputEvent EventType, optional float AmountDepressed=1.f, optional bool bGamepad )
 {
-	if( Scene == none )
+	if( ScenePointer == none )
 		return false;
 
-	if( Scene.CanInteract() && Scene.OnKeyInput( Key, EventType ) )
+	if( ScenePointer.CanInteract() && ScenePointer.OnKeyInput( Key, EventType ) )
 	{
 		// HACK: Don't break "ShowMenu"
 		return Key != 'Escape';
@@ -54,51 +54,56 @@ final function bool OnKeyInput( int ControllerId, name Key, EInputEvent EventTyp
 
 final function bool OnCharInput( int ControllerId, string Unicode )
 {
-	if( Scene != none && Scene.CanInteract() )
+	if( ScenePointer != none && ScenePointer.CanInteract() )
 	{
-		return Scene.OnCharInput( Unicode );
+		return ScenePointer.OnCharInput( Unicode );
 	}	
 	return false;
 }
 
 event Tick( float DeltaTime )
 {
-	if( Scene != none && Scene.CanRender() )
+	if( ScenePointer != none && ScenePointer.CanRender() )
 	{
-		Scene.Update( DeltaTime );	
+		ScenePointer.Update( DeltaTime );	
 	}
 }
 
 event PostRender( Canvas C )	
 {
-	if( Scene != none )
+	if( ScenePointer != none )
 	{
 		// DIRTY HACK: To get updates while the game is paused.
 		if( Outer.WorldInfo.Pauser != none )
 		{
-			Scene.Update( `STimeSince( Scene.LastRenderTime ) );	
+			ScenePointer.Update( `STimeSince( ScenePointer.LastRenderTime ) );	
 		}
 
-		if( Scene.CanRender() )
+		if( ScenePointer.CanRender() )
 		{
-			Scene.Render( C );
+			ScenePointer.Render( C );
 		}
 	}
 }
 
 function NotifyGameSessionEnded()
 {
-	`Log( "NotifyGameSessionEnded!" );
-	if( Scene != none )
+	`Log( "NotifyGameSessionEnded!",, 'Forms' );
+	if( ScenePointer != none )
 	{
-		Scene.Free();
-		Scene = none;
+		ScenePointer.Free();
+		ScenePointer = none;
 	}
 }
 
 final function PlayerController Player()
 {
-	return Outer;//GetLocalPlayer( 0 ).Actor;
+	return Outer;
+}
+
+final function FScene Scene()
+{
+	return ScenePointer;
 }
 
 defaultproperties

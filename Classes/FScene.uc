@@ -80,7 +80,7 @@ delegate OnPageAdded( FPage sender );
 
 delegate OnPostRenderPages( Canvas C );
 
-function Initialize( FController c )
+function Initialize( FIController c )
 {
 	local FPage page;
 
@@ -150,7 +150,7 @@ protected function UpdateMouse( float DeltaTime )
 	local Vector2D vector2DMP;
 
 	LastMousePosition = MousePosition;
-	vector2DMP = LocalPlayer(Controller.Outer.Player).ViewportClient.GetMousePosition();
+	vector2DMP = LocalPlayer(Controller.Player().Player).ViewportClient.GetMousePosition();
 	MousePosition.X = vector2DMP.X;
 	MousePosition.Y = vector2DMP.Y;
 	if( MousePosition != LastMousePosition && OnMouseMove != none )

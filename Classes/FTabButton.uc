@@ -24,7 +24,7 @@ var(Component, Advanced) `{Automated} FTabControl TabControl;
 /** When the set FPage is visibile, this button will be drawn using this color. */
 var(Component, Display) const Color ActiveColor;
 
-function Initialize( FController c )
+function Initialize( FIController c )
 {
 	super.Initialize( c );
 	TabControl = FTabControl(Parent);

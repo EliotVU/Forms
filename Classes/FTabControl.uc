@@ -27,9 +27,10 @@ function Free()
 	super.Free();
 	TabPagesParent = none;
 	ActivePage = none;
+	OnSwitch = none;
 }
 
-function Initialize( FController c )
+function Initialize( FIController c )
 {
 	local FComponent component;
 

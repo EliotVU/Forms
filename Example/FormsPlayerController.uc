@@ -40,6 +40,8 @@ var() FPage					EscapeMenu;
 /** Pages that need to be opened once the game is ready. Overrides MainMenu! */
 var() array< class<FPage> > PagesQue;
 
+var() PostProcessChain		MenuPostProcessChain;
+
 /**
  * This is overriden so that we can add our 'FController' interaction before the 'Input' interaction, -
  *	while also initializing the 'FScene' class after 'Input' has been initialized.
@@ -77,10 +79,10 @@ simulated function SceneInitialized()
 {
 	local class<FPage> pageClass;
 
-	`Log( "SceneInitialized" );
+	`Log( "SceneInitialized",, 'Forms' );
 
 	// The PostProcessChain to use when the FScene is visible.
-	//FormsController.Scene.MenuPostProcessChain = PostProcessChain'GameContent.Effects.MenuPostProcess';
+	FormsController.Scene().MenuPostProcessChain = MenuPostProcessChain;
 
 	MainMenu.Controller = FormsController;
 	// Open any que'ing page, for example a Ready page when the a level is loaded that needs to be opened when possible.
@@ -97,7 +99,7 @@ simulated function SceneInitialized()
 		// UDKFrontEnd, open our menu if set. Cannot be closed.
 		if( WorldInfo.IsMenuLevel( GetURLMap() ) && MainMenu != none )
 		{	
-			FormsController.Scene.AddPage( MainMenu );
+			FormsController.Scene().AddPage( MainMenu );
 		}
 	}	
 }
@@ -107,7 +109,7 @@ final reliable client function ClientOpenPage( class<FPage> pageClass )
 {
 	if( WorldInfo.NetMode != NM_DedicatedServer )
 	{
-		FormsController.Scene.OpenPage( pageClass );
+		FormsController.Scene().OpenPage( pageClass );
 	}
 }
 
@@ -116,7 +118,7 @@ final reliable client function ClientClosePage( optional bool bCloseAll )
 {
 	if( WorldInfo.NetMode != NM_DedicatedServer )
 	{
-		FormsController.Scene.ClosePage( bCloseAll );
+		FormsController.Scene().ClosePage( bCloseAll );
 	}
 }
 
@@ -129,25 +131,34 @@ exec function ShowMenu()
 	}
 
 	// Logically we should only open the EscapeMenu when there are no other pages open!
-	if( FormsController.Scene.Pages.Length == 0 )
+	if( FormsController.Scene().Pages.Length == 0 )
 	{
 		if( EscapeMenu != none )
 		{
-			FormsController.Scene.AddPage( EscapeMenu );
+			FormsController.Scene().AddPage( EscapeMenu );
 		}
 	}
 	else
 	{
 		// The MainMenu cannot be closed! If there's more than one page, then close the front page.
-		if( WorldInfo.IsMenuLevel( GetURLMap() ) && FormsController.Scene.Pages.Length == 1 )
+		if( WorldInfo.IsMenuLevel( GetURLMap() ) && FormsController.Scene().Pages.Length == 1 )
 		{
 			return;
 		}
 		else
 		{
-			FormsController.Scene.ClosePage();
+			FormsController.Scene().ClosePage();
 		}
 	}
+}
+
+function Destroyed()
+{
+	// Let's remove these references to ensure that all GUI components are disconnected prior its garbage collecting invokes.
+	MainMenu = none;
+	EscapeMenu = none;
+	PagesQue.Length = 0;
+	super.Destroyed();	
 }
 
 defaultproperties
@@ -155,14 +166,17 @@ defaultproperties
 	FormsControllerClass=class'FController'
 	FormsSceneClass=class'FScene'
 
-	// EXAMPLE. Uncomment and replace YOURPAGE with yours!
-	/*begin object name=oMainMenu class=YOURPAGE
+	// Replace YOURPAGE with your MainMenu class. It's recommend that you handle properties within the class itself!
+	begin object name=oMainMenu class=YOURPAGE
 		// Properties
 	end object
 	MainMenu=oMainMenu
 
+	// Replace YOURPAGE with your EscapeMenu class. It's recommend that you handle properties within the class itself!
 	begin object name=oEscapeMenu class=YOURPAGE
 		// Properties
 	end object
-	EscapeMenu=oEscapeMenu*/
+	EscapeMenu=oEscapeMenu
+
+	MenuPostProcessChain=PostProcessChain'PACKAGE.GROUP.NAME'
 }
