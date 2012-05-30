@@ -110,7 +110,7 @@ final function RenderLabel( Canvas C, float X, float Y, float W, float H, Color 
 			break;
 
 		case TA_Right:
-			AX = -X + (W - XL);
+			AX = X + W - XL;
 			break;
 	}
 
@@ -155,13 +155,13 @@ final function RenderLabel( Canvas C, float X, float Y, float W, float H, Color 
 	switch( TextDecoration )
 	{
 		case D_Underlined:	
-			C.SetPos( AX, AY + YL );
+			C.SetPos( AX, AY + YL - TextDecorationSize );
 			C.DrawColor = TextDecorationColor;
 			C.DrawRect( XL, TextDecorationSize, C.DefaultTexture );
 			break;
 			
 		case D_Overlined:
-			C.SetPos( AX, AY + YL * 0.5 );
+			C.SetPos( AX, AY + YL * 0.5 - TextDecorationSize );
 			C.DrawColor = TextDecorationColor;
 			C.DrawRect( XL, TextDecorationSize, C.DefaultTexture );
 			break;
