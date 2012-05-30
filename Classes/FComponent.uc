@@ -250,23 +250,25 @@ function Render( Canvas C )
 		{
 			C.SetPos( 0, 0 );	
 			C.DrawColor = class'HUD'.default.GreenColor;
-			if( !IsHovered() )
-				C.DrawColor.A = 64;
+			C.DrawColor.A = IsHovered() ? 200 : 64;
 			C.DrawBox( C.ClipX, C.ClipY );
 
 			C.SetPos( LeftX, TopY );	
 			C.DrawColor = class'HUD'.default.RedColor;
-			if( !IsHovered() )
-				C.DrawColor.A = 64;
+			C.DrawColor.A = IsHovered() ? 200 : 64;
 			C.DrawBox( WidthX, HeightY );
 		}
 	`endif
 
-	C.SetOrigin( 0, 0 );
 	if( bClipComponent )
 	{
 		C.SetClip( C.SizeX, C.SizeY );
+		
+		// Restore so that GetCachedLeft() can still function.
+		TopY = C.OrgY;
+		LeftX = C.OrgX;
 	}
+	C.SetOrigin( 0, 0 );
 }
 
 /** Draw all assigned elements from the Style object, these elements could be borders or backgrounds etcetera. */
