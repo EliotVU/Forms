@@ -621,6 +621,18 @@ final function StopClipping( Canvas C, float x, float y )
 	C.SetClip( x, y );
 }
 
+// ALT: RelativePosition.X - (pixels/GetLeft()*RelativePosition.X)
+final function float MoveLeft( float pixels )
+{
+	return (GetLeft() + pixels)/Parent.GetWidth();
+}
+
+// ALT: RelativePosition.Y - (pixels/GetTop()*RelativePosition.Y)
+final function float MoveTop( float pixels )
+{
+	return (GetTop() + pixels)/Parent.GetHeight();
+}
+
 defaultproperties
 {
 	bVisible=true
