@@ -20,7 +20,7 @@ var(Style, Positioning) TextureCoordinates		TrackImageCoords;
 var config const editconst string				TrackImageName;
 var config const editconst TextureCoordinates	TrackImageNameCoords;
 
-var(Style, Colors) const Color TrackImageColor;
+var(Style, Colors) const Color					TrackImageColor;
 
 function Free()
 {

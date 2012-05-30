@@ -24,6 +24,7 @@ function Free()
 {
 	super.Free();
 	AssociatedObject = none;
+	ColumnImage = none;
 }
 
 function RenderComponent( Canvas C )

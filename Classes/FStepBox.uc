@@ -46,6 +46,7 @@ function Free()
 		NextButtonStyle.Free();
 		NextButtonStyle = none;
 	}
+	OnValueChanged = none;
 }
 
 function InitializeComponent()

@@ -15,10 +15,10 @@
 */
 class FColumnsSet extends FMultiComponent;
 
-var() int NumColumns;
-var() int NumRows;
+var(Component, Display) int NumColumns;
+var(Component, Display) int NumRows;
 
-var() class<FColumn> ColumnClass;
+var(Component, Function) class<FColumn> ColumnClass;
 
 var(Component, Advanced) protectedwrite editinline array<FColumn> Columns;
 
@@ -31,6 +31,7 @@ function Free()
 	super.Free();
 	Columns.Length = 0;
 	SelectedColumn = none;
+	OnSelect = none;
 }
 
 function InitializeComponent()

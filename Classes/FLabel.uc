@@ -62,6 +62,7 @@ function Free()
 {
 	super.Free();
 	TextFont = none;
+	OnTextChanged = none;
 }
 
 function InitializeComponent()

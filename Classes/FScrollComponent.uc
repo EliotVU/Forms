@@ -32,6 +32,7 @@ function Free()
 {
 	super.Free();
 	ProgressImage = none;
+	OnValueChanged = none;
 }
 
 function MouseButtonPressed( FComponent sender, optional bool bRight )

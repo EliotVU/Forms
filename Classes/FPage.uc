@@ -19,6 +19,12 @@ class FPage extends FMultiComponent;
 delegate OnOpen( FPage sender );
 delegate OnClose( FPage sender );
 
+function Free()
+{
+	OnOpen = none;
+	OnClose = none;
+}
+
 function Opened()
 {
 	OnOpen( self );

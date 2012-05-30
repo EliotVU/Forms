@@ -21,6 +21,12 @@ var(Component, Display) const Color CheckedColor;
 
 delegate OnChecked( FComponent sender );
 
+function Free()
+{
+	super.Free();
+	OnChecked = none;
+}
+
 function RenderComponent( Canvas C )
 {
 	super(FComponent).RenderComponent( C );
