@@ -1,6 +1,6 @@
 Forms
 =====
-Forms is very easy to use Game User Interface framework.
+Forms is a very easy to use Game User Interface framework.
 This frameworks delivers you all of the most common controls you will ever need in your game's menu.
 
 Installing Forms
