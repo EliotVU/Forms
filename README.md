@@ -22,6 +22,16 @@ Build your project, if you get any errors, make sure you followed the instructio
 
 Once installed, start by making your first menu: http://github.com/EliotVU/Forms/wiki/Your-First-Menu
 
+Testing
+=====
+There will come a time you will need to fix the positions of your components with visual help, this can be done if you build Forms in debug mode.
+
+Make a shortcut to your game if you haven't got one yet. Add the parameter -debug and -wxwindows.
+
+Then launch your game through the shortcut, and hit alt+enter to go windowed mode. 
+
+Hold Shift and CTRL, and click on the component you wish to modify, this will popup a dialog with all the options you wish to edit, when done copy those settings to your code.
+
 About
 =====
 Home: http://eliotvu.com/portfolio/view/48/forms-udk-gui-framework
