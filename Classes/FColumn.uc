@@ -37,15 +37,19 @@ function RenderComponent( Canvas C )
 	if( IsSelected() )
 	{
 		C.SetPos( LeftX, TopY );
-		C.DrawColor = Style.ActiveColor;
+		// Still try to use another color if selected but also hovered or active.
+		C.DrawColor = GetStateColor( Style.ActiveColor );
 		C.DrawBox( WidthX, HeightY );
 	}
 	else if( IsHovered() )
 	{
 		C.SetPos( LeftX, TopY );
-		C.DrawColor = Style.HoverColor;
+		// Even though we are hovered, lets still use other colors if it is both hovered and active etc.
+		C.DrawColor = GetStateColor();
 		C.DrawBox( WidthX, HeightY );
 	}
+	// For the sake of undoing previous states.
+	else GetStateColor();
 }
 
 function RenderImage( Canvas C )
@@ -67,14 +71,14 @@ defaultproperties
 {
 	Margin=(X=2,Y=2,Z=2,W=2)
 	Padding=(X=4,Y=4,Z=4,W=4)
+	RelativeOffset=(Y=8)
 	TextVAlign=TA_Top
 	TextAlign=TA_Center
 	
 	begin object name=oStyle
-		ImageColor=(R=255,G=255,B=255,A=255)
-		HoverColor=(R=255,G=255,B=0,A=255)
-		ActiveColor=(R=0,G=255,B=0,A=255)
-		DisabledColor=(R=255,G=0,B=0,A=255)
+		HoverColor=(R=200,A=120)
+		ActiveColor=(R=0,G=200,B=0,A=128)
+		DisabledColor=(R=200,G=0,B=0,A=255)
 	end object
 	Style=oStyle
 	
