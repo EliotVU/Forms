@@ -18,7 +18,8 @@ class FComponent extends FObject
 	perobjectconfig
 	perobjectlocalized
 	editinlinenew
-	abstract;
+	abstract
+	forcescriptorder(true);
 
 /** Cannot be used(same for other objects) from delegate events if that delegate is initialized via the DefaultProperties block! */
 var transient editconst FIController Controller;
@@ -166,7 +167,7 @@ delegate OnUnActive( FComponent sender );
 function Initialize( FIController c )
 {
 	Controller = c;
-	`Log( Name $ "Initialize",, 'FormsInit' );
+	//`Log( Name $ "Initialize",, 'FormsInit' );
 
 	if( bInitialized )
 		return;
@@ -415,7 +416,11 @@ function bool CanRender()
 
 function bool CanInteract()
 {
-	return (bEnabled || Scene().bRenderRectangles) && CanRender();
+	return (bEnabled 
+	`if( `isdefined( DEBUG ) )
+		|| Scene().bRenderRectangles
+	`endif
+	) && CanRender();
 }
 
 function SetVisible( bool v )
@@ -585,7 +590,6 @@ final function Color GetStateColor( optional Color defaultColor = Style.ImageCol
 	{
 		FadingSwapColor( newStateColor, defaultColor, LastStateChangeTime );	
 	}
-	LastStateColor = newStateColor;
 	return newStateColor;
 }
 
@@ -597,6 +601,7 @@ final function FadingSwapColor( out Color newColor, Color destColor, float oldCo
 	pct = FMin( `STimeSince( oldColorTime ) / FadingSwapTime, 1.0 );
 	newColor = LastStateColor+destColor * pct-LastStateColor  * pct;
 	newColor.A = destColor.A;
+	LastStateColor = newColor;
 }
 
 /** Create a new instance of @componentClass. 

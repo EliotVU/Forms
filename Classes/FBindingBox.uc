@@ -58,6 +58,7 @@ function InitializeComponent()
 		ActionKey.SetMargin( 0,0,0,0 );
 		ActionKey.SetText( bindKey );
 		ActionKey.OnTextChanged = BindChanged;
+		// Single click?
 		//ActionKey.OnDoubleClick = none;
 		//ActionKey.OnClick = ActionKey.StartEdit;
 		AddComponent( ActionKey );
@@ -164,6 +165,8 @@ defaultproperties
 	ActionName="None"
 	ActionCommand=""
 	bBindSecondary=true
+	
+	Padding=(W=4,X=4,Y=4,Z=4)
 
 	// TODO: Find out why "instanced" does not work or wait for Epic Games to support nested "Component" classes
 	/*begin object name=oLAction class=FLabel

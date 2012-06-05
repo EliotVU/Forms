@@ -74,6 +74,7 @@ defaultproperties
 	RelativeSize=(X=0.4,Y=0.18)
 
 	Text="Button"
+	TextFont=MultiFont'UI_Fonts_Final.HUD.MF_Medium'
 	TextColor=(R=255,G=255,B=255,A=255)
 	TextAlign=TA_Center
 	bRenderCaption=true

@@ -58,9 +58,12 @@ function RenderComponent( Canvas C )
 
 defaultproperties
 {
+	bSupportSelection=`devmode
+	bSupportHovering=`devmode
+	
 	Padding=(W=8,X=8,Y=8,Z=8)
 	
 	begin object name=oStyle
-		ImageColor=(R=180,G=180,B=180,A=255)
+		ImageColor=(R=120,G=120,B=120,A=255)
 	end object
 }

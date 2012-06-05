@@ -16,7 +16,7 @@
 class FMultiComponent extends FComponent
 	abstract;
 
-var(Component, Advanced) protectedwrite editinline array<FComponent> Components;
+var(Component, Advanced) protectedwrite editinline array<FComponent> Components<MaxPropertyDepth=1>;
 
 /** Called for each component that is initialized and owned by this component. */
 delegate OnComponentInitialized( FComponent component );
