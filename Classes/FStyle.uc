@@ -20,28 +20,28 @@ class FStyle extends FObject
 	config(Forms);
 
 /** The texture to be used as the component's background/image (If supported) */
-var(Style, Display) editinline Texture2D		Image;
+var(Style, Display) Texture2D					Image;
 var(Style, Positioning) TextureCoordinates		ImageCoords;
-var config const editconst string				ImageName;
-var config const editconst TextureCoordinates	ImageNameCoords;
+var config const string							ImageName;
+var config const TextureCoordinates				ImageNameCoords;
 
 /** The texture to be used as the component's background/image (If supported) */
-var(Style, Display) editinline Texture2D		Shadow;
+var(Style, Display) Texture2D					Shadow;
 var(Style, Positioning) TextureCoordinates		ShadowCoords;
-var config const editconst string				ShadowName;
-var config const editconst TextureCoordinates	ShadowNameCoords;
-var int											ShadowSize;
+var config const string							ShadowName;
+var config const TextureCoordinates				ShadowNameCoords;
+var(Style, Display) int							ShadowSize;
 
 /** The material to be used as the component's image (If supported) */
-var(Style, Display) editinline Material			Material;
-var config const editconst string				MaterialName;
+var(Style, Display) Material					Material;
+var config const string							MaterialName;
 
-var(Style, Colors) const Color ImageColor;
-var(Style, Colors) const Color ShadowColor;
-var(Style, Colors) const Color HoverColor;
-var(Style, Colors) const Color FocusColor;
-var(Style, Colors) const Color ActiveColor;
-var(Style, Colors) const Color DisabledColor;
+var(Style, Colors) const Color					ImageColor;
+var(Style, Colors) const Color					ShadowColor;
+var(Style, Colors) const Color					HoverColor;
+var(Style, Colors) const Color					FocusColor;
+var(Style, Colors) const Color					ActiveColor;
+var(Style, Colors) const Color					DisabledColor;
 
 /** Collection of elements to render after the associated component(s). */
 var(Style, Elements) protectedwrite editinline array<FElement> Elements;
