@@ -55,6 +55,9 @@ var(Component, Display) enum EVAlign
 }													TextVAlign;
 
 var(Component, Positioning) const Vector2D			RelativeOffset;
+var(Component, Positioning) bool					bAutoSize;
+
+var private bool bAutoSized;
 
 delegate OnTextChanged( FComponent sender );
 
@@ -97,6 +100,13 @@ final function RenderLabel( Canvas C, float X, float Y, float W, float H, Color 
 	else
 	{
 		C.StrLen( Text, XL, YL );
+	}
+	
+	if( bAutoSize && !bAutoSized )
+	{
+		// ALT: XL/Parent.GetCachedWidth() or just XL.
+		SetSize( XL/GetCachedWidth()*RelativeSize.X, YL/GetCachedHeight()*RelativeSize.Y );
+		bAutoSized = true;
 	}
 
 	switch( TextAlign )
@@ -168,9 +178,10 @@ final function RenderLabel( Canvas C, float X, float Y, float W, float H, Color 
 	}
 }
 
-function SetText( string newText )
+function SetText( coerce string newText )
 {
 	Text = newText;
+	bAutoSized = false;
 	OnTextChanged( self );
 }
 
@@ -181,7 +192,7 @@ defaultproperties
 	RelativeOffset=(X=0.0,Y=0.0)
 
 	Text="Label"
-	TextFont=Font'EngineFonts.SmallFont'
+	TextFont=MultiFont'UI_Fonts_Final.HUD.MF_Small'
 	TextColor=(R=255,G=255,B=255,A=255)
 	TextAlign=TA_Left
 	TextVAlign=TA_Center
