@@ -62,6 +62,7 @@ var transient Vector2D Ratio;
 var protectedwrite transient float RenderDeltaTime;
 var privatewrite transient float LastRenderTime;
 var privatewrite transient float LastMouseMoveTime;
+var privatewrite transient float LastActivityTime;
 
 var(Scene, Advanced) PostProcessChain MenuPostProcessChain;
 var protected int MenuPostProcessChainIndex;
@@ -124,7 +125,7 @@ protected function LoadConfigurations()
 function Update( float DeltaTime )
 {
 	// Lock the rotation so the player does not change its rotation when the mouse moves!
-	Controller.Player().SetRotation( LastPlayerRotation );
+	Player().SetRotation( LastPlayerRotation );
 
 	if( bRenderCursor )
 	{
@@ -150,12 +151,13 @@ protected function UpdateMouse( float DeltaTime )
 	local Vector2D vector2DMP;
 
 	LastMousePosition = MousePosition;
-	vector2DMP = LocalPlayer(Controller.Player().Player).ViewportClient.GetMousePosition();
+	vector2DMP = LocalPlayer(Player().Player).ViewportClient.GetMousePosition();
 	MousePosition.X = vector2DMP.X;
 	MousePosition.Y = vector2DMP.Y;
 	if( MousePosition != LastMousePosition && OnMouseMove != none )
 	{
 		LastMouseMoveTime = `STime;
+		LastActivityTime = `STime;
 		OnMouseMove( self, DeltaTime );
 		if( ActiveComponent != none && ActiveComponent.OnMouseMove != none )
 		{
@@ -264,7 +266,7 @@ protected function ResetCanvas( Canvas C )
 	C.Reset();
 	C.SetPos( 0.0, 0.0 );
 	C.SetOrigin( 0.0, 0.0 );
-	C.SetClip( Size.X, Size.Y );
+	C.SetClip( C.SizeX, C.SizeY );
 }
 
 function Render( Canvas C )
@@ -280,7 +282,7 @@ function Render( Canvas C )
 	
 	// Don't put this in CanRender(), if CanRender() returns false, then Update() won't be called 
 	//	and therefor no mouse position update.
-	if( bTimeOutScene && `STimeSince( LastMouseMoveTime ) > MouseSceneTimeOut )
+	if( bTimeOutScene && `STimeSince( LastActivityTime ) > MouseSceneTimeOut )
 	{
 		goto end;
 	}
@@ -453,12 +455,14 @@ protected function RenderDebug( Canvas C )
 	C.SetPos( 0, 0 );
 	C.DrawColor = class'HUD'.default.WhiteColor;
 	C.DrawColor.A = 100;
+	C.Font = class'Engine'.static.GetTinyFont();
 	C.DrawText( "HC:" $ HoveredComponent, true );
 	C.DrawText( "SC:" $ SelectedComponent, true );
 	if( HoveredComponent != none )
 	{
 		C.DrawText( "P-C:" $ HoveredComponent.Parent @ HoveredComponent.Controller, true );
 	}
+	C.DrawText( "Objects:" @ ObjectsPool.Length );
 }
 
 protected function RenderCursor( Canvas C )
@@ -681,33 +685,35 @@ function OnVisibleChanged( FComponent sender )
 {
 	if( bVisible )
 	{
-		Controller.Player().PlayerInput.ResetInput();
+		Player().PlayerInput.ResetInput();
 		if( MenuPostProcessChainIndex == INDEX_NONE && MenuPostProcessChain != none )
 		{
-			MenuPostProcessChainIndex = LocalPlayer(Controller.Player().Player).InsertPostProcessingChain( MenuPostProcessChain, 0, false ) ? 0 : INDEX_NONE;
+			MenuPostProcessChainIndex = LocalPlayer(Player().Player).InsertPostProcessingChain( MenuPostProcessChain, 0, false ) ? 0 : INDEX_NONE;
 		}
 
 		if( bPausedWhileVisible )
-			Controller.Player().SetPause( true, CanUnpause );
+			Player().SetPause( true, CanUnpause );
 
-		LastPlayerRotation = Controller.Player().Rotation;
+		LastPlayerRotation = Player().Rotation;
 	}
 	else
 	{
 		if( MenuPostProcessChainIndex != INDEX_NONE )
 		{
-			LocalPlayer(Controller.Player().Player).RemovePostProcessingChain( MenuPostProcessChainIndex );
+			LocalPlayer(Player().Player).RemovePostProcessingChain( MenuPostProcessChainIndex );
 			MenuPostProcessChainIndex = INDEX_NONE;
 		}
 
 		if( bPausedWhileVisible )
-			Controller.Player().SetPause( false, CanUnpause );
+			Player().SetPause( false, CanUnpause );
 	}
 }
 
 function bool KeyInput( name Key, EInputEvent EventType )
 {
 	local FComponent inputComponent;
+	
+	LastActivityTime = `STime;
 	
 	if( SelectedComponent != none && SelectedComponent != self )
 	{
@@ -790,12 +796,12 @@ function bool KeyInput( name Key, EInputEvent EventType )
 						`if( `isdefined( DEBUG ) )
 							if( bCtrl )
 							{
-								Controller.Player().ConsoleCommand( "editobject name=" $ inputComponent );
+								Player().ConsoleCommand( "editobject name=" $ inputComponent );
 								break;
 							}
 						`endif
 
-						if( `STimeSince( LastClickTime ) <= Controller.Player().PlayerInput.DoubleClickTime )
+						if( `STimeSince( LastClickTime ) <= Player().PlayerInput.DoubleClickTime )
 						{
 							inputComponent.OnDoubleClick( inputComponent );
 						}
@@ -919,12 +925,12 @@ function ComponentUnfocussed( FComponent sender );
 
 final function PlayHoverSound()
 {
-	Controller.Player().ClientPlaySound( HoverSound );
+	Player().ClientPlaySound( HoverSound );
 }
 
 final function PlayClickSound()
 {
-	Controller.Player().ClientPlaySound( ClickSound );
+	Player().ClientPlaySound( ClickSound );
 }
 
 /** Adds an object to the pool. All objects in the pool can then be free'd calling Free(). */
