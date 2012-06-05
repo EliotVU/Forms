@@ -60,8 +60,8 @@ function InitializeComponent()
 	Previous.OnDoubleClick = Click;
 	Previous.bRenderCaption = false;
 	Previous.bJustify = true;
-	Previous.SetStyle( PreviousButtonStyle );
 	AddComponent( Previous );
+	Previous.SetStyle( PreviousButtonStyle );
 
 	SelectedChoice = FLabel(CreateComponent( class'FLabel' ));
 	SelectedChoice.SetPos( 0.15, 0.0 );
@@ -79,9 +79,9 @@ function InitializeComponent()
 	Next.OnDoubleClick = Click;
 	Next.bJustify = true;
 	Next.HorizontalDock = HD_Right;
-	Next.SetStyle( NextButtonStyle );
 	AddComponent( Next );
-
+	Next.SetStyle( NextButtonStyle );
+	
 	UpdateChoice();
 }
 
@@ -107,14 +107,26 @@ function RenderComponent( Canvas C )
 
 function StepLeft()
 {
-	ChoiceIndex = Max( ChoiceIndex-1, 0 );
-	UpdateChoice();
+	local int newIndex;
+	
+	newIndex = Max( ChoiceIndex-1, 0 );
+	if( newIndex != ChoiceIndex )
+	{
+		ChoiceIndex = newIndex;
+		UpdateChoice();
+	}
 }
 
 function StepRight()
 {
-	ChoiceIndex = Min( ChoiceIndex+1, Choices.Length - 1 );
-	UpdateChoice();
+	local int newIndex;
+	
+	newIndex = Min( ChoiceIndex+1, Choices.Length - 1 );
+	if( newIndex != ChoiceIndex )
+	{
+		ChoiceIndex = newIndex;
+		UpdateChoice();
+	}
 }
 
 function UpdateChoice()
@@ -126,7 +138,7 @@ function UpdateChoice()
 	OnValueChanged( self );
 }
 
-function SetValue( string value )
+function SetValue( coerce string value )
 {
 	ChoiceIndex = Choices.Find( value );
 	if( ChoiceIndex != -1 )
