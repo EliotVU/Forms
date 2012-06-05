@@ -42,6 +42,18 @@ function Initialize()
 	super.Initialize();
 }
 
+function DrawTracker( Canvas C, float width, float height )
+{
+	local float UL, VL;
+	
+	if( TrackImage == none )
+		return;
+		
+	UL = (TrackImageCoords.UL <= 1.0) ? float(TrackImage.SizeX) : TrackImageCoords.UL;
+	VL = (TrackImageCoords.VL <= 1.0) ? float(TrackImage.SizeY) : TrackImageCoords.VL;		
+	C.DrawTileStretched( TrackImage, width, height, TrackImageCoords.U, TrackImageCoords.V, UL, VL );
+}
+
 defaultproperties
 {
 	ImageColor=(R=255,G=255,B=255,A=255)

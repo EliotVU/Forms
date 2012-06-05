@@ -83,12 +83,12 @@ function MouseWheelInput( FComponent sender, optional bool bUp )
 
 function ScrollUp()
 {
-	InterpolatedValue = -(MaxValue * StepProgress);
+	InterpolatedValue = -(MaxValue*StepProgress);
 }
 
 function ScrollDown()
 {
-	InterpolatedValue = (MaxValue * StepProgress);
+	InterpolatedValue = (MaxValue*StepProgress);
 }
 
 function Update( float deltaTime )
@@ -97,49 +97,51 @@ function Update( float deltaTime )
 
 	if( InterpolatedValue > 0 )
 	{
-		valueToAdd = InterpolatedValue * 0.1 * deltaTime;
-		InterpolatedValue = Max( InterpolatedValue - valueToAdd, 0 );
+		valueToAdd = InterpolatedValue*0.1*deltaTime;
+		InterpolatedValue = FMax( InterpolatedValue - valueToAdd, 0 );
 		SetValue( Value + -valueToAdd );
 	}
 	else if( InterpolatedValue < 0 )
 	{
-		valueToAdd = -InterpolatedValue * -0.1 * -deltaTime;
-		InterpolatedValue = Min( InterpolatedValue + valueToAdd, 0 );
+		valueToAdd = -InterpolatedValue*-0.1*-deltaTime;
+		InterpolatedValue = FMin( InterpolatedValue + valueToAdd, 0 );
 		SetValue( Value + valueToAdd );
 	}
 }
 
 function float GetSliderSize()
 {
-	return HeightY * (VisibleHeight/MaxValue);
+	return HeightY*(VisibleHeight/MaxValue);
 }
 
 function float GetSliderOffset()
 {
-	return Min( Value/MaxValue * HeightY, MaxValue - GetSliderSize() );
+	return FMin( Value/MaxValue*HeightY, MaxValue - GetSliderSize() );
 }
 
 function RenderSlider( Canvas C )
 {
 	local float sliderY;
 	local float sliderSize;
-
-	if( Style != none )
+	local FScrollStyle myStyle;
+	
+	myStyle = FScrollStyle(Style);
+	if( myStyle == none )
 	{
-		sliderY = GetSliderOffset();
-		sliderSize = GetSliderSize();	
-		if( Style.Image != none )
-		{
-			C.SetPos( LeftX, TopY + sliderY );
-			C.DrawColor = GetStateColor();
-			C.DrawTileStretched( ProgressImage, WidthX, sliderSize, 0, 0, Style.Image.SizeX, Style.Image.SizeY );
-		}
+		//`Log( "No FScrollStyle found for" @ self, 'Forms' );
+		return;
 	}
+
+	sliderY = GetSliderOffset();
+	sliderSize = GetSliderSize();	
+	C.SetPos( LeftX, TopY + sliderY );
+	C.DrawColor = GetStateColor();
+	myStyle.DrawTracker( C, WidthX, sliderSize );
 }
 
 function SetValue( float newValue )
 {
-	Value = FClamp( newValue, MinValue, MaxValue-GetSliderSize() );
+	Value = FClamp( newValue, MinValue, MaxValue - GetSliderSize() );
 	OnValueChanged( self );
 }
 
@@ -177,7 +179,7 @@ function UpdateValue()
 	if( bSliding )
 	{
 		//RelativeMousePosition.X = Clamp( Scene().MousePosition.X - LeftX, 0.0, WidthX );
-		RelativeMousePosition.Y = Clamp( Scene().MousePosition.Y - TopY, 0.0, HeightY );
+		RelativeMousePosition.Y = FClamp( Scene().MousePosition.Y - TopY, 0.0, HeightY );
 		SetValue( RelativeMousePosition.Y + ClickOffset );
 		InterpolatedValue = 0;
 	}

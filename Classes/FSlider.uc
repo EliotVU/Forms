@@ -16,54 +16,67 @@
 class FSlider extends FScrollComponent;
 
 var(Component, Display) const FontRenderInfo TextRenderInfo;
+var(Component, Display) string PreFix, PostFix;
 
 function RenderSlider( Canvas C )
 {
 	local float XL, YL;
 	local float sliderX;
 	local string S;
-
-	if( Style != none )
+	local string cur, max;
+	local float trackWidth;
+	local FScrollStyle myStyle;
+	
+	myStyle = FScrollStyle(Style);
+	if( myStyle == none )
 	{
-		if( bSliding )
-		{
-			sliderX = FClamp( WidthX*(RelativeMousePosition.X/WidthX), 0.0, WidthX - WidthX*0.02 ) - WidthX*0.02 * 0.5;
-			C.DrawColor = Style.FocusColor;
-
-			S = (RelativeMousePosition.X/WidthX)*MaxValue $ "/" $ MaxValue;
-		}
-		else
-		{
-			sliderX = FClamp( (Value/MaxValue*WidthX), 0.0, WidthX - WidthX*0.02 ) - WidthX*0.02 * 0.5;
-			C.DrawColor =FScrollStyle(Style).TrackImageColor;
-
-			S = Value $ "/" $ MaxValue;
-		}	
-
-		if( Style.Image != none )
-		{
-			C.SetPos( LeftX, TopY );
-			C.DrawTileStretched( Style.Image, sliderX, HeightY, 0, 0, Style.Image.SizeX, Style.Image.SizeY );
-		}
-
-		C.SetPos( LeftX + sliderX, TopY );
-		C.DrawTileStretched( FScrollStyle(Style).TrackImage, WidthX*0.02, HeightY, 
-			FScrollStyle(Style).TrackImageCoords.U, FScrollStyle(Style).TrackImageCoords.V, 
-			FScrollStyle(Style).TrackImageCoords.UL, FScrollStyle(Style).TrackImageCoords.VL
-		);
-
-		C.StrLen( S, XL, YL );
-		C.SetPos( LeftX + WidthX * 0.5 - XL * 0.5, TopY + (HeightY * 0.5 - YL * 0.5) );
-		C.DrawColor = GetStateColor();
-		C.DrawText( S, false, 1.0, 1.0, TextRenderInfo );
+		//`Log( "No FScrollStyle found for" @ self, 'Forms' );
+		return;
 	}
-}
+	
+	if( bSliding )
+	{
+		C.DrawColor = GetStateColor();
+	}
+	else
+	{
+		C.DrawColor = myStyle.TrackImageColor;
+	}	
+		
+	//cur = string(float(cur) - float(cur) % SnapPower + SnapPower);
+	cur = bDynamic ? string(Value) : string(CalcValue());
+	max = string(MaxValue);
+	if( bInteger )
+	{
+		cur = string(int(cur));
+		max = string(int(max));
+	}
+	else if( !bSliding || SnapPower % 0.1 == 0.00 )
+	{
+		cur = Left( cur, Len( cur ) - 2 );
+		max = Left( max, Len( max ) - 2 );
+	}
+		
+	// Progress bar
+	trackWidth = WidthX*0.02;
+	sliderX = FClamp( 
+		bSliding ? WidthX*(GetSliderBegin()/GetSliderEnd()) : Value/MaxValue*GetSliderEnd(), 0.0,
+		WidthX - trackWidth 
+	) - trackWidth*0.5;
+	
+	C.SetPos( LeftX, TopY );
+	Style.DrawBackground( C, sliderX, HeightY );
 
-function StopSliding()
-{
-	UpdateValue();
-	SetValue( (RelativeMousePosition.X/WidthX)*MaxValue );
-	bSliding = false;
+	// Tracker
+	C.SetPos( LeftX + sliderX + trackWidth*0.5, TopY );
+	myStyle.DrawTracker( C, trackWidth, HeightY );
+
+	// Label
+	S = PreFix $ cur $ PostFix $ "/" $ PreFix $ max $ PostFix;
+	C.StrLen( S, XL, YL );
+	C.SetPos( LeftX + WidthX*0.5 - XL*0.5, TopY + (HeightY*0.5 - YL*0.5) );
+	C.DrawColor = GetStateColor();
+	C.DrawText( S, false, 1.0, 1.0, TextRenderInfo );
 }
 
 defaultproperties
@@ -72,4 +85,6 @@ defaultproperties
 	RelativeSize=(X=0.4,Y=0.18)
 
 	TextRenderInfo=(bClipText=true)
+
+	SnapPower=0.1
 }
