@@ -21,7 +21,20 @@ var(Component, Usage) float MinValue;
 var(Component, Usage) float MaxValue;
 var(Component, Usage) float Value;
 
-var Texture2D ProgressImage;
+// Must be implemented by subclasses.
+var(Component, Usage) float SnapPower;
+
+var(Component, Usage) bool bInteger;
+
+/** If true, SetValue will be performed while sliding. */
+var(Component, Usage) bool bDynamic;
+
+// Must be supported by subclasses.
+var(Component, Display) enum EDirection
+{
+	D_Horizontal,
+	D_Vertical
+} Direction;
 
 var transient bool bSliding;
 var transient IntPoint RelativeMousePosition;
@@ -31,20 +44,27 @@ delegate OnValueChanged( FComponent sender );
 function Free()
 {
 	super.Free();
-	ProgressImage = none;
 	OnValueChanged = none;
 }
 
 function MouseButtonPressed( FComponent sender, optional bool bRight )
 {
+	if( bRight )
+		return;
+		
 	StartSliding();
+	OnMouseMove = MouseMove;
 }
 
 function MouseButtonRelease( FComponent sender, optional bool bRight )
 {
+	if( bRight )
+		return;
+		
 	if( bSliding )
 	{
 		StopSliding();
+		OnMouseMove = none;
 	}
 }
 
@@ -71,27 +91,68 @@ function RenderComponent( Canvas C )
 
 function RenderSlider( Canvas C );
 
-function SetValue( float newValue )
-{
-	Value = FClamp( newValue, MinValue, MaxValue );
-	OnValueChanged( self );
-}
-
 function StartSliding()
 {
 	bSliding = true;
 	UpdateValue();
 }
 
-function StopSliding();
+function StopSliding()
+{
+	bSliding = false;
+	UpdateRelativeMousePosition();
+	UpdateValue();
+}
+
+function SetValue( float newValue )
+{
+	if( newValue != Value )
+	{
+		Value = newValue;
+		OnValueChanged( self );
+	}
+}
+
+function float CalcValue()
+{
+	local float newValue;
+	
+	newValue = GetSliderBegin()/GetSliderEnd()*MaxValue;
+	if( SnapPower > 0.00 )
+	{
+		newValue = newValue - (newValue % SnapPower) + SnapPower;
+	}
+	return FClamp( bInteger ? float(int(newValue)) : newValue, MinValue, MaxValue );
+}
 
 function UpdateValue()
 {
 	if( bSliding )
 	{
-		RelativeMousePosition.X = Clamp( Scene().MousePosition.X - LeftX, 0.0, WidthX );
-		RelativeMousePosition.Y = Clamp( Scene().MousePosition.Y - TopY, 0.0, HeightY );
+		UpdateRelativeMousePosition();
 	}
+
+	// Only update the value if sliding is inactive or if Real-Time(bDynamic)
+	if( !bSliding || bDynamic )
+	{
+		SetValue( CalcValue() );
+	}
+}
+
+final function UpdateRelativeMousePosition()
+{
+	RelativeMousePosition.X = FClamp( Scene().MousePosition.X - LeftX, 0.0, WidthX );
+	RelativeMousePosition.Y = FClamp( Scene().MousePosition.Y - TopY, 0.0, HeightY );
+}
+
+final function float GetSliderBegin()
+{
+	return Direction == D_Horizontal ? RelativeMousePosition.X : RelativeMousePosition.Y;
+}
+
+final function float GetSliderEnd()
+{
+	return Direction == D_Horizontal ? WidthX : HeightY;
 }
 
 defaultproperties
@@ -102,12 +163,17 @@ defaultproperties
 	MinValue=0.0
 	MaxValue=255.0
 	Value=0.0
+	SnapPower=0.0
 
-	bEnabled=true
+	bDynamic=true
+	
+	Direction=D_Horizontal
+
 	OnMouseButtonPressed=MouseButtonPressed
 	OnMouseButtonRelease=MouseButtonRelease
-	OnMouseMove=MouseMove
 	OnUnFocus=FocusLost
+	
+	// Uncomment if you want inner-only-sliding
 	//OnUnHover=FocusLost
 	
 	begin object name=oStyle class=FScrollStyle
