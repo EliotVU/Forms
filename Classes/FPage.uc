@@ -35,7 +35,7 @@ function Closed()
 	OnClose( self );
 }
 
-function RenderComponent( Canvas C )
+protected function RenderComponent( Canvas C )
 {
 	super.RenderComponent( C );
 	RenderBackground( C );

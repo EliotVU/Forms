@@ -70,7 +70,7 @@ function InitializeComponent()
 	AddComponent( Body );
 }
 
-function RenderComponent( Canvas C )
+protected function RenderComponent( Canvas C )
 {
 	RenderBackground( C, GetStateColor() );
 	if( HasFocus() )

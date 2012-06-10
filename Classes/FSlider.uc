@@ -18,7 +18,7 @@ class FSlider extends FScrollComponent;
 var(Component, Display) const FontRenderInfo TextRenderInfo;
 var(Component, Display) string PreFix, PostFix;
 
-function RenderSlider( Canvas C )
+protected function RenderSlider( Canvas C )
 {
 	local float XL, YL;
 	local float sliderX;

@@ -121,7 +121,7 @@ function float GetSliderOffset()
 	return FMin( Value/MaxValue*HeightY, MaxValue - GetSliderSize() );
 }
 
-function RenderSlider( Canvas C )
+protected function RenderSlider( Canvas C )
 {
 	local float sliderY;
 	local float sliderSize;

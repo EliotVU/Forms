@@ -277,7 +277,7 @@ function Render( Canvas C )
 }
 
 /** Override this to render anything specific to a unique component. */
-function RenderComponent( Canvas C );
+protected function RenderComponent( Canvas C );
 
 /** 
  *	Override this to clear any Object/Actor references! 
@@ -420,13 +420,13 @@ function bool CanInteract()
 	) && CanRender();
 }
 
-function SetVisible( bool v )
+final function SetVisible( bool v )
 {
 	bVisible = v;
 	OnVisibleChanged( self );
 }
 
-function SetEnabled( bool e )
+final function SetEnabled( bool e )
 {
 	bEnabled = e;
 	OnEnabledChanged( self );
@@ -434,11 +434,6 @@ function SetEnabled( bool e )
 
 function bool IsHover( IntPoint mousePosition, out FComponent hoveredComponent )
 {
-	/*if( Parent != none && Positioning < P_Fixed )
-	{
-		mousePosition.X -= Parent.OriginOffset.X;
-		mousePosition.Y -= Parent.OriginOffset.Y;
-	}*/
 	if( Collides( mousePosition ) )
 	{
 		hoveredComponent = self;
@@ -465,7 +460,7 @@ final function Vector2D GetSize()
 	return v;
 }
 
-final function Vector PointToVect( IntPoint point )
+final static function Vector PointToVect( IntPoint point )
 {
 	local Vector v;
 	
@@ -474,7 +469,7 @@ final function Vector PointToVect( IntPoint point )
 	return v;	
 }
 
-final function bool Collides( IntPoint mousePosition )
+final protected function bool Collides( IntPoint mousePosition )
 {
 	local Vector2D pos, size;
 	
@@ -495,6 +490,8 @@ final function bool Collides( IntPoint mousePosition )
 	}
 	return false;
 }
+
+// TODO: Move all of the states code to Scene using its own delegates.
 
 /** Notify that the component is selected! */
 final function Focus()
@@ -576,7 +573,7 @@ final function string ConsoleCommand( string command )
 	return Controller.Player().ConsoleCommand( command );
 }
 
-final function RenderBackground( Canvas C, Color drawColor = Style.ImageColor )
+final protected function RenderBackground( Canvas C, Color drawColor = Style.ImageColor )
 {
 	if( Style == none )
 	{
@@ -631,13 +628,13 @@ final function Color GetStateColor( optional Color defaultColor = Style.ImageCol
 	return newStateColor;
 }
 
-final function FadingSwapColor( out Color newColor, Color destColor, float oldColorTime )
+final protected function FadingSwapColor( out Color newColor, Color destColor, float oldColorTime )
 {
 	const FadingSwapTime = 4.0;
 	local float pct;
 	
-	pct = FMin( `STimeSince( oldColorTime ) / FadingSwapTime, 1.0 );
-	newColor = LastStateColor+destColor * pct-LastStateColor  * pct;
+	pct = FMin( `STimeSince( oldColorTime )/FadingSwapTime, 1.0 );
+	newColor = LastStateColor + destColor*pct - LastStateColor*pct;
 	newColor.A = destColor.A;
 	LastStateColor = newColor;
 }
@@ -645,12 +642,12 @@ final function FadingSwapColor( out Color newColor, Color destColor, float oldCo
 /** Create a new instance of @componentClass. 
  *	Used to create components at run-time.
  */
-final function FComponent CreateComponent( class<FComponent> componentClass, optional Object componentOuter = self, optional FComponent componentTemplate = none )
+final protected function FComponent CreateComponent( class<FComponent> componentClass, optional Object componentOuter = self, optional FComponent componentTemplate = none )
 {
 	return new(componentOuter) componentClass (componentTemplate);
 }
 
-final function StartClipping( Canvas C, out float x, out float y )
+final static function StartClipping( Canvas C, out float x, out float y )
 {
 	local float xc, yc;
 	
@@ -661,7 +658,7 @@ final function StartClipping( Canvas C, out float x, out float y )
 	y = yc;
 }
 
-final function StopClipping( Canvas C, float x, float y )
+final static function StopClipping( Canvas C, float x, float y )
 {
 	C.SetClip( x, y );
 }

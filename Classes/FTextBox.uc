@@ -27,7 +27,7 @@ var(Component, Display) const Color CarretColor;
 var transient int CarretIndex;
 var transient float LastCarretMoveTime;
 
-function RenderComponent( Canvas C )
+protected function RenderComponent( Canvas C )
 {
 	local float XL, YL, TXL, TYL;
 	local string S;
@@ -169,7 +169,7 @@ function bool CharInput( string Unicode )
 	return false;
 }
 
-final function bool IsChar( string Unicode )
+final static function bool IsChar( string Unicode )
 {
 	local int Code;
 

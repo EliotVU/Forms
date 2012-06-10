@@ -39,7 +39,7 @@ function Initialize( FIController c )
 	TabPage.Initialize( c );
 }
 
-function RenderComponent( Canvas C )
+protected function RenderComponent( Canvas C )
 {
 	super(FComponent).RenderComponent( C );
 	C.DrawColor = ((TabControl.ActivePage == TabPage)

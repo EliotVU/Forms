@@ -22,7 +22,7 @@ function InitializeComponent()
 	}
 }
 
-function RenderComponent( Canvas C )
+protected function RenderComponent( Canvas C )
 {
 	C.DrawColor = Style.ImageColor;
 	

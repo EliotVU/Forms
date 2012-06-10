@@ -99,7 +99,7 @@ function Click( FComponent sender, optional bool bRight )
 	}
 }
 
-function RenderComponent( Canvas C )
+protected function RenderComponent( Canvas C )
 {
 	super.RenderComponent( C );
 	RenderBackground( C );

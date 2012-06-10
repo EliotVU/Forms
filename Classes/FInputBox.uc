@@ -22,7 +22,7 @@ class FInputBox extends FLabel;
 var transient bool bEditing;
 var transient string OriginalText;
 
-function RenderComponent( Canvas C )
+protected function RenderComponent( Canvas C )
 {
 	super(FComponent).RenderComponent( C );
 	TextDecoration = bEditing ? D_Underlined : D_None;
@@ -37,7 +37,7 @@ function StartEdit( FComponent sender, optional bool bRight )
 	Scene().OnPostRenderPages = RenderActiveInput;
 }
 
-function RenderActiveInput( Canvas C )
+protected function RenderActiveInput( Canvas C )
 {
 	local float bgY;
 	local float XL, YL;

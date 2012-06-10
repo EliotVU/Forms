@@ -27,7 +27,7 @@ function Free()
 	ColumnImage = none;
 }
 
-function RenderComponent( Canvas C )
+protected function RenderComponent( Canvas C )
 {
 	super(FComponent).RenderComponent( C );
 	RenderBackground( C );
@@ -52,7 +52,7 @@ function RenderComponent( Canvas C )
 	else GetStateColor();
 }
 
-function RenderImage( Canvas C )
+protected function RenderImage( Canvas C )
 {
 	if( ColumnImage == none )
 		return;

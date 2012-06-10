@@ -41,7 +41,7 @@ function Update( float deltaTime )
 	}
 }
 
-function RenderComponent( Canvas C )
+protected function RenderComponent( Canvas C )
 {
 	super(FComponent).RenderComponent( C );
 	C.SetPos( LeftX, TopY );
@@ -51,7 +51,7 @@ function RenderComponent( Canvas C )
 	RenderButton( C );
 }
 
-function RenderButton( Canvas C )
+protected function RenderButton( Canvas C )
 {
 	//if( HasFocus() )
 	//{

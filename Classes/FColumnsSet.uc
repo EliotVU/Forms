@@ -70,7 +70,7 @@ protected function Select( FComponent sender, optional bool bRight )
 	OnSelect( SelectedColumn );	
 }
 
-function RenderComponent( Canvas C )
+protected function RenderComponent( Canvas C )
 {
 	super.RenderComponent( C );
 	RenderBackground( C );

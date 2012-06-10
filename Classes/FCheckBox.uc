@@ -27,7 +27,7 @@ function Free()
 	OnChecked = none;
 }
 
-function RenderComponent( Canvas C )
+protected function RenderComponent( Canvas C )
 {
 	super(FComponent).RenderComponent( C );
 	RenderBackground( C, bChecked ? CheckedColor : UncheckedColor );
@@ -48,7 +48,7 @@ function bool IsChecked()
 	return bChecked;
 }
 
-function Checked( bool c )
+final function Checked( bool c )
 {
 	bChecked = c;
 	OnChecked( self );

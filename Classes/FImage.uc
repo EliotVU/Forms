@@ -15,13 +15,13 @@
 */
 class FImage extends FComponent;
 
-function RenderComponent( Canvas C )
+protected function RenderComponent( Canvas C )
 {
 	super.RenderComponent( C );
 	RenderImage( C );
 }
 
-function RenderImage( Canvas C )
+protected function RenderImage( Canvas C )
 {
 	C.SetPos( LeftX, TopY );
 	C.DrawColor = Style.ImageColor;

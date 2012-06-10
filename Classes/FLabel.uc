@@ -77,13 +77,13 @@ function InitializeComponent()
 	}
 }
 
-function RenderComponent( Canvas C )
+protected function RenderComponent( Canvas C )
 {
 	super.RenderComponent( C );
 	RenderLabel( C, LeftX, TopY, WidthX, HeightY, TextColor );
 }
 
-final function RenderLabel( Canvas C, float X, float Y, float W, float H, Color drawColor, optional out float XL, optional out float YL )
+final protected function RenderLabel( Canvas C, float X, float Y, float W, float H, Color drawColor, optional out float XL, optional out float YL )
 {
 	local float AX, AY;
 //	local float cX, cY;

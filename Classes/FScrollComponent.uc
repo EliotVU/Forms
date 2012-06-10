@@ -82,14 +82,14 @@ function FocusLost( FComponent sender )
 	}
 }
 
-function RenderComponent( Canvas C )
+protected function RenderComponent( Canvas C )
 {
 	super.RenderComponent( C );
 	RenderBackground( C );
 	RenderSlider( C );
 }
 
-function RenderSlider( Canvas C );
+protected function RenderSlider( Canvas C );
 
 function StartSliding()
 {
