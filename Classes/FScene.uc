@@ -569,22 +569,22 @@ function Free()
 	//);
 }*/
 
-function float GetHeight()
+protected function float GetHeight()
 {
 	return Size.Y * RelativeSize.Y;
 }
 
-function float GetWidth()
+protected function float GetWidth()
 {
 	return Size.X * RelativeSize.X;
 }
 
-function float GetTop()
+protected function float GetTop()
 {
 	return GetHeight() * RelativePosition.Y;
 }
 
-function float GetLeft()
+protected function float GetLeft()
 {
 	return GetWidth() * RelativePosition.X;
 }

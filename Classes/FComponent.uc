@@ -223,39 +223,29 @@ function Refresh()
 /** Render this object. Override RenderComponent to draw component specific visuals. */
 function Render( Canvas C )
 {
-	//local Vector2D relativeOrigin;
-
+	// This re-calculates the position and size.
 	Refresh();
-	/*if( Parent != none && Positioning < P_Fixed )
-	{
-		relativeOrigin = Parent.OriginOffset;
-	}
-
-	C.SetOrigin( relativeOrigin.X, relativeOrigin.Y );*/
-
+	
 	if( bClipComponent )
 	{
 		C.SetOrigin( C.OrgX + LeftX, C.OrgY + TopY );
 		C.SetClip( WidthX, HeightY );
-		//C.SetClip( WidthX + relativeOrigin.X, HeightY + relativeOrigin.X );
 
 		// Foolish hack :P Sets new start position for the draw functions without hardcoding 0 there!
 		TopY = 0;
 		LeftX = 0;
+		
+		// SELF REMINDER: Use Pos? + Org? if the pos is independent of Origin.
 	}
 
 	if( Style != none )
 	{
-		C.SetPos( LeftX, TopY );
 		Style.Render( C );
-		
-		C.SetPos( LeftX, TopY );
 		Style.RenderFirstElements( C, self );
 		
 		C.SetPos( LeftX, TopY );
 		RenderComponent( C );
 		
-		C.SetPos( LeftX, TopY );
 		Style.RenderLastElements( C, self );
 	}
 	OnPostRender( self, C );
@@ -342,13 +332,13 @@ final function SetPadding( float leftPixels, float topPixels, float rightPixels,
 }
 
 /** Calculates the screen height for this component. */
-function float GetHeight()
+protected function float GetHeight()
 {
 	local float h;
 	
 	h = (RelativeSize.Y > 1.0 
 		? RelativeSize.Y 
-		: Parent.GetHeight() * RelativeSize.Y) 
+		: Parent.GetCachedHeight() * RelativeSize.Y) 
 		- (Margin.Y << 1) - (Parent.Padding.Y << 1);
 		
 	return HeightBoundary.bEnabled ? FClamp( h, HeightBoundary.Min, HeightBoundary.Max ) : h;
@@ -361,15 +351,15 @@ final function float GetCachedHeight()
 }
 
 /** Calculates the screen width for this component. */
-function float GetWidth()
+protected function float GetWidth()
 {
 	local float w;
 	
 	w = (bJustify 
-		? GetHeight() 
+		? GetCachedHeight() 
 		: RelativeSize.X > 1.0 
 			? RelativeSize.X 
-			: Parent.GetWidth() * RelativeSize.X) 
+			: Parent.GetCachedWidth() * RelativeSize.X) 
 			- (Margin.X << 1) - (Parent.Padding.X << 1);
 	
 	return WidthBoundary.bEnabled ? FClamp( w, WidthBoundary.Min, WidthBoundary.Max ) : w;
@@ -382,13 +372,13 @@ final function float GetCachedWidth()
 }
 
 /** Calculates the top screen position for this component. */
-function float GetTop()
+protected function float GetTop()
 {
 	local float y, oy;
 	
-	y = (Parent.GetTop() + Parent.GetHeight() * RelativePosition.Y);
+	y = (Parent.GetCachedTop() + Parent.GetCachedHeight() * RelativePosition.Y);
 	oy = (Margin.Z + Parent.Padding.Z) + ((Positioning < EPositioning.P_Fixed) ? Parent.OriginOffset.Y : 0.0f);
-	return (VerticalDock == VD_Bottom) ? y - GetHeight() - oy : y + oy;
+	return (VerticalDock == VD_Bottom) ? y - GetCachedHeight() - oy : y + oy;
 }
 
 /** Retrieves the cached Top that was calculated the last time this component was rendered. Recommend for use within Tick functions. */
@@ -398,13 +388,13 @@ final function float GetCachedTop()
 }
 
 /** Calculates the left screen position for this component. */
-function float GetLeft()
+protected function float GetLeft()
 {
 	local float x, ox;
 	
-	x = (Parent.GetLeft() + Parent.GetWidth() * RelativePosition.X);
+	x = (Parent.GetCachedLeft() + Parent.GetCachedWidth() * RelativePosition.X);
 	ox = (Margin.W + Parent.Padding.W) + ((Positioning < EPositioning.P_Fixed) ? Parent.OriginOffset.X : 0.0f);	
-	return (HorizontalDock == HD_Right) ? x - GetWidth() - ox : x + ox;
+	return (HorizontalDock == HD_Right) ? x - GetCachedWidth() - ox : x + ox;
 }
 
 /** Retrieves the cached Left that was calculated the last time this component was rendered. Recommend for use within Tick functions. */
@@ -461,8 +451,8 @@ final function Vector2D GetPosition()
 {
 	local Vector2D v;
 	
-	v.X = GetLeft();
-	v.Y = GetTop();
+	v.X = GetCachedLeft();
+	v.Y = GetCachedTop();
 	return v;
 }
 
@@ -470,8 +460,8 @@ final function Vector2D GetSize()
 {
 	local Vector2D v;
 	
-	v.X = GetWidth();
-	v.Y = GetHeight();
+	v.X = GetCachedWidth();
+	v.Y = GetCachedHeight();
 	return v;
 }
 
@@ -679,13 +669,13 @@ final function StopClipping( Canvas C, float x, float y )
 // ALT: RelativePosition.X - (pixels/GetLeft()*RelativePosition.X)
 final function float MoveLeft( float pixels )
 {
-	return (GetLeft() + pixels)/Parent.GetWidth();
+	return (GetCachedLeft() + pixels)/Parent.GetCachedWidth();
 }
 
 // ALT: RelativePosition.Y - (pixels/GetTop()*RelativePosition.Y)
 final function float MoveTop( float pixels )
 {
-	return (GetTop() + pixels)/Parent.GetHeight();
+	return (GetCachedTop() + pixels)/Parent.GetCachedHeight();
 }
 
 defaultproperties

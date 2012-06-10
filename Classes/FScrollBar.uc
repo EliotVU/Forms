@@ -40,10 +40,12 @@ function InitializeScrollBar()
 
 	Assert( MaskComponent != none );
 
-	VisibleHeight = MaskComponent.GetHeight();
+	MaskComponent.Refresh();
+	VisibleHeight = MaskComponent.GetCachedHeight();
 	foreach MaskComponent.Components( component )
 	{
-		endPos = component.GetTop() + component.GetHeight();
+		component.Refresh();
+		endPos = component.GetCachedTop() + component.GetCachedHeight();
 		if( endPos >= maxHeight )
 		{
 			maxHeight = endPos;	
@@ -148,7 +150,7 @@ function SetValue( float newValue )
 function ValueChanged( FComponent sender )
 {
 	// Update just incase!
-	VisibleHeight = MaskComponent.GetHeight();
+	VisibleHeight = MaskComponent.GetCachedHeight();
 	MaskComponent.OriginOffset.Y = -FClamp( Value, MinValue, MaxValue );
 }
 
