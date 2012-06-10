@@ -101,6 +101,13 @@ var(Component, Positioning) enum EPositioning
 	P_Fixed,
 } Positioning;
 
+/** The collision shape of this component. */
+var(Component, Collision) enum ECollisionShape
+{
+	CS_Rectangle,
+	CS_Circle
+} CollisionShape;
+
 /** The style for this component to use. */
 var(Component, Display) privatewrite editinline FStyle Style;
 
@@ -237,12 +244,19 @@ function Render( Canvas C )
 		LeftX = 0;
 	}
 
-	C.SetPos( LeftX, TopY );
 	if( Style != none )
 	{
-		RenderStyle( C );
+		C.SetPos( LeftX, TopY );
+		Style.Render( C );
+		
+		C.SetPos( LeftX, TopY );
+		Style.RenderFirstElements( C, self );
+		
 		C.SetPos( LeftX, TopY );
 		RenderComponent( C );
+		
+		C.SetPos( LeftX, TopY );
+		Style.RenderLastElements( C, self );
 	}
 	OnPostRender( self, C );
 
@@ -270,13 +284,6 @@ function Render( Canvas C )
 		LeftX = C.OrgX;
 	}
 	C.SetOrigin( 0, 0 );
-}
-
-/** Draw all assigned elements from the Style object, these elements could be borders or backgrounds etcetera. */
-function RenderStyle( Canvas C )
-{
-	Style.Render( C );
-	Style.RenderElements( C, self );
 }
 
 /** Override this to render anything specific to a unique component. */
@@ -450,12 +457,53 @@ function bool IsHover( IntPoint mousePosition, out FComponent hoveredComponent )
 	return false;
 }
 
+final function Vector2D GetPosition()
+{
+	local Vector2D v;
+	
+	v.X = GetLeft();
+	v.Y = GetTop();
+	return v;
+}
+
+final function Vector2D GetSize()
+{
+	local Vector2D v;
+	
+	v.X = GetWidth();
+	v.Y = GetHeight();
+	return v;
+}
+
+final function Vector PointToVect( IntPoint point )
+{
+	local Vector v;
+	
+	v.X = point.X;
+	v.Y = point.Y;
+	return v;	
+}
+
 final function bool Collides( IntPoint mousePosition )
 {
-	return (mousePosition.X >= GetLeft()) 
-			   && (mousePosition.X <= GetLeft() + GetWidth())
-			   && (mousePosition.Y >= GetTop()) 
-			   && (mousePosition.Y <= GetTop() + GetHeight());
+	local Vector2D pos, size;
+	
+	pos = GetPosition();
+	size = GetSize();
+	switch( CollisionShape )
+	{
+		case CS_Rectangle:
+			return ((mousePosition.X >= pos.X) && (mousePosition.X <= pos.X + size.X))
+					&& 
+				   ((mousePosition.Y >= pos.Y) && (mousePosition.Y <= pos.Y + size.Y));
+					   
+		// My math is terrible :D
+		case CS_Circle:
+			pos.X += size.X*(0.5 - HorizontalDock);
+			pos.Y += size.Y*(0.5 - VerticalDock);
+			return Abs( pos.X - mousePosition.X ) <= size.X && Abs( pos.Y - mousePosition.Y ) <= size.Y; 
+	}
+	return false;
 }
 
 /** Notify that the component is selected! */

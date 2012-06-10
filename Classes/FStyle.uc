@@ -24,6 +24,11 @@ var(Style, Display) Texture2D					Image;
 var(Style, Positioning) TextureCoordinates		ImageCoords;
 var config const string							ImageName;
 var config const TextureCoordinates				ImageNameCoords;
+var(Style, Display) enum ETileStyle				
+{
+	TS_Tile,
+	TS_TileStretched
+}												ImageStyle;
 
 /** The texture to be used as the component's background/image (If supported) */
 var(Style, Display) Texture2D					Shadow;
@@ -42,6 +47,8 @@ var(Style, Colors) const Color					HoverColor;
 var(Style, Colors) const Color					FocusColor;
 var(Style, Colors) const Color					ActiveColor;
 var(Style, Colors) const Color					DisabledColor;
+
+var(Style, Display) bool						bPlainColors;
 
 /** Collection of elements to render after the associated component(s). */
 var(Style, Elements) protectedwrite editinline array<FElement> Elements;
@@ -90,13 +97,29 @@ function InitializeElements()
 
 function Render( Canvas C );
 
-function RenderElements( Canvas C, FComponent Object )
+function RenderFirstElements( Canvas C, FComponent Object )
 {
 	local int i;
 
 	for( i = 0; i < Elements.Length; ++ i )
 	{
-		Elements[i].RenderElement( C, Object );
+		if( Elements[i].RenderOrder == O_First )
+		{
+			Elements[i].RenderElement( C, Object );
+		}
+	}
+}
+
+function RenderLastElements( Canvas C, FComponent Object )
+{
+	local int i;
+
+	for( i = 0; i < Elements.Length; ++ i )
+	{
+		if( Elements[i].RenderOrder == O_Last )
+		{
+			Elements[i].RenderElement( C, Object );
+		}
 	}
 }
 
@@ -105,6 +128,12 @@ function DrawBackground( Canvas C, float width, float height )
 	local float UL, VL;
 	local float curX, curY;
 	local Color curColor;
+	
+	if( bPlainColors )
+	{
+		C.DrawRect( width, height );
+		return;
+	}
 	
 	if( Image == none )
 		return;
@@ -122,8 +151,15 @@ function DrawBackground( Canvas C, float width, float height )
 	}
 	
 	UL = (ImageCoords.UL <= 1.0) ? float(Image.SizeX) : ImageCoords.UL;
-	VL = (ImageCoords.VL <= 1.0) ? float(Image.SizeY) : ImageCoords.VL;		
-	C.DrawTileStretched( Image, width, height, ImageCoords.U, ImageCoords.V, UL, VL );
+	VL = (ImageCoords.VL <= 1.0) ? float(Image.SizeY) : ImageCoords.VL;
+	if( ImageStyle == TS_TileStretched )
+	{	
+		C.DrawTileStretched( Image, width, height, ImageCoords.U, ImageCoords.V, UL, VL );
+	}
+	else if( ImageStyle == TS_Tile )
+	{
+		C.DrawTile( Image, width, height, ImageCoords.U, ImageCoords.V, UL, VL );
+	}
 }
 
 function DrawShadow( Canvas C, float width, float height )
@@ -167,6 +203,7 @@ defaultproperties
 	
 	ImageCoords=(U=0.0,V=0.0,UL=1.0,VL=1.0)
 	ImageColor=(R=255,G=255,B=255,A=255)
+	ImageStyle=TS_TileStretched
 	
 	ShadowCoords=(U=0.0,V=0.0,UL=1.0,VL=1.0)
 	ShadowColor=(A=32)

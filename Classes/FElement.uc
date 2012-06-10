@@ -15,6 +15,14 @@
 */
 class FElement extends Object;
 
+enum EOrder
+{
+	O_First,
+	O_Last
+};
+
+var(Element, Display) EOrder		RenderOrder;
+
 function Initialize();
 function Refresh();
 function RenderElement( Canvas C, FComponent Object );
@@ -22,4 +30,5 @@ function Free();
 
 defaultproperties
 {
+	RenderOrder=O_First
 }

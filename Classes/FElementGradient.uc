@@ -15,15 +15,15 @@
 */
 class FElementGradient extends FElement;
 
-var() const enum EDirection
+var(Element, Display) const enum EDirection
 {
 	D_Top,
 	D_Left
 } Direction;
-var() const Color BeginColor;
-var() const Color EndColor;
+var(Element, Display) const Color BeginColor;
+var(Element, Display) const Color EndColor;
 
-var() const byte Quality;
+var(Element, Display) const byte Quality;
 var Texture Pixel;
 
 //==============================================

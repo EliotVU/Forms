@@ -137,13 +137,5 @@ defaultproperties
 	TextAlign=TA_Left
 
 	bEnabled=true
-	bSupportSelection=true
-	
-	begin object name=oStyle
-		ImageColor=(R=255,G=255,B=255,A=255)
-		HoverColor=(R=255,G=255,B=0,A=255)
-		FocusColor=(R=180,G=180,B=180,A=255)
-		ActiveColor=(R=200,G=200,B=200,A=255)
-		DisabledColor=(R=0,G=0,B=0,A=255)
-	end object
+	bSupportSelection=true	
 }
