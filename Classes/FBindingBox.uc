@@ -1,34 +1,44 @@
-/*
-   Copyright 2012 Eliot van Uytfanghe
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
+/* ========================================================
+ * Copyright 2012 Eliot van Uytfanghe
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ========================================================
+ * FBindingBox: A set of controls for binding multiple keys to a single command.
+ * ======================================================== */
 class FBindingBox extends FMultiComponent;
 
 const UNBOUND = "Unbound";
 
-var(Component, Advanced) `{Automated} FLabel ActionLabel;
+/** The input label for example: Move Forward. */
+var(BindingBox, Advanced) `{Automated} FLabel ActionLabel;
 
-var(Component, Advanced) `{Automated} FInputBox ActionKey;
-var(Component, Advanced) `{Automated} FInputBox ActionSecondaryKey;
+/** The primary key InputBox. */
+var(BindingBox, Advanced) `{Automated} FInputBox ActionKey;
 
-var int PrimaryKeyIndex;
-var int SecondaryKeyIndex;
+/** The secondary key InputBox. */
+var(BindingBox, Advanced) `{Automated} FInputBox ActionSecondaryKey;
 
-var(Component, Function) bool bBindSecondary;
+var protectedwrite int PrimaryKeyIndex;
+var protectedwrite int SecondaryKeyIndex;
 
-var(Component, Display) string ActionName;
-var(Component, Function) string ActionCommand;
+/** Whether this ActionCommand has two binds e.g. E and Enter for Use. */
+var(BindingBox, Function) editconst bool bBindSecondary;
+
+/** The binding name for for example: GBA_Use. */
+var(BindingBox, Function) string ActionCommand;
+
+/** The caption for ActionLabel for example: Move Forward. */
+var(BindingBox, Display) editconst string ActionName;
 
 function Free()
 {
@@ -42,20 +52,15 @@ function InitializeComponent()
 {
 	local string bindKey;
 	
-	ActionLabel = FLabel(CreateComponent( class'FLabel' ));
-	ActionLabel.SetPos( 0.0, 0.0 );
-	ActionLabel.SetSize( 0.4, 1.0 );
-	ActionLabel.SetMargin( 0,0,0,0 );
+	super.InitializeComponent();
+	ActionLabel = FLabel(CreateComponent( ActionLabel.Class, self, ActionLabel ));
 	ActionLabel.SetText( ActionName );
 	AddComponent( ActionLabel );
 
 	bindKey = GetBindedKeyForCommand( ActionCommand, PrimaryKeyIndex, true );
 	if( bindKey != UNBOUND )
 	{
-		ActionKey = FInputBox(CreateComponent( class'FInputBox' ));
-		ActionKey.SetPos( 0.4, 0.0 );
-		ActionKey.SetSize( 0.3, 1.0 );
-		ActionKey.SetMargin( 0,0,0,0 );
+		ActionKey = FInputBox(CreateComponent( ActionKey.Class, self, ActionKey ));
 		ActionKey.SetText( bindKey );
 		ActionKey.OnTextChanged = BindChanged;
 		// Single click?
@@ -70,10 +75,7 @@ function InitializeComponent()
 	bindKey = GetBindedKeyForCommand( ActionCommand, SecondaryKeyIndex );
 	if( bindKey != UNBOUND )
 	{
-		ActionSecondaryKey = FInputBox(CreateComponent( class'FInputBox' ));
-		ActionSecondaryKey.SetPos( 0.7, 0.0 );
-		ActionSecondaryKey.SetSize( 0.3, 1.0 );
-		ActionSecondaryKey.SetMargin( 0,0,0,0 );
+		ActionSecondaryKey = FInputBox(CreateComponent( ActionSecondaryKey.Class, self, ActionSecondaryKey ));
 		ActionSecondaryKey.SetText( bindKey );
 		ActionSecondaryKey.OnTextChanged = BindChanged;
 		AddComponent( ActionSecondaryKey );
@@ -168,11 +170,24 @@ defaultproperties
 	
 	Padding=(W=4,X=4,Y=4,Z=4)
 
-	// TODO: Find out why "instanced" does not work or wait for Epic Games to support nested "Component" classes
-	/*begin object name=oLAction class=FLabel
-		RelativePosition=(X=0.01,Y=0.0)
-		RelativeSize=(X=0.4,Y=1.0)
+	begin object name=oLAction class=FLabel
+		RelativePosition=(X=0.00,Y=0.00)
+		RelativeSize=(X=0.40,Y=1.00)
+		Margin=(W=0,X=0,Y=0,Z=0)
 	end object
 	ActionLabel=oLAction
-	Components.Add(oLAction)*/
+	
+	begin object name=oIBActionKey class=FInputBox
+		RelativePosition=(X=0.40,Y=0.00)
+		RelativeSize=(X=0.30,Y=1.00)
+		Margin=(W=0,X=0,Y=0,Z=0)
+	end object
+	ActionKey=oIBActionKey
+	
+	begin object name=oIBActionSecondaryKey class=FInputBox
+		RelativePosition=(X=0.70,Y=0.00)
+		RelativeSize=(X=0.30,Y=1.00)
+		Margin=(W=0,X=0,Y=0,Z=0)
+	end object
+	ActionSecondaryKey=oIBActionSecondaryKey
 }
