@@ -76,9 +76,10 @@ defaultproperties
 	Components.Add(oDesc)
 
 	begin object name=oReady class=FButton
-		RelativePosition=(X=0.99,Y=0.94)
+		RelativePosition=(X=1.0,Y=1.0)
 		RelativeSize=(X=0.1,Y=0.05)
-		HorizontalDock=HD_Right
+		HorizontalDock=HD_Right // Snap to the right (Pos X becomes the end position and Size X becomes the offset from the end)
+		VerticalDock=VD_Bottom	// Snap to the bottom (Pos Y becomes the end position and Size Y becomes the offset from the end)
 		Text="Ready"
 		// Executes in Default_FormsPage, all references will be NONE! 
 		//	- Use sender.Controller instead of just Controller!

@@ -1,31 +1,32 @@
-/*
-   Copyright 2012 Eliot van Uytfanghe
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
+/* ========================================================
+ * Copyright 2012 Eliot van Uytfanghe
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ========================================================
+ * FComponent: The base class of all scene controls.
+ * ======================================================== */
 class FComponent extends FObject
 	config(Forms)
+	forcescriptorder(true)
 	perobjectconfig
 	perobjectlocalized
-	editinlinenew
-	abstract
-	forcescriptorder(true);
+	abstract;
 
 /** Cannot be used(same for other objects) from delegate events if that delegate is initialized via the DefaultProperties block! */
-var transient editconst FIController Controller;
+var transient noclear noimport edithide editconst FIController Controller;
 
 /** Cannot be used(same for other objects) from delegate events if that delegate is initialized via the DefaultProperties block! */
-var(Component, Advanced) noclear editconst FComponent Parent;
+var(Component, Advanced) noclear noimport editconst FComponent Parent;
 
 /** Is this component visible? */
 var(Component, Function) protectedwrite bool bVisible;
@@ -60,10 +61,10 @@ var(Component, Positioning) privatewrite Vector4 Margin;
  */
 var(Component, Positioning) privatewrite Vector4 Padding;
 
-struct Boundary
+struct atomic Boundary
 {
-	var float Min, Max;
-	var bool bEnabled;
+	var() float Min, Max;
+	var() bool bEnabled;
 };
 /** Max/Min width for this component. */
 var(Component, Positioning) Boundary WidthBoundary;
@@ -129,14 +130,14 @@ var protectedwrite transient editconst float TopY, LeftX, WidthX, HeightY;
 var transient Vector2D OriginOffset;
 
 // This component has been initialized?
-var transient editconst bool bInitialized;
+var transient edithide editconst bool bInitialized;
 
 /** Useful todo animations when hovering/unhovering. RealTimeSeconds! */
-var transient editconst float LastHoveredTime, LastUnhoveredTime;
-var transient editconst float LastFocusedTime, LastUnfocusedTime;
-var transient editconst float LastActiveTime, LastUnactiveTime;
-var transient editconst float LastStateChangeTime;
-var transient editconst Color LastStateColor;
+var transient edithide editconst float LastHoveredTime, LastUnhoveredTime;
+var transient edithide editconst float LastFocusedTime, LastUnfocusedTime;
+var transient edithide editconst float LastActiveTime, LastUnactiveTime;
+var transient edithide editconst float LastStateChangeTime;
+var transient edithide editconst Color LastStateColor;
 
 // KB/M EVENTS - Only called if hovered or focused!
 delegate OnClick( FComponent sender, optional bool bRight );
@@ -286,9 +287,32 @@ protected function RenderComponent( Canvas C );
 function Free()
 {
 	`Log( Name $ "Free" );
+	
+	// POINTERS
 	Controller = none;
 	Parent = none;
 	Style = none;
+	
+	// DELEGATES
+	OnClick = none;
+	OnDoubleClick = none;
+	OnMouseButtonPressed = none;
+	OnMouseButtonRelease = none;
+	OnMouseWheelInput = none;
+	OnMouseMove = none;
+	OnKeyInput = none;
+	OnCharInput = none;
+	OnVisibleChanged = none;
+	OnEnabledChanged = none;
+	OnPostRender = none;
+	OnInitialize = none;
+	OnUpdate = none;
+	OnHover = none;
+	OnUnHover = none;
+	OnFocus = none;
+	OnUnFocus = none;
+	OnActive = none;
+	OnUnActive = none;
 
 	bInitialized = false;	// So it may be restored later if desired.
 }
@@ -315,7 +339,7 @@ final function SetSize( const float X, const float Y )
 	RelativeSize.Y = Y;
 }
 
-final function SetMargin( float leftPixels, float topPixels, float rightPixels, float bottomPixels )
+final function SetMargin( const float leftPixels, const float topPixels, const float rightPixels, const float bottomPixels )
 {
 	Margin.X = rightPixels;
 	Margin.Y = bottomPixels;
@@ -323,7 +347,7 @@ final function SetMargin( float leftPixels, float topPixels, float rightPixels, 
 	Margin.Z = topPixels;
 }
 
-final function SetPadding( float leftPixels, float topPixels, float rightPixels, float bottomPixels )
+final function SetPadding( const float leftPixels, const float topPixels, const float rightPixels, const float bottomPixels )
 {
 	Padding.X = rightPixels;
 	Padding.Y = bottomPixels;
@@ -411,6 +435,7 @@ function bool CanRender()
 	return bVisible;
 }
 
+/** Determine whether this component can be tested for collisions. */
 function bool CanInteract()
 {
 	return (bEnabled 
@@ -420,13 +445,13 @@ function bool CanInteract()
 	) && CanRender();
 }
 
-final function SetVisible( bool v )
+final function SetVisible( const bool v )
 {
 	bVisible = v;
 	OnVisibleChanged( self );
 }
 
-final function SetEnabled( bool e )
+final function SetEnabled( const bool e )
 {
 	bEnabled = e;
 	OnEnabledChanged( self );
@@ -460,7 +485,7 @@ final function Vector2D GetSize()
 	return v;
 }
 
-final static function Vector PointToVect( IntPoint point )
+final static function Vector PointToVect( out IntPoint point )
 {
 	local Vector v;
 	
@@ -469,7 +494,7 @@ final static function Vector PointToVect( IntPoint point )
 	return v;	
 }
 
-final protected function bool Collides( IntPoint mousePosition )
+final protected function bool Collides( out IntPoint mousePosition )
 {
 	local Vector2D pos, size;
 	
@@ -568,7 +593,7 @@ final function PlayerController Player()
 	return Controller.Player();
 }
 
-final function string ConsoleCommand( string command )
+final function string ConsoleCommand( const string command )
 {
 	return Controller.Player().ConsoleCommand( command );
 }
@@ -628,7 +653,7 @@ final function Color GetStateColor( optional Color defaultColor = Style.ImageCol
 	return newStateColor;
 }
 
-final protected function FadingSwapColor( out Color newColor, Color destColor, float oldColorTime )
+final protected function FadingSwapColor( out Color newColor, const out Color destColor, const float oldColorTime )
 {
 	const FadingSwapTime = 4.0;
 	local float pct;
@@ -642,9 +667,9 @@ final protected function FadingSwapColor( out Color newColor, Color destColor, f
 /** Create a new instance of @componentClass. 
  *	Used to create components at run-time.
  */
-final protected function FComponent CreateComponent( class<FComponent> componentClass, optional Object componentOuter = self, optional FComponent componentTemplate = none )
+final protected function FComponent CreateComponent( const class<FComponent> componentClass, optional Object componentOuter = self, optional FComponent componentTemplate = none, optional string componentName )
 {
-	return new(componentOuter) componentClass (componentTemplate);
+	return new(componentOuter, componentName) componentClass (componentTemplate);
 }
 
 final static function StartClipping( Canvas C, out float x, out float y )
@@ -658,19 +683,19 @@ final static function StartClipping( Canvas C, out float x, out float y )
 	y = yc;
 }
 
-final static function StopClipping( Canvas C, float x, float y )
+final static function StopClipping( Canvas C, const float x, const float y )
 {
 	C.SetClip( x, y );
 }
 
 // ALT: RelativePosition.X - (pixels/GetLeft()*RelativePosition.X)
-final function float MoveLeft( float pixels )
+final function float MoveLeft( const float pixels )
 {
 	return (GetCachedLeft() + pixels)/Parent.GetCachedWidth();
 }
 
 // ALT: RelativePosition.Y - (pixels/GetTop()*RelativePosition.Y)
-final function float MoveTop( float pixels )
+final function float MoveTop( const float pixels )
 {
 	return (GetCachedTop() + pixels)/Parent.GetCachedHeight();
 }

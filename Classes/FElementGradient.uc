@@ -1,29 +1,42 @@
-/*
-   Copyright 2012 Eliot van Uytfanghe
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
+/* ========================================================
+ * Copyright 2012 Eliot van Uytfanghe
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ========================================================
+ * FElementGradient: A directional rectangle gradient background.
+ * Draws a gradient using @BeginColor and @EndColor.
+ * ======================================================== */
 class FElementGradient extends FElement;
 
-var(Element, Display) const enum EDirection
+/** Gradient direction. */
+var(Gradient, Display) const enum EDirection
 {
+	/** Begin drawing from the top to bottom. */
 	D_Top,
+	
+	/** Begin drawing from the bottom to top. TBI */
 	D_Left
 } Direction;
-var(Element, Display) const Color BeginColor;
-var(Element, Display) const Color EndColor;
 
-var(Element, Display) const byte Quality;
+/** Start color for this gradient. */
+var(Gradient, Display) const Color BeginColor;
+
+/** End color for this gradient. */
+var(Gradient, Display) const Color EndColor;
+
+/** The size for each color line. Lower = higher quality, Higher = better performance. */
+var(Gradient, Display) const byte Quality;
+
 var Texture Pixel;
 
 //==============================================
@@ -36,11 +49,6 @@ function Free()
 {
 	super.Free();
 	Pixel = none;
-}
-
-function Initialize()
-{
-	Refresh();
 }
 
 function Refresh()
@@ -69,17 +77,18 @@ function RenderElement( Canvas C, FComponent Object )
 	XL = Object.GetCachedWidth();
 	YL = Object.GetCachedHeight();
 
-	lines = YL / float(Quality)+1;
+	lines = YL/float(Quality) + 1;
 	orgX = Object.GetCachedLeft();
 	orgY = Object.GetCachedTop();
+	C.SetPos( orgX, orgY );
 	C.PreOptimizeDrawTiles( lines, Pixel );
 	for( i = 0; i < lines; ++ i )
 	{
-		pct = float(i)/float(lines-1);
-		C.DrawColor.R = ColorVect1.X + ColorVect2.X * pct;
-		C.DrawColor.G = ColorVect1.Y + ColorVect2.Y * pct;
-		C.DrawColor.B = ColorVect1.Z + ColorVect2.Z * pct;
-		C.DrawColor.A = ColorA1 + ColorA2 * pct;
+		pct = float(i)/float(lines - 1);
+		C.DrawColor.R = ColorVect1.X + ColorVect2.X*pct;
+		C.DrawColor.G = ColorVect1.Y + ColorVect2.Y*pct;
+		C.DrawColor.B = ColorVect1.Z + ColorVect2.Z*pct;
+		C.DrawColor.A = ColorA1 + ColorA2*pct;
 		C.DrawTile( Pixel, 
 			XL, Min( Quality, YL - (C.CurY - orgY) ),
 			0, 0,

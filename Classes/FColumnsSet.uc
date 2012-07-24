@@ -1,26 +1,28 @@
-/*
-   Copyright 2012 Eliot van Uytfanghe
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
+/* ========================================================
+ * Copyright 2012 Eliot van Uytfanghe
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ========================================================
+ * FColumnsSet: 
+ * ======================================================== */
 class FColumnsSet extends FMultiComponent;
 
-var(Component, Display) int NumColumns;
-var(Component, Display) int NumRows;
+var(ColumnsSet, Display) int NumColumns;
+var(ColumnsSet, Display) int NumRows;
 
-var(Component, Function) class<FColumn> ColumnClass;
+var(ColumnsSet, Function) class<FColumn> ColumnClass;
 
-var(Component, Advanced) protectedwrite editinline array<FColumn> Columns;
+var(ColumnsSet, Advanced) protectedwrite editinline array<FColumn> Columns;
 
 var protectedwrite editinline transient FColumn SelectedColumn;
 
