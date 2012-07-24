@@ -29,7 +29,8 @@ var(Component, Advanced) `{Automated} FContainer Body;
 
 var transient IntPoint DragMPosition;
 var transient Vector2D DragCPosition;
-var bool bDraggable;
+var() bool bDraggable;
+var() bool bClampPosition;
 
 function Free()
 {
@@ -46,11 +47,11 @@ function InitializeComponent()
 
 	super.InitializeComponent();
 	
-	Header = FContainer(CreateComponent( class'FContainer', self, Header ));
-		HeaderBackground = FImage(CreateComponent( class'FImage', self, HeaderBackground ));
+	Header = FContainer(CreateComponent( Header.Class, self, Header ));
+		HeaderBackground = FImage(CreateComponent( HeaderBackground.Class, self, HeaderBackground ));
 		Header.AddComponent( HeaderBackground );
 	
-		HeaderTitle = FLabel(CreateComponent( class'FLabel', self, HeaderTitle ));
+		HeaderTitle = FLabel(CreateComponent( HeaderTitle.Class, self, HeaderTitle ));
 		if( bDraggable )
 		{
 			HeaderTitle.OnMouseButtonPressed = BeginDragEvent;
@@ -58,7 +59,7 @@ function InitializeComponent()
 		}
 		Header.AddComponent( HeaderTitle );
 
-	Body = FContainer(CreateComponent( class'FContainer', self, Body ));
+	Body = FContainer(CreateComponent( Body.Class, self, Body ));
 	Body.Components = Components;
 	foreach Components( comp )
 	{
@@ -95,8 +96,11 @@ function DraggingEvent( FScene scene, float DeltaTime )
 
 	newX = MoveLeft( float(scene.MousePosition.X - DragMPosition.X) );
 	newY = MoveTop( float(scene.MousePosition.Y - DragMPosition.Y) );
-	SetPos( FClamp( newX, 0.0, 1.0-RelativeSize.X ), FClamp( newY, 0.0, 1.0-RelativeSize.Y ) );
-
+	
+	if( bClampPosition && RelativeSize.X <= 1.0 && RelativeSize.Y <= 1.0 )
+	{
+		SetPos( FClamp( newX, 0.0, 1.0-RelativeSize.X ), FClamp( newY, 0.0, 1.0-RelativeSize.Y ) );
+	}
 	DragMPosition = scene.MousePosition;
 }
 
@@ -119,7 +123,6 @@ defaultproperties
 			RelativePosition=(X=0.0,Y=0.0)
 			RelativeSize=(X=1.0,Y=1.0)
 			begin object name=oHeaderImage class=FStyle
-				//Image=Texture2D'GameUI.Tiles.HeaderBackground'
 				begin object name=oColor class=FElementGradient
 					BeginColor=(R=60,G=60,B=60,A=255)
 					EndColor=(R=14,G=14,B=15,A=255)
@@ -148,7 +151,7 @@ defaultproperties
 	Header=oHeader
 	
 	begin object name=oBody class=FContainer
-		Margin=(Y=32.0,Z=32.0)
+		Margin=(Y=16.0,Z=32.0)
 		RelativePosition=(X=0.0,Y=0.0)
 		RelativeSize=(X=1.0,Y=1.0)
 
