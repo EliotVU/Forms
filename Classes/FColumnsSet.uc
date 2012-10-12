@@ -45,12 +45,12 @@ function InitializeComponent()
 	
 	super.InitializeComponent();
 	
-	columnSizeX = RelativeSize.X/NumColumns;
-	columnSizeY = RelativeSize.Y/NumRows;
+	columnSizeX = 1.0/float(NumColumns);
+	columnSizeY = 1.0/float(NumRows);
 	pY = 0.0;
 	for( i = 0; i < NumRows; ++ i )
 	{
-		pX = 0;
+		pX = 0.0;
 		for( j = 0; j < NumColumns; ++ j )
 		{
 			comp = FColumn(CreateComponent( ColumnClass, self ));
