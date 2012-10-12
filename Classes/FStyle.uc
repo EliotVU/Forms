@@ -29,6 +29,7 @@ var(Style, Display) enum ETileStyle
 	TS_Tile,
 	TS_TileStretched
 }												ImageStyle;
+var EBlendMode									ImageBlendMode;
 
 /** The texture to be used as the component's background/image (If supported) */
 var(Style, Display) Texture2D					Shadow;
@@ -158,7 +159,7 @@ function DrawBackground( Canvas C, float width, float height )
 	}
 	else if( ImageStyle == TS_Tile )
 	{
-		C.DrawTile( Image, width, height, ImageCoords.U, ImageCoords.V, UL, VL );
+		C.DrawTile( Image, width, height, ImageCoords.U, ImageCoords.V, UL, VL,,, ImageBlendMode );
 	}
 }
 
