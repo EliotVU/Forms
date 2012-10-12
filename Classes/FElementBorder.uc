@@ -38,21 +38,33 @@ function RenderElement( Canvas C, FComponent Object )
 	curX = Object.GetCachedLeft();
 	curY = Object.GetCachedTop();
 	
-	C.SetPos( curX, curY );
-	C.DrawColor = Left.Color;
-	C.DrawRect( Left.Size, Object.GetCachedHeight() );
+	if( Left.Size > 0 )
+	{
+		C.SetPos( curX, curY );
+		C.DrawColor = Left.Color;
+		C.DrawRect( Left.Size, Object.GetCachedHeight() );
+	}
 	
-	C.SetPos( curX + Object.GetCachedWidth() - Right.Size, curY );
-	C.DrawColor = Right.Color;
-	C.DrawRect( Right.Size, Object.GetCachedHeight() );
+	if( Right.Size > 0 )
+	{
+		C.SetPos( curX + Object.GetCachedWidth() - Right.Size, curY );
+		C.DrawColor = Right.Color;
+		C.DrawRect( Right.Size, Object.GetCachedHeight() );
+	}
+
+	if( Top.Size > 0 )
+	{
+		C.SetPos( curX, curY );
+		C.DrawColor = Top.Color;
+		C.DrawRect( Object.GetCachedWidth(), Top.Size );
+	}
 	
-	C.SetPos( curX, curY );
-	C.DrawColor = Top.Color;
-	C.DrawRect( Object.GetCachedWidth(), Top.Size );
-	
-	C.SetPos( curX, curY + Object.GetCachedHeight() - Bottom.Size );
-	C.DrawColor = Bottom.Color;
-	C.DrawRect( Object.GetCachedWidth(), Bottom.Size );
+	if( Bottom.Size > 0 )
+	{
+		C.SetPos( curX, curY + Object.GetCachedHeight() - Bottom.Size );
+		C.DrawColor = Bottom.Color;
+		C.DrawRect( Object.GetCachedWidth(), Bottom.Size );
+	}
 }
 
 defaultproperties
