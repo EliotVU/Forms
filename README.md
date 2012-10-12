@@ -9,21 +9,7 @@ Graphics not included!
 
 Installing Forms
 =====
-Download forms using the "Zip" button on this.
-
-Extract the Zip file content into /Development/Src/Forms/.
-Extract the DefaultForms.ini to your /Config/ folder and the FormsPlayerController into your project.
-
-Add Forms to ModEditPackages in DefaultEngine.ini.
-
-
-(OPTIONAL)Change the extension of the forms controller to what you like, 
-but beware this should not extend your PlayerController but one of the engine, 
-then change your PlayerController extension to this FormsPlayerController, 
-or simply copy paste all the code of the FormsPlayerController into yours if you wish to.
-
-Build your project, if you get any errors, make sure you followed the instructions right, or if else report the issue!
-
+Read this short tutorial on installing forms: http://github.com/EliotVU/Forms/wiki/Installing-Forms
 Once installed, start by making your first menu: http://github.com/EliotVU/Forms/wiki/Your-First-Menu
 
 Testing
