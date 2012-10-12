@@ -166,17 +166,5 @@ defaultproperties
 	FormsControllerClass=class'FController'
 	FormsSceneClass=class'FScene'
 
-	// Replace YOURPAGE with your MainMenu class. It's recommend that you handle properties within the class itself!
-	begin object name=oMainMenu class=YOURPAGE
-		// Properties
-	end object
-	MainMenu=oMainMenu
-
-	// Replace YOURPAGE with your EscapeMenu class. It's recommend that you handle properties within the class itself!
-	begin object name=oEscapeMenu class=YOURPAGE
-		// Properties
-	end object
-	EscapeMenu=oEscapeMenu
-
-	MenuPostProcessChain=PostProcessChain'PACKAGE.GROUP.NAME'
+	//MenuPostProcessChain=PostProcessChain'PACKAGE.GROUP.NAME'
 }
