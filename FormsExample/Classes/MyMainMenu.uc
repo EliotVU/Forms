@@ -19,7 +19,7 @@ function InitializeComponent()
 {
 	local PlayerReplicationInfo PRI;
 
-	PRI = PlayerReplicationInfo(Player().PlayerReplicationInfo);
+	PRI = Player().PlayerReplicationInfo;
 	if( PRI != none )
 	{
 		LPlayerName.SetText( PRI.PlayerName );
