@@ -1,7 +1,11 @@
 Forms
 =====
-Forms is a very easy to use Game User Interface framework.
-This frameworks delivers you all of the most common controls you will ever need in your game's menu.
+Forms is a graphical user interface(GUI) framework purely programmed in UnrealScript independent of Scaleforms and UIScene. 
+Inspired by the OOP and subobjects semantics of the Unreal Engine 2 GUIs framework.
+
+This framework will give you most of the common GUI building components of which: 
+
+  Page, Button, Dialog, Tab Control, Label, and many more!
 
 Forms in action:
 ![Potention](http://cloud.steampowered.com/ugc/540677266034363535/8F08FE0DA245238DDAE1250622ADF9E078294B0E/)
@@ -14,17 +18,19 @@ Once installed, start by making your first menu: http://github.com/EliotVU/Forms
 
 Testing
 =====
-There will come a time you will need to fix the positions of your components with visual help, this can be done if you build Forms in debug mode.
+There will come a time that you will need to fix the positions of your components with visual help, this can be done if you build Forms in debug mode.
 
-Make a shortcut to your game if you haven't got one yet. Add the parameter -debug and -wxwindows.
+Make a shortcut to your game if you haven't got one yet. Then add the following arguments: 
 
-Then launch your game through the shortcut, and hit alt+enter to go windowed mode. 
+-debug and -wxwindows.
 
-Hold Shift and CTRL, and click on the component you wish to modify, this will popup a dialog with all the options you wish to edit, when done copy those settings to your code.
+Launch your game through that shortcut, and hit Alt+Enter to go into windowed mode. 
+And hold Shift and CTRL, then click on a component you wish to modify; This will popup a dialog with every available variable as defined in the UnrealScript classes. When you are done you may copy those settings and apply them to your code if you are happy with the new values. Of course you do the trial and error way but sometimes it's a good idea to get first the idea of position, size units before doing this all out of your head!
 
 About
 =====
 Home: http://eliotvu.com/portfolio/view/48/forms-udk-gui-framework
+Forums: http://eliotvu.com/forum/forumdisplay.php?fid=11
 
 License
 =====
