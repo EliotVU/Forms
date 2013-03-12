@@ -63,9 +63,8 @@ protected function RenderSlider( Canvas C )
 		bSliding ? WidthX*(GetSliderBegin()/GetSliderEnd()) : Value/MaxValue*GetSliderEnd(), 0.0,
 		WidthX - trackWidth 
 	) - trackWidth*0.5;
-	
-	C.SetPos( LeftX, TopY );
-	Style.DrawBackground( C, sliderX, HeightY );
+	//C.SetPos( LeftX, TopY );
+	//Style.DrawBackground( C, sliderX, HeightY );
 
 	// Tracker
 	C.SetPos( LeftX + sliderX + trackWidth*0.5, TopY );
@@ -87,4 +86,6 @@ defaultproperties
 	TextRenderInfo=(bClipText=true)
 
 	SnapPower=0.1
+
+	StyleNames.Add(Slider)
 }

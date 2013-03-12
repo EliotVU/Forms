@@ -13,31 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * ========================================================
- * FObject: The base class of all components and styles.
+ * FCheckBoxStyle: Adds configurable styling options for FCheckBox.
  * ======================================================== */
-class FObject extends Object
-	hidecategories(Object)
-	abstract;
+class FCheckBoxStyle extends FStyle;
 
-function Free();
-function Render( Canvas C );
-
-public final function string SplitArray( array<name> nameArray, string spacer = "-" )
-{
-	local int i;
-	local string ret;
-
-	for( i = 0; i < nameArray.Length; ++ i )
-	{
-		ret $= nameArray[i];
-		if( i != nameArray.Length - 1 )
-		{
-			ret $= "-";
-		}
-	}
-	return ret;
-}
-
-defaultproperties
-{
-}
+var(Style, Colors) config const Color	CheckedColor;
+var(Style, Colors) config const Color	UncheckedColor;

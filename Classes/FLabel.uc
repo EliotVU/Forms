@@ -193,7 +193,7 @@ defaultproperties
 
 	Text="Label"
 	TextFont=MultiFont'UI_Fonts_Final.HUD.MF_Small'
-	TextColor=(R=255,G=255,B=255,A=255)
+	TextColor=(R=245,G=245,B=245,A=255)
 	TextAlign=TA_Left
 	TextVAlign=TA_Center
 

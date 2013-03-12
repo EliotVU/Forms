@@ -175,8 +175,5 @@ defaultproperties
 	
 	// Uncomment if you want inner-only-sliding
 	//OnUnHover=FocusLost
-	
-	begin object name=oStyle class=FScrollStyle
-	end object
-	Style=oStyle
+	StyleClass=class'FScrollStyle'
 }

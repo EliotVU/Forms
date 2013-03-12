@@ -16,11 +16,19 @@
 class FScene extends FComponent;
 
 /** Add objects to this pool that have to be free'd on level change! :TODO: */
-var protected array<FObject> ObjectsPool;
+var protectedwrite array<FObject> 									ObjectsPool;
 
 // First item = Top page/window.
 // Last item = lowest page/window.
-var(Scene, Advanced) protectedwrite editinline array<FPage> Pages;
+var(Scene, Advanced) protectedwrite editinline array<FPage> 		Pages;
+
+var const globalconfig name 										ThemeName;
+
+// Contains a list of style objects
+var array<FStyle> 													Styles;
+
+// Reference to the style class named "Global".
+var private FStyle 													GlobalStyle;
 
 var protectedwrite transient FComponent SelectedComponent;
 var protectedwrite transient FComponent LastSelectedComponent;
@@ -120,6 +128,8 @@ protected function LoadConfigurations()
 	{
 		CursorsImage = Texture2D(DynamicLoadObject( CursorsImageName, class'Texture2D', true ));
 	}
+
+	GlobalStyle = new (none, "(" $ ThemeName $ ")" $ "Global") class'FStyle';
 }
 
 function Update( float DeltaTime )
@@ -296,8 +306,8 @@ function Render( Canvas C )
 			RenderGrid( C );
 		}
 	`endif
+
 	RenderPages( C );
-	
 	OnPostRenderPages( C );
 	
 	`if( `isdefined( DEBUG ) )
@@ -534,6 +544,8 @@ function Free()
 	LastHoveredComponent = none;
 	
 	FreeObjects();
+
+	GlobalStyle = none;
 	super.Free();
 }
 
@@ -955,8 +967,55 @@ final function FreeObjects()
 	`Log( "Free'ing" @ ObjectsPool.Length @ "objects!" );
 	foreach ObjectsPool( formObject )
 	{
-		FreeObject( formObject );
+		formObject.Free();
 	}
+	ObjectsPool.Length = 0;
+	Styles.Length = 0;
+}
+
+private final function RegisterStyle( FStyle styleObject )
+{
+	styleObject.Initialize();
+	Styles.AddItem( styleObject );
+
+	AddToPool( styleObject );
+}
+
+final function FStyle GetStyle( string styleIdentifier, class<FStyle> newStyleClass, optional FStyle inheritedTemplate = GlobalStyle )
+{
+	local FStyle newStyle;
+	local string inheritedStyleClassName;
+	local int rightMostHyphenIndex;
+
+	// See if it was created previously.
+	foreach Styles( newStyle )
+	{
+		if( string(newStyle.Name) == styleIdentifier )
+		{
+			return newStyle;
+		}
+	}
+
+	// See if this style inherits multiple styles
+	// For example: Button-TabButton, inherit = Button
+	rightMostHyphenIndex = InStr( styleIdentifier, "-", true );
+	if( rightMostHyphenIndex != INDEX_NONE && InStr( styleIdentifier, ":" ) == INDEX_NONE )
+	{
+		inheritedStyleClassName = Left( styleIdentifier, rightMostHyphenIndex );
+		newStyle = GetStyle( inheritedStyleClassName, newStyleClass, inheritedTemplate );
+		if( newStyle != none )
+		{
+			inheritedTemplate = newStyle;
+		}
+	}
+
+	`Log( "StyleIdentifier:" @ styleIdentifier @ "StyleInheritance:" @ inheritedStyleClassName );
+	
+	// Neither of the above was true so create a new style inheriting the global style.
+	newStyle = new (none, "(" $ ThemeName $")" $ styleIdentifier, 0x00004000 | 0x00000040) newStyleClass (inheritedTemplate);
+	newStyle.Inheritance = inheritedTemplate;
+	RegisterStyle( newStyle );
+	return newStyle;
 }
 
 defaultproperties

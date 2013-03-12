@@ -20,7 +20,7 @@ var(Style, Positioning) TextureCoordinates		TrackImageCoords;
 var config const editconst string				TrackImageName;
 var config const editconst TextureCoordinates	TrackImageNameCoords;
 
-var(Style, Colors) const Color					TrackImageColor;
+var(Style, Colors) config const Color			TrackImageColor;
 
 function Free()
 {
@@ -56,6 +56,4 @@ function DrawTracker( Canvas C, float width, float height )
 
 defaultproperties
 {
-	ImageColor=(R=255,G=255,B=255,A=255)
-	TrackImageColor=(R=200,G=200,B=200,A=255)
 }

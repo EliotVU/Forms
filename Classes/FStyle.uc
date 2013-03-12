@@ -42,17 +42,20 @@ var(Style, Display) int							ShadowSize;
 var(Style, Display) Material					Material;
 var config const string							MaterialName;
 
-var(Style, Colors) const Color					ImageColor;
+var(Style, Colors) config const Color			ImageColor;
 var(Style, Colors) const Color					ShadowColor;
-var(Style, Colors) const Color					HoverColor;
-var(Style, Colors) const Color					FocusColor;
-var(Style, Colors) const Color					ActiveColor;
-var(Style, Colors) const Color					DisabledColor;
+var(Style, Colors) config const Color			HoverColor;
+var(Style, Colors) config const Color			FocusColor;
+var(Style, Colors) config const Color			SelectedColor;
+var(Style, Colors) config const Color			ActiveColor;
+var(Style, Colors) config const Color			DisabledColor;
 
 var(Style, Display) bool						bPlainColors;
 
 /** Collection of elements to render after the associated component(s). */
 var(Style, Elements) protectedwrite editinline array<FElement> Elements;
+
+var(Style, Advanced) editinline FStyle			Inheritance;
 
 function Initialize()
 {
@@ -80,10 +83,6 @@ function Initialize()
 	}
 
 	InitializeElements();
-	
-	`if( `isdefined( DEBUG ) )
-		SaveConfig();
-	`endif
 }
 
 function InitializeElements()
@@ -193,17 +192,18 @@ function Free()
 	Image = none;
 	Shadow = none;
 	Material = none;
+	Inheritance = none;
 }
 
 defaultproperties
 {
-	HoverColor=(R=255,G=255,B=0,A=255)
-	FocusColor=(R=180,G=180,B=180,A=255)
-	ActiveColor=(R=200,G=200,B=200,A=255)
-	DisabledColor=(R=0,G=0,B=0,A=255)
+	//HoverColor=(R=255,G=255,B=0,A=255)
+	//FocusColor=(R=180,G=180,B=180,A=255)
+	//ActiveColor=(R=200,G=200,B=200,A=255)
+	//DisabledColor=(R=0,G=0,B=0,A=255)
 	
 	ImageCoords=(U=0.0,V=0.0,UL=1.0,VL=1.0)
-	ImageColor=(R=255,G=255,B=255,A=255)
+	//ImageColor=(R=255,G=255,B=255,A=255)
 	ImageStyle=TS_TileStretched
 	
 	ShadowCoords=(U=0.0,V=0.0,UL=1.0,VL=1.0)

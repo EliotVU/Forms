@@ -190,4 +190,6 @@ defaultproperties
 		Margin=(W=0,X=0,Y=0,Z=0)
 	end object
 	ActionSecondaryKey=oIBActionSecondaryKey
+
+	StyleName=Default
 }

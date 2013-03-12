@@ -110,7 +110,24 @@ var(Component, Collision) enum ECollisionShape
 } CollisionShape;
 
 /** The style for this component to use. */
-var(Component, Display) privatewrite editinline FStyle Style;
+var(Component, Display) privatewrite editinline FStyle 	Style;
+var private editinline FStyle							InitStyle, HoverStyle, ActiveStyle, FocusStyle;
+
+/** 
+ * A style object will be created and assigned to @Style based on an ini configuration 
+ *  - such as [Button FStyle] then StyleNames would be 'Button'. 
+ * ---
+ * It's possible to use hyphens to define style inheritance:
+ * 	When initializing, this specified style class will be inherited when creating this component's style. 
+ * 	For example: Button-TabButton inherits Button but Button-TabButton:hover does not inherit Button:hover! :(
+ *	This is defined as StyleNames.Add(Button), StyleNames.Add(TabButton)
+ * ---
+ * If the array is empty then @StyleName will be used instead.
+ */
+var const private array<name> 							StyleNames;
+var const private name									StyleName;
+
+var const private class<FStyle>							StyleClass;
 
 /** Whether to clip anything going out of this component region. */
 var(Component, Display) bool bClipComponent;
@@ -195,11 +212,45 @@ function Initialize( FIController c )
 	`if( `isdefined( DEBUG ) )
 		SaveConfig();
 	`endif
+	
+	BindStyle();
+}
 
-	if( Style != none )
-	{
-		SetStyle( Style );
-	}
+public final function ResetStyle()
+{
+	if( HoverStyle != none ){Scene().FreeObject( HoverStyle ); HoverStyle = none;}
+	if( ActiveStyle != none ){Scene().FreeObject( ActiveStyle ); ActiveStyle = none;}
+	if( FocusStyle != none ){Scene().FreeObject( FocusStyle ); FocusStyle = none;}
+
+	Scene().FreeObject( InitStyle ); InitStyle = none;
+	Style = none;
+
+	//ResetConfig( true );
+
+	BindStyle();
+}
+
+private final function BindStyle()
+{
+	local string styleIdentifier;
+
+	styleIdentifier = (StyleNames.Length > 0) ? SplitArray( StyleNames, "-" ) : string(StyleName);
+	Style = Scene().GetStyle( styleIdentifier, StyleClass );
+	InitStyle = Style;
+
+	// All states inherit the default's style not Global:Hover( not supported :( ))
+	HoverStyle = GetStateStyle( styleIdentifier, "hover" );
+	ActiveStyle = GetStateStyle( styleIdentifier, "active" );
+	FocusStyle = GetStateStyle( styleIdentifier, "focus" );
+
+	if( HoverStyle == none ) HoverStyle = InitStyle;
+	if( ActiveStyle == none ) ActiveStyle = InitStyle;
+	if( FocusStyle == none ) FocusStyle = InitStyle;
+}
+
+private final function FStyle GetStateStyle( string styleIdentifier, string stateName )
+{
+	return Scene().GetStyle( styleIdentifier $ ":" $ stateName, StyleClass, InitStyle );
 }
 
 /** Initializes this component. Override this to add other components or objects to this component. */
@@ -277,7 +328,7 @@ function Render( Canvas C )
 	C.SetOrigin( 0, 0 );
 }
 
-/** Override this to render anything specific to a unique component. */
+/** Override this to render anything specific to an unique component. */
 protected function RenderComponent( Canvas C );
 
 /** 
@@ -291,8 +342,8 @@ function Free()
 	// POINTERS
 	Controller = none;
 	Parent = none;
-	Style = none;
-	
+	Style = none; InitStyle = none; HoverStyle = none; ActiveStyle = none; FocusStyle = none;
+
 	// DELEGATES
 	OnClick = none;
 	OnDoubleClick = none;
@@ -323,8 +374,6 @@ final function SetStyle( FStyle newStyle )
 		return;
 		
 	Style = newStyle;
-	Style.Initialize();
-	Scene().AddToPool( Style );
 }
 
 final function SetPos( const float X, const float Y )
@@ -521,6 +570,7 @@ final protected function bool Collides( out IntPoint mousePosition )
 /** Notify that the component is selected! */
 final function Focus()
 {
+	Style = FocusStyle;
 	LastFocusedTime = `STime;
 	LastStateChangeTime = LastFocusedTime;
 	InteractionState = InteractionState | ES_Selected;
@@ -532,6 +582,7 @@ final function Focus()
 /** Notify that the component is no longer selected! */
 final function UnFocus()
 {
+	Style = InitStyle;
 	LastUnfocusedTime = `STime;
 	LastStateChangeTime = LastUnfocusedTime;
 	InteractionState = InteractionState & ~ES_Selected;
@@ -542,6 +593,7 @@ final function UnFocus()
 
 final function Active()
 {
+	Style = ActiveStyle;
 	LastActiveTime = `STime;
 	LastStateChangeTime = LastActiveTime;
 	InteractionState = InteractionState | ES_Active;
@@ -552,6 +604,7 @@ final function Active()
 
 final function UnActive()
 {
+	Style = InitStyle;
 	LastUnactiveTime = `STime;
 	LastStateChangeTime = LastUnactiveTime;
 	InteractionState = InteractionState & ~ES_Active;
@@ -562,6 +615,7 @@ final function UnActive()
 
 final function Hover()
 {
+	Style = HoverStyle;
 	LastHoveredTime = `STime;
 	LastStateChangeTime = LastHoveredTime;
 	InteractionState = InteractionState | ES_Hover;
@@ -572,6 +626,7 @@ final function Hover()
 
 final function UnHover()
 {
+	Style = InitStyle;
 	LastUnhoveredTime = `STime; 
 	LastStateChangeTime = LastUnhoveredTime;
 	InteractionState = InteractionState & ~ES_Hover;
@@ -598,11 +653,14 @@ final function string ConsoleCommand( const string command )
 	return Controller.Player().ConsoleCommand( command );
 }
 
-final protected function RenderBackground( Canvas C, Color drawColor = Style.ImageColor )
+final protected function RenderBackground( Canvas C, 
+	optional Color drawColor = Style != none 
+		? Style.ImageColor 
+		: class'HUD'.default.WhiteColor )
 {
 	if( Style == none )
 	{
-		`Log( "Attempting to draw a background for component:" @ self @ "without a style!" );
+		//`Log( "Attempting to draw a background for component:" @ self @ "without a style!" );
 		return;
 	}
 	
@@ -667,7 +725,10 @@ final protected function FadingSwapColor( out Color newColor, const out Color de
 /** Create a new instance of @componentClass. 
  *	Used to create components at run-time.
  */
-final protected function FComponent CreateComponent( const class<FComponent> componentClass, optional Object componentOuter = self, optional FComponent componentTemplate = none, optional string componentName )
+final protected function FComponent CreateComponent( const class<FComponent> componentClass, 
+	optional Object componentOuter = self, 
+	optional FComponent componentTemplate = none, 
+	optional string componentName )
 {
 	return new(componentOuter, componentName) componentClass (componentTemplate);
 }
@@ -708,10 +769,8 @@ defaultproperties
 	bSupportHovering=true
 	bClipComponent=false
 
-	begin object name=oStyle class=FStyle
-		// Styles...	
-	end object
-	Style=oStyle
+	StyleName=Hidden
+	StyleClass=class'FStyle'
 
 	HorizontalDock=HD_Left
 	VerticalDock=VD_Top

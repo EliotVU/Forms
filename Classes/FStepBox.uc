@@ -61,7 +61,6 @@ function InitializeComponent()
 	Previous.bRenderCaption = false;
 	Previous.bJustify = true;
 	AddComponent( Previous );
-	Previous.SetStyle( PreviousButtonStyle );
 
 	SelectedChoice = FLabel(CreateComponent( class'FLabel' ));
 	SelectedChoice.SetPos( 0.15, 0.0 );
@@ -80,7 +79,6 @@ function InitializeComponent()
 	Next.bJustify = true;
 	Next.HorizontalDock = HD_Right;
 	AddComponent( Next );
-	Next.SetStyle( NextButtonStyle );
 	
 	UpdateChoice();
 }
@@ -158,12 +156,6 @@ defaultproperties
 	
 	bSupportSelection=`devmode
 	bSupportHovering=`devmode
-	
-	begin object name=oPreviousButtonStyle class=FStyle
-	end object
-	PreviousButtonStyle=oPreviousButtonStyle
 
-	begin object name=oNextButtonStyle class=FStyle
-	end object
-	NextButtonStyle=oNextButtonStyle
+	StyleName=Hidden
 }

@@ -86,6 +86,20 @@ event PostRender( Canvas C )
 	}
 }
 
+exec function ReloadStyle()
+{
+	local FObject obj;
+
+	ScenePointer.Styles.Length = 0;
+	foreach ScenePointer.ObjectsPool( obj )
+	{
+		if( FComponent(obj) != none )
+		{
+			FComponent(obj).ResetStyle();
+		}
+	}
+}
+
 function NotifyGameSessionEnded()
 {
 	`Log( "NotifyGameSessionEnded!",, 'Forms' );

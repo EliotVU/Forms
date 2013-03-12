@@ -17,8 +17,8 @@
  * ======================================================== */
 class FColumn extends FLabel;
 
-var(Column) editinline Object AssociatedObject;
-var(Column) string AssociatedCode;
+var(Column) editinline Object 	AssociatedObject;
+var(Column) string 				AssociatedCode;
 
 var(Column, Display) editinline Texture2D ColumnImage;
 
@@ -77,12 +77,7 @@ defaultproperties
 	TextVAlign=TA_Top
 	TextAlign=TA_Center
 	
-	begin object name=oStyle
-		HoverColor=(R=200,A=120)
-		ActiveColor=(R=0,G=200,B=0,A=128)
-		DisabledColor=(R=200,G=0,B=0,A=255)
-	end object
-	Style=oStyle
+	StyleNames.Add(Column)
 	
 	bEnabled=true
 }

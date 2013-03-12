@@ -18,8 +18,6 @@
 class FCheckBox extends FLabel;
 
 var(CheckBox, Usage) bool bChecked;
-var(CheckBox, Display) const Color UncheckedColor;
-var(CheckBox, Display) const Color CheckedColor;
 
 delegate OnChecked( FComponent sender );
 
@@ -32,7 +30,7 @@ function Free()
 protected function RenderComponent( Canvas C )
 {
 	super(FComponent).RenderComponent( C );
-	RenderBackground( C, bChecked ? CheckedColor : UncheckedColor );
+	RenderBackground( C, bChecked ? FCheckBoxStyle(Style).CheckedColor : FCheckBoxStyle(Style).UncheckedColor );
 
 	if( Text != "" )
 	{
@@ -64,8 +62,8 @@ defaultproperties
 	TextColor=(R=255,G=255,B=255,A=255)
 	TextAlign=TA_Left
 
-	UncheckedColor=(R=255,G=0,B=0,A=255)
-	CheckedColor=(R=0,G=255,B=0,A=255)
+	StyleNames.Add(CheckBox)
+	StyleClass=class'FCheckBoxStyle'
 
 	bEnabled=true
 }

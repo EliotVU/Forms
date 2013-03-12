@@ -49,4 +49,6 @@ defaultproperties
 	bClipComponent=true
 	Margin=(X=0,Y=0,Z=0,W=0)
 	Padding=(X=8,Y=8,Z=8,W=8)
+
+	StyleNames.Add(Page)
 }

@@ -43,7 +43,7 @@ protected function RenderComponent( Canvas C )
 {
 	super(FComponent).RenderComponent( C );
 	C.DrawColor = ((TabControl.ActivePage == TabPage)
-		? Style.ActiveColor 
+		? Style.SelectedColor 
 		: (bRenderCaption && !bImageUseStateColor) 
 			? Style.ImageColor 
 			: GetStateColor());
@@ -60,8 +60,6 @@ function Free()
 
 defaultproperties
 {
-	begin object name=oStyle
-		ActiveColor=(R=94,G=94,B=94,A=255)
-	end object
+	StyleNames.Add(TabButton)
 	bAnimateOnHover=true
 }

@@ -119,4 +119,6 @@ defaultproperties
 
 	AnimateSpeed=15
 	AnimateOffset=6
+
+	StyleNames.Add(Button)
 }

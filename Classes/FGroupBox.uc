@@ -77,8 +77,6 @@ defaultproperties
 	bSupportHovering=`devmode
 	
 	Padding=(W=8,X=8,Y=8,Z=8)
-	
-	begin object name=oStyle
-		ImageColor=(R=120,G=120,B=120,A=255)
-	end object
+
+	StyleNames.Add(GroupBox)
 }
