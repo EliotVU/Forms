@@ -1,1 +1,0 @@
-Put the files from this folder into your game's /Config/ directory.
