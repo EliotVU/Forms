@@ -24,8 +24,6 @@ MultiFont'UI_Fonts_Final.HUD.MF_Medium'
 */
 
 var(Component, Display) privatewrite string			Text;
-/** Whether this label text should be localized(translated). */
-var(Component, Display) bool						bLocalizeText;
 var(Component, Display) Color						TextColor;
 var(Component, Display) Font						TextFont;
 var(Component, Display) const FontRenderInfo		TextRenderInfo;
@@ -71,10 +69,24 @@ function Free()
 function InitializeComponent()
 {
 	super.InitializeComponent();
-	if( bLocalizeText )
+	LocalizeText();
+}
+
+final private function LocalizeText()
+{
+	const LOCALIZEDTAG = "@";
+
+	local int idx;
+	local array<string> group;
+	local string s;
+
+	idx = InStr( Text, LOCALIZEDTAG );
+	if( idx != INDEX_NONE )
 	{
-		Text = Localize( string(Name), Text, "Forms" );
-	}
+		s = Mid( Text, idx + Len( LOCALIZEDTAG ) );
+		group = SplitString( s, "." );
+		Text = Localize( group[1], group[2], group[0] );
+	}	
 }
 
 protected function RenderComponent( Canvas C )
@@ -181,6 +193,8 @@ final protected function RenderLabel( Canvas C, float X, float Y, float W, float
 function SetText( coerce string newText )
 {
 	Text = newText;
+	LocalizeText();
+	
 	bAutoSized = false;
 	OnTextChanged( self );
 }

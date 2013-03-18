@@ -27,6 +27,13 @@ var() enum EDialogButtons
 var() FButton DialogButtonTemplate;
 var() string DialogTitle;
 
+var const string OKText, YESText, NOText, CANCELText; 
+
+const OKID = 'OK';
+const CANCELID = 'CANCEL';
+const YESID = 'YES';
+const NOID = 'NO';
+
 delegate OnDialogResult( FDialog sender, name id );
 
 function Free()
@@ -46,7 +53,7 @@ function InitializeComponent()
 	{
 		case DB_OK:
 			nextButton = FButton(CreateComponent( DialogButtonTemplate.class, self, DialogButtonTemplate, "OKButton" ));
-			nextButton.SetText( "OK" );
+			nextButton.SetText( OKText );
 			nextButton.OnClick = DialogButtonClicked;
 			nextButton.SetPos( 0.0, 1.0 );
 			Body.AddComponent( nextButton );
@@ -54,13 +61,13 @@ function InitializeComponent()
 			
 		case DB_OKCancel:
 			nextButton = FButton(CreateComponent( DialogButtonTemplate.class, self, DialogButtonTemplate, "OKButton" ));
-			nextButton.SetText( "OK" );
+			nextButton.SetText( OKText );
 			nextButton.OnClick = DialogButtonClicked;
 			nextButton.SetPos( 0.0, 1.0 );
 			Body.AddComponent( nextButton );
 			
 			nextButton = FButton(CreateComponent( DialogButtonTemplate.class, self, DialogButtonTemplate, "CANCELButton" ));
-			nextButton.SetText( "CANCEL" );
+			nextButton.SetText( CANCELText );
 			nextButton.OnClick = DialogButtonClicked;
 			nextButton.SetPos( 0.25, 1.0 );
 			Body.AddComponent( nextButton );
@@ -68,13 +75,13 @@ function InitializeComponent()
 			
 		case DB_YesNO:
 			nextButton = FButton(CreateComponent( DialogButtonTemplate.class, self, DialogButtonTemplate, "YESButton" ));
-			nextButton.SetText( "YES" );
+			nextButton.SetText( YESText );
 			nextButton.OnClick = DialogButtonClicked;
 			nextButton.SetPos( 0.0, 1.0 );
 			Body.AddComponent( nextButton );
 			
 			nextButton = FButton(CreateComponent( DialogButtonTemplate.class, self, DialogButtonTemplate, "NOButton" ));
-			nextButton.SetText( "NO" );
+			nextButton.SetText( NOText );
 			nextButton.OnClick = DialogButtonClicked;
 			nextButton.SetPos( 0.25, 1.0 );
 			Body.AddComponent( nextButton );
@@ -87,19 +94,19 @@ function DialogButtonClicked( FComponent sender, optional bool bRight )
 	switch( sender.Name )
 	{
 		case 'OKButton':
-			OnDialogResult( self, 'OK' );
+			OnDialogResult( self, OKID );
 			break;
 			
 		case 'CANCELButton':
-			OnDialogResult( self, 'CANCEL' );
+			OnDialogResult( self, CANCELID );
 			break;
 			
 		case 'YESButton':
-			OnDialogResult( self, 'YES' );
+			OnDialogResult( self, YESID );
 			break;
 			
 		case 'NOButton':
-			OnDialogResult( self, 'NO' );
+			OnDialogResult( self, NOID );
 			break;
 	}
 	
@@ -119,4 +126,9 @@ defaultproperties
 	
 	bSupportHovering=false
 	DialogTitle="Dialog"
+
+	OKText="@Forms.Dialog.OK"
+	NOText="@Forms.Dialog.NO"
+	YESText="@Forms.Dialog.YES"
+	CANCELText="@Forms.Dialog.CANCEL"
 }
