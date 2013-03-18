@@ -34,6 +34,8 @@
  	Components.Add(oBorderedButton)
  * ======================================================== */
 class FElement extends Object
+	config(Forms)
+	perobjectconfig
 	hidecategories(Object)
 	editinlinenew
 	abstract;

@@ -19,7 +19,7 @@
 class FElementGradient extends FElement;
 
 /** Gradient direction. */
-var(Gradient, Display) const enum EDirection
+var(Gradient, Display) const config enum EDirection
 {
 	/** Begin drawing from the top to bottom. */
 	D_Top,
@@ -29,13 +29,13 @@ var(Gradient, Display) const enum EDirection
 } Direction;
 
 /** Start color for this gradient. */
-var(Gradient, Display) const Color BeginColor;
+var(Gradient, Display) const config Color BeginColor;
 
 /** End color for this gradient. */
-var(Gradient, Display) const Color EndColor;
+var(Gradient, Display) const config Color EndColor;
 
 /** The size for each color line. Lower = higher quality, Higher = better performance. */
-var(Gradient, Display) const byte Quality;
+var(Gradient, Display) const config byte Quality;
 
 var Texture Pixel;
 
@@ -102,7 +102,5 @@ function RenderElement( Canvas C, FComponent Object )
 
 defaultproperties
 {
-	Quality=2
-	Direction=D_Top
 	Pixel="EngineResources.WhiteSquareTexture"
 }

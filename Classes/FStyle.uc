@@ -53,7 +53,12 @@ var(Style, Colors) config const Color			DisabledColor;
 var(Style, Display) bool						bPlainColors;
 
 /** Collection of elements to render after the associated component(s). */
-var(Style, Elements) protectedwrite editinline array<FElement> Elements;
+var(Style, Elements) config protectedwrite editinline array<struct sElement
+{
+	var transient FElement Element; 
+	var() name Name; 
+	var() class<FElement> Class;
+}> Elements;
 
 var(Style, Advanced) editinline FStyle			Inheritance;
 
@@ -91,7 +96,8 @@ function InitializeElements()
 
 	for( i = 0; i < Elements.Length; ++ i )
 	{
-		Elements[i].Initialize();
+		Elements[i].Element = new (none, string(Elements[i].Name)) Elements[i].Class;
+		Elements[i].Element.Initialize();
 	}
 }
 
@@ -103,9 +109,9 @@ function RenderFirstElements( Canvas C, FComponent Object )
 
 	for( i = 0; i < Elements.Length; ++ i )
 	{
-		if( Elements[i].RenderOrder == O_First )
+		if( Elements[i].Element.RenderOrder == O_First )
 		{
-			Elements[i].RenderElement( C, Object );
+			Elements[i].Element.RenderElement( C, Object );
 		}
 	}
 }
@@ -116,9 +122,9 @@ function RenderLastElements( Canvas C, FComponent Object )
 
 	for( i = 0; i < Elements.Length; ++ i )
 	{
-		if( Elements[i].RenderOrder == O_Last )
+		if( Elements[i].Element.RenderOrder == O_Last )
 		{
-			Elements[i].RenderElement( C, Object );
+			Elements[i].Element.RenderElement( C, Object );
 		}
 	}
 }
@@ -181,11 +187,12 @@ function DrawShadow( Canvas C, float width, float height )
 
 function Free()
 {
-	local FElement el;
+	local int i;
 	
-	foreach Elements( el )
+	for( i = 0; i < Elements.Length; ++ i )
 	{
-		el.Free();
+		Elements[i].Element.Free();
+		Elements[i].Element = none;
 	}
 	Elements.Length = 0;
 	

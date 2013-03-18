@@ -29,7 +29,7 @@ struct sBorderSide
 };
 
 /** Border sides. */
-var(Border, Display) sBorderSide Left, Right, Top, Bottom;
+var(Border, Display) config sBorderSide Left, Right, Top, Bottom;
 
 function RenderElement( Canvas C, FComponent Object )
 {
