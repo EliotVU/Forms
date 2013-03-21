@@ -22,6 +22,8 @@ class FComponent extends FObject
 	perobjectlocalized
 	abstract;
 
+const Colors = class'FColors';
+
 /** Cannot be used(same for other objects) from delegate events if that delegate is initialized via the DefaultProperties block! */
 var transient noclear noimport edithide editconst FIController Controller;
 
@@ -305,15 +307,23 @@ function Render( Canvas C )
 	`if( `isdefined( DEBUG ) )
 		if( Scene().bRenderRectangles )
 		{
-			C.SetPos( 0, 0 );	
-			C.DrawColor = class'HUD'.default.GreenColor;
-			C.DrawColor.A = IsHovered() ? 200 : 64;
-			C.DrawBox( C.ClipX, C.ClipY );
+			//C.SetPos( 0, 0 );	
+			//C.DrawColor = class'FColors'.default.DarkColor;
+			//C.DrawColor.A = IsHovered() ? 200 : 64;
+			//C.DrawBox( C.ClipX, C.ClipY );
 
-			C.SetPos( LeftX, TopY );	
-			C.DrawColor = class'HUD'.default.RedColor;
-			C.DrawColor.A = IsHovered() ? 200 : 64;
-			C.DrawBox( WidthX, HeightY );
+			if( IsHovered() )
+			{
+				C.SetPos( LeftX, TopY );	
+				C.DrawColor = Colors.static.FadeOut( Colors.default.SapphireColor, 50.00 );
+				C.DrawBox( WidthX, HeightY );	
+			}
+			else
+			{
+				C.SetPos( LeftX, TopY );	
+				C.DrawColor = Colors.static.FadeOut( Colors.default.GrayColor, 50.00 );
+				C.DrawBox( WidthX, HeightY );	
+			}
 		}
 	`endif
 

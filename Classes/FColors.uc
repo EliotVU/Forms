@@ -50,6 +50,30 @@ var const Color PurpleColor;
 var const Color BrownColor;
 var const Color OrangeColor;
 
+final static function Color Darken( Color c, float pct )
+{
+	pct = 1.0 - pct/100.0f;
+	return MakeColor( c.R*pct, c.G*pct, c.B*pct, c.A );
+}
+
+final static function Color Lighten( Color c, float pct )
+{
+	pct = 1.0 + pct/100.0f;
+	return MakeColor( c.R*pct, c.G*pct, c.B*pct, c.A );
+}
+
+final static function Color FadeOut( Color c, float pct )
+{
+	pct = 1.0 - pct/100.0f;
+	return MakeColor( c.R, c.G, c.B, c.A*pct );
+}
+
+final static function Color FadeIn( Color c, float pct )
+{
+	pct = 1.0 + pct/100.0f;
+	return MakeColor( c.R, c.G, c.B, c.A*pct );
+}
+
 final static function int DecimalFromHex( string hexadecimal )
 {
 	local string char;
