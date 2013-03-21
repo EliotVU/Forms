@@ -1012,7 +1012,7 @@ final function FStyle GetStyle( string styleIdentifier, class<FStyle> newStyleCl
 	`Log( "StyleIdentifier:" @ styleIdentifier @ "StyleInheritance:" @ inheritedStyleClassName );
 	
 	// Neither of the above was true so create a new style inheriting the global style.
-	newStyle = new (none, "(" $ ThemeName $")" $ styleIdentifier, 0x00004000 | 0x00000040) newStyleClass (inheritedTemplate);
+	newStyle = new (none, "(" $ ThemeName $")" $ styleIdentifier) newStyleClass (inheritedTemplate);
 	newStyle.Inheritance = inheritedTemplate;
 	RegisterStyle( newStyle );
 	return newStyle;
