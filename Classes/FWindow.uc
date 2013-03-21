@@ -122,14 +122,7 @@ defaultproperties
 		begin object name=oHeaderBackground class=FImage
 			RelativePosition=(X=0.0,Y=0.0)
 			RelativeSize=(X=1.0,Y=1.0)
-			begin object name=oHeaderImage class=FStyle
-				begin object name=oColor class=FElementGradient
-					BeginColor=(R=60,G=60,B=60,A=255)
-					EndColor=(R=14,G=14,B=15,A=255)
-				end object
-				Elements.Add(oColor)
-			end object
-			Style=oHeaderImage
+			StyleNames.Add(WindowHeader)
 			bEnabled=false	// Ensure it's disabled.
 			bSupportHovering=false
 		end object
