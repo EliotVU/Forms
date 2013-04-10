@@ -89,6 +89,29 @@ final private function LocalizeText()
 	}	
 }
 
+final function int GetCharacterIndexAt( float posX )
+{
+	local int xl, yl;
+	local int i, charIndex;
+	local string s;
+
+	charIndex = INDEX_NONE;
+	if( posX >= 0.0 )
+	{
+		for( i = 0; i < Len( Text ); ++ i )
+		{
+			s = Left( Text, i );
+			TextFont.GetStringHeightAndWidth( s, yl, xl );
+			if( posX >= xl )
+			{
+				charIndex = i + 1;
+			}
+		}
+	}
+	return charIndex;
+}
+
+
 protected function RenderComponent( Canvas C )
 {
 	super.RenderComponent( C );

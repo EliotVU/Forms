@@ -27,6 +27,8 @@ var(Component, Display) const Color CarretColor;
 var transient int CarretIndex;
 var transient float LastCarretMoveTime;
 
+protected function RenderActiveInput( Canvas C );
+
 protected function RenderComponent( Canvas C )
 {
 	local float XL, YL, TXL, TYL;
@@ -62,18 +64,15 @@ protected function RenderComponent( Canvas C )
 
 function StartEdit( FComponent sender, optional bool bRight )
 {	
+	local float relativeClickPosX;
+
 	if( bReadyOnly )
 		return;
 
 	super.StartEdit( sender, bRight );
-	CarretIndex = Len( Text );
-	LastCarretMoveTime = `STime;
-}
 
-function StopEdit( FComponent sender )
-{
-	super.StopEdit( sender );
-	CarretIndex = 0;
+	relativeClickPosX = FMin( Scene().MousePosition.X - GetCachedLeft() - RelativeOffset.X, GetCachedWidth() );
+	CarretIndex = GetCharacterIndexAt( relativeClickPosX );
 	LastCarretMoveTime = `STime;
 }
 
@@ -205,16 +204,20 @@ final function Delete()
 defaultproperties
 {
 	OnCharInput=CharInput
+	OnClick=StartEdit
 
 	Text="None"
 	MaxTextLength=32
 	TextAlign=TA_Left
 	TextVAlign=TA_Center
+	RelativeOffset=(X=8.0,Y=0.0)
 
 	bReadyOnly=false
 	bCarret=true
 	bUnderlined=true
+	CarretIndex=INDEX_NONE
 
 	CarretColor=(R=122,G=122,B=122,A=146)
 	UnderlineColor=(R=255,G=255,B=255,A=128)
+	StyleNames.Add(TextBox)
 }
