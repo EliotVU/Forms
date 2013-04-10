@@ -55,8 +55,135 @@ An example demonstrating how a typical menu's code could look like:
 
 Installing Forms
 =====
-Read this short tutorial on installing forms: http://github.com/EliotVU/Forms/wiki/Installing-Forms
-Once installed, start by making your first menu: http://github.com/EliotVU/Forms/wiki/Your-First-Menu
+Read this short tutorial on installing forms: 
+
+  http://github.com/EliotVU/Forms/wiki/Installing-Forms
+  
+Once installed, start by making your first menu: 
+
+  http://github.com/EliotVU/Forms/wiki/Your-First-Menu
+  
+Examples
+=====
+
+Creating a page with a button
+
+    // Note: Read the tutorials above to understand how to run this:
+    begin object name=MainMenu class=MyMainMenu
+        RelativePosition=(X=0.10,Y=0.10)
+        RelativeSize=(X=0.90,Y=0.90)
+    end object
+    // This registers the component so that Forms can render, and communicate with this object.
+    Components.Add(MainMenu)
+    
+    then in your created class:
+    class MyMainMenu extends FPage;
+    
+    defaultproperties
+    {
+      begin object name=ExitButton class=FButton
+        // Position at the end of "MainMenu"
+        RelativePosition=(X=1.0,Y=1.0)
+        
+        // Without these the button would begin at X=1 and Y=1 but with those it will end at X=1 and Y=1 instead.
+        VerticalDock=VD_Bottom
+        HorizontalDock=HD_Right
+        
+        // The button text, you can set this optionally to Text="@UDKGameUI.Generic.Exit" 
+        // - which means the button's text will be whatever Exit is set to in UDKGameUI.ini
+        Text="Exit"
+      end object
+      Components.Add(ExitButton)
+    }
+    
+Creating a Label
+
+    begin object name=Label1 class=FLabel
+      RelativePosition=(X=0.0,Y=0.00)
+      RelativeSize=(X=1.0,Y=0.10)
+      Text="Hello, and welcome to my game!"
+    end object
+    Components.Add(Label1)
+    
+Creating a Checkbox and Slider
+    
+    begin object name=EnableBloom class=FCheckBox
+      // See other examples on how to setup positions and sizes.
+      Text="Bloom"
+      OnInitialize=InitializeComponents
+      OnChecked=ValueChanged
+      TextAlign=TA_Center
+    end object
+    Components.Add(EnableBloom)
+    
+    
+    // Add "var FSlider SoundVolume;" to your class.
+
+    begin object name=oSoundVolume class=FSlider
+      // See other examples on how to setup positions and sizes.
+      PostFix="%"
+      MinValue=0
+      Value=80
+      MaxValue=100
+      SnapPower=1.0
+      
+      // This determines whether the value accepts decimals or not.
+      bInteger=true
+      
+      // See below on how to use these:
+      OnInitialize=InitializeComponents
+      OnValueChanged=ValueChanged
+    end object
+    Components.Add(oSoundVolume)
+    
+    // So you can reference this component easily within your code.
+    // - You can also use the FindComponentByName function if you prefer that!
+    SoundVolume=oSoundVolume
+    
+Using delegates
+
+    // Called when a component is initializing.
+    // ---
+    // This is pseudo code just to give you an idea on how it's done, 
+    // - the idea is to set the components values to the values loaded from an .ini or whatever you're using.
+    function InitializeComponents( FComponent sender )
+    {
+      SoundVolume.Value = 80;	
+    }
+    
+    // Called when a component changes it value.
+    function ValueChanged( FComponent sender )
+    {
+      switch( sender )
+    	{
+    		case SoundVolume:
+    			sender.ConsoleCommand( "insert_console_command_here" @ SoundVolume.Value;
+    			break;
+    	}
+    }
+    
+    // Note: When the events are assigned through defaultproperties 
+    // - you have to use "sender." to perform code 
+    // - because the function's code is not executed in the context of your class's instance,
+    // - but in the generated DEFAULT__NAME object(UDK bug!)
+
+
+Other controls
+
+FGroupBox - A container with a title and box border similar to the GroupBoxs on Windows
+
+FStepBox - A component with one FLabel and two FButtons, where the FLabel is the chosen value, and the two buttons allow you to step through a list of values i.e a left arrow and a right arrow.
+
+FBindingBox - A component that can bind automaticaly to key bindings. The user can choose a primary and secondary key to assing for a specified console command.
+
+FTextBox - A component allowing the user to type in, such as a name.
+
+FTabControl and FTabButton - Associates multiple FTabButtons with FPages. The rest is self-explantory what this is :P
+
+FImage - An image component.
+
+// Work in progress - FDialog , FColumn and FColumnSet are quite usuable but might still change over time.
+FDialog, FWindow, FColumn, FColumnSet, FScrollPage
 
 Testing
 =====
