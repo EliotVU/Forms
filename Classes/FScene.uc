@@ -30,20 +30,24 @@ var array<FStyle> 													Styles;
 // Reference to the style class named "Global".
 var private FStyle 													GlobalStyle;
 
-var protectedwrite transient FComponent SelectedComponent;
-var protectedwrite transient FComponent LastSelectedComponent;
+var protectedwrite transient FComponent 							SelectedComponent;
+var protectedwrite transient FComponent 							LastSelectedComponent;
 
-var protectedwrite transient FComponent HoveredComponent;
-var protectedwrite transient FComponent LastHoveredComponent;
+var protectedwrite transient FComponent 							HoveredComponent;
+var protectedwrite transient FComponent 							LastHoveredComponent;
 
-var protectedwrite transient FComponent ActiveComponent;
+var protectedwrite transient FComponent 							ActiveComponent;
+
+var protectedwrite transient FToolTip								ActiveToolTip;
 
 /** Whether to pause the game when the scene is visible. */
 var(Scene) bool														bPausedWhileVisible;
 
 // DEPRECATED!
 var(Scene, Display) deprecated bool									bConsiderAspectRatio;
-var(Scene, Functionality)	bool									bWiggleScene;
+var(Scene, Functionality) bool										bWiggleScene;
+var(Scene, Functionality) bool										bSuppressKeyInput;
+var(Scene, Functionality) bool										bLockRotation;
 
 var(Scene, Display) bool											bRenderCursor;
 var(Scene, Display) const globalconfig TextureCoordinates			CursorPointCoords;
@@ -51,6 +55,7 @@ var(Scene, Display) const globalconfig TextureCoordinates			CursorTouchCoords;
 var(Scene, Display) const globalconfig string						CursorsImageName;
 var(Scene, Display) Texture2D										CursorsImage;
 var(Scene, Display) const globalconfig float						CursorScaling;
+
 var(Scene, Interaction) deprecated globalconfig float				MouseSensitivity;
 var(Scene, Interaction) bool										bTimeOutCursor;
 var(Scene, Interaction) float										MouseCursorTimeOut;
@@ -62,26 +67,27 @@ var(Scene, Sound) globalconfig string								HoverSoundName;
 var SoundCue														ClickSound;
 var SoundCue														HoverSound;
 
-var transient IntPoint MousePosition;
-var transient IntPoint LastMousePosition;
-var transient Vector2D Size;
-var transient Vector2D Ratio;
+var transient IntPoint 												MousePosition;
+var transient IntPoint 												LastMousePosition;
+var transient Vector2D 												Size;
+var transient Vector2D 												Ratio;
 
-var protectedwrite transient float RenderDeltaTime;
-var privatewrite transient float LastRenderTime;
-var privatewrite transient float LastMouseMoveTime;
-var privatewrite transient float LastActivityTime;
+var protectedwrite transient float 									RenderDeltaTime;
+var privatewrite transient float 									LastRenderTime;
+var privatewrite transient float 									LastMouseMoveTime;
+var privatewrite transient float 									LastActivityTime;
 
-var(Scene, Advanced) PostProcessChain MenuPostProcessChain;
-var protected int MenuPostProcessChainIndex;
+var(Scene, Advanced) PostProcessChain 								MenuPostProcessChain;
+var protected int 													MenuPostProcessChainIndex;
 
-var transient float LastClickTime;
-var transient IntPoint LastClickPosition;
-var transient Rotator LastPlayerRotation;
+var transient float 												LastClickTime;
+var transient IntPoint 												LastClickPosition;
+var transient Rotator 												LastPlayerRotation;
 
-var transient bool bCtrl, bAlt, bShift;
+var transient bool 													bCtrl, bAlt, bShift;
+
 `if( `isdefined( DEBUG ) )
-	var(Scene, Debug) transient bool bRenderRectangles;
+	var(Scene, Debug) transient bool 								bRenderRectangles;
 `endif
 
 delegate OnPageRemoved( FPage sender );
@@ -89,27 +95,27 @@ delegate OnPageAdded( FPage sender );
 
 delegate OnPostRenderPages( Canvas C );
 
-function Initialize( FIController c )
+final function InitializeScene( FIController sceneController )
+{
+	Controller = sceneController;
+
+	GlobalStyle = new (none, "(" $ ThemeName $ ")" $ "Global") class'FStyle';
+
+	Initialize( none );
+}
+
+protected function InitializeComponent()
 {
 	local FPage page;
 
-	LoadConfigurations();
-
-	super.Initialize( c );
+	super.InitializeComponent();
 	foreach Pages( page )
 	{
-		page.Parent = self;
-		page.Initialize( c );
+		page.Initialize( self );
 	} 	
 
-	LocalPlayer(C.Player().Player).ViewportClient.GetViewportSize( Size );
-}
-
-function InitializeComponent()
-{
-	super.InitializeComponent();
-	OnFocus = ComponentFocussed;
-	OnUnFocus = ComponentUnfocussed;
+	LoadConfigurations();
+	LocalPlayer(Controller.Player().Player).ViewportClient.GetViewportSize( Size );
 }
 
 protected function LoadConfigurations()
@@ -128,14 +134,15 @@ protected function LoadConfigurations()
 	{
 		CursorsImage = Texture2D(DynamicLoadObject( CursorsImageName, class'Texture2D', true ));
 	}
-
-	GlobalStyle = new (none, "(" $ ThemeName $ ")" $ "Global") class'FStyle';
 }
 
 function Update( float DeltaTime )
 {
-	// Lock the rotation so the player does not change its rotation when the mouse moves!
-	Player().SetRotation( LastPlayerRotation );
+	if( bLockRotation )
+	{
+		// Lock the rotation so the player does not change its rotation when the mouse moves!
+		Player().SetRotation( LastPlayerRotation );
+	}
 
 	if( bRenderCursor )
 	{
@@ -245,12 +252,10 @@ protected function MouseMove( FScene scene, float DeltaTime )
 				bCollided = true;
 				if( LastHoveredComponent != HoveredComponent )
 				{
-					PlayHoverSound();
-
 					HoveredComponent.Hover();
 					if( LastHoveredComponent != none )
 					{
-						LastHoveredComponent.UnHover();
+						LastHoveredComponent.Unhover();
 					}
 					LastHoveredComponent = HoveredComponent;
 				}
@@ -264,7 +269,7 @@ protected function MouseMove( FScene scene, float DeltaTime )
 		// Unhovered?
 		if( LastHoveredComponent != none )
 		{
-			LastHoveredComponent.UnHover();
+			LastHoveredComponent.Unhover();
 			LastHoveredComponent = none;	
 		}
 		HoveredComponent = none;
@@ -309,6 +314,11 @@ function Render( Canvas C )
 
 	RenderPages( C );
 	OnPostRenderPages( C );
+
+	if( HoveredComponent != none && HoveredComponent.ToolTipComponent != none && HoveredComponent.ToolTipComponent.CanRender() )
+	{
+		HoveredComponent.ToolTipComponent.Render( C );	
+	}
 	
 	`if( `isdefined( DEBUG ) )
 		if( bRenderRectangles )
@@ -542,6 +552,7 @@ function Free()
 	SelectedComponent = none;
 	LastSelectedComponent = none;
 	LastHoveredComponent = none;
+	ActiveToolTip = none;
 	
 	FreeObjects();
 
@@ -622,11 +633,7 @@ final function AddPage( FPage page )
 		Player().ClientMessage( "AddedPage:" @ page );
 	`endif
 
-	page.Parent = self;
-	if( !page.bInitialized )
-	{
-		page.Initialize( Controller );
-	}
+	page.Initialize( self );
 	page.Opened();
 	Pages.InsertItem( 0, page );
 
@@ -896,7 +903,7 @@ function bool KeyInput( name Key, EInputEvent EventType )
 	//{
 		//return ActiveComponent.OnKeyInput( Key, EventType );
 	//}
-	return true;
+	return bSuppressKeyInput;
 }
 
 function bool CharInput( string Unicode )
@@ -935,12 +942,26 @@ function Click( FComponent sender, optional bool bRight )
 function ComponentFocussed( FComponent sender );
 function ComponentUnfocussed( FComponent sender );
 
-final function PlayHoverSound()
+function ComponentHovered( FComponent sender )
+{
+	PlayHoverSound();
+
+	if( sender.ToolTipComponent != none )
+	{
+		sender.ToolTipComponent.AttachToPosition( MousePosition, Size );
+	}
+}
+
+function ComponentUnhovered( FComponent sender )
+{
+}
+
+protected final function PlayHoverSound()
 {
 	Player().ClientPlaySound( HoverSound );
 }
 
-final function PlayClickSound()
+protected final function PlayClickSound()
 {
 	Player().ClientPlaySound( ClickSound );
 }
@@ -1009,7 +1030,7 @@ final function FStyle GetStyle( string styleIdentifier, class<FStyle> newStyleCl
 		}
 	}
 
-	`Log( "StyleIdentifier:" @ styleIdentifier @ "StyleInheritance:" @ inheritedStyleClassName );
+	//`Log( "StyleIdentifier:" @ styleIdentifier @ "StyleInheritance:" @ inheritedStyleClassName );
 	
 	// Neither of the above was true so create a new style inheriting the global style.
 	newStyle = new (none, "(" $ ThemeName $")" $ styleIdentifier) newStyleClass (inheritedTemplate);
@@ -1029,12 +1050,18 @@ defaultproperties
 	OnMouseMove=MouseMove
 	OnPageAdded=PageAdded
 	OnPageRemoved=PageRemoved
+	OnHover=ComponentHovered
+	OnUnhoverComponentUnhovered
+	OnFocus=ComponentFocussed
+	OnUnFocus=ComponentUnfocussed
 
 	bVisible=false
 	bRenderCursor=true
 	bConsiderAspectRatio=false
 	bPausedWhileVisible=false
 	bWiggleScene=false
+	bSuppressKeyInput=true
+	bLockRotation=true
 	
 	bTimeOutCursor=true
 	MouseCursorTimeOut=3.0

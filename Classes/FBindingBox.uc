@@ -48,7 +48,7 @@ function Free()
 	ActionSecondaryKey = none;
 }
 
-function InitializeComponent()
+protected function InitializeComponent()
 {
 	local string bindKey;
 	

@@ -66,7 +66,7 @@ function Free()
 	OnTextChanged = none;
 }
 
-function InitializeComponent()
+protected function InitializeComponent()
 {
 	super.InitializeComponent();
 	LocalizeText();

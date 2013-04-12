@@ -25,10 +25,10 @@ class FComponent extends FObject
 const Colors = class'FColors';
 
 /** Cannot be used(same for other objects) from delegate events if that delegate is initialized via the DefaultProperties block! */
-var transient noclear noimport edithide editconst FIController Controller;
+var protectedwrite transient editconst FIController Controller;
 
 /** Cannot be used(same for other objects) from delegate events if that delegate is initialized via the DefaultProperties block! */
-var(Component, Advanced) noclear noimport editconst FComponent Parent;
+var(Component, Advanced) protectedwrite noimport editconst FComponent Parent;
 
 /** Is this component visible? */
 var(Component, Function) protectedwrite bool bVisible;
@@ -111,6 +111,26 @@ var(Component, Collision) enum ECollisionShape
 	CS_Circle
 } CollisionShape;
 
+/**
+ * If assigned to a FToolTip then the assigned component will be rendered upon hovering this component.
+ *
+ * Usage example:
+	begin object name=oQuit class=FButton
+		RelativePosition=(X=0.00,Y=1.0)
+		RelativeSize=(X=1.0,Y=0.10)
+		Text="@UDKGameUI.Generic.Exit"
+		TextAlign=TA_Center
+		VerticalDock=VD_Bottom
+		StyleNames.Add(QuitButton)
+		begin object name=myToolTip class=FToolTip
+			ToolTipText="Exit the game?"
+		end object
+		ToolTipComponent=myToolTip
+	end object	
+	Components.Add(oQuit)
+ */
+var(Component, Display) editinline FToolTip				ToolTipComponent;
+
 /** The style for this component to use. */
 var(Component, Display) privatewrite editinline FStyle 	Style;
 var private editinline FStyle							InitStyle, HoverStyle, ActiveStyle, FocusStyle;
@@ -171,14 +191,14 @@ delegate bool OnCharInput( string Unicode );
 // STATE
 delegate OnVisibleChanged( FComponent sender );
 delegate OnEnabledChanged( FComponent sender );
+delegate OnPositionChanged( FComponent sender );
+delegate OnSizeChanged( FComponent sender );
 
 // DRAWING
 delegate OnPostRender( FComponent sender, Canvas C );
 
 // UPDATING
-/**
- * Called when created and/or every time when added to a Components list.
- */
+/** Called after this component and any of its children have been initialized. */
 delegate OnInitialize( FComponent sender );
 delegate OnUpdate( FComponent sender, float DeltaTime );
 
@@ -191,30 +211,45 @@ delegate OnActive( FComponent sender );
 delegate OnUnActive( FComponent sender );
 
 /** Initializes this object. */
-function Initialize( FIController c )
+final function Initialize( FComponent within )
 {
-	Controller = c;
-	//`Log( Name $ "Initialize",, 'FormsInit' );
-
+	//`Log( Name @ "Initialize",, 'FormsInit' );
 	if( bInitialized )
 		return;
-		
+
+	bInitialized = true;
+	Parent = within;
+	if( Parent != none )
+	{
+		Controller = Parent.Controller;
+	}
+	Scene().AddToPool( self );
+
+	InitializeComponent();
+
+	// Post initialize
 	if( FMultiComponent(Parent) != none )
 	{
 		FMultiComponent(Parent).OnComponentInitialized( self );
 	}
-	
-	Scene().AddToPool( self );
-	OnVisibleChanged( self );
-	OnEnabledChanged( self );
-
-	InitializeComponent();
-	bInitialized = true;
 	OnInitialize( self );
+
 	`if( `isdefined( DEBUG ) )
 		SaveConfig();
 	`endif
-	
+}
+
+/** Called after this component has been fully registered but not yet completely initialized. */
+protected function InitializeComponent()
+{
+	if( ToolTipComponent != none )
+	{
+		ToolTipComponent.Initialize( Scene() );
+		Scene().AddToPool( ToolTipComponent );
+	}
+
+	OnVisibleChanged( self );
+	OnEnabledChanged( self );
 	BindStyle();
 }
 
@@ -254,9 +289,6 @@ private final function FStyle GetStateStyle( string styleIdentifier, string stat
 {
 	return Scene().GetStyle( styleIdentifier $ ":" $ stateName, StyleClass, InitStyle );
 }
-
-/** Initializes this component. Override this to add other components or objects to this component. */
-function InitializeComponent();
 
 /** Called every tick if Enabled and Visible. */
 function Update( float DeltaTime )
@@ -353,6 +385,7 @@ function Free()
 	Controller = none;
 	Parent = none;
 	Style = none; InitStyle = none; HoverStyle = none; ActiveStyle = none; FocusStyle = none;
+	ToolTipComponent = none;
 
 	// DELEGATES
 	OnClick = none;
@@ -365,6 +398,8 @@ function Free()
 	OnCharInput = none;
 	OnVisibleChanged = none;
 	OnEnabledChanged = none;
+	OnPositionChanged = none;
+	OnSizeChanged = none;
 	OnPostRender = none;
 	OnInitialize = none;
 	OnUpdate = none;
@@ -390,12 +425,14 @@ final function SetPos( const float X, const float Y )
 {
 	RelativePosition.X = X;
 	RelativePosition.Y = Y;
+	OnPositionChanged( self );
 }
 
 final function SetSize( const float X, const float Y )
 {
 	RelativeSize.X = X;
 	RelativeSize.Y = Y;
+	OnSizeChanged( self );
 }
 
 final function SetMargin( const float leftPixels, const float topPixels, const float rightPixels, const float bottomPixels )

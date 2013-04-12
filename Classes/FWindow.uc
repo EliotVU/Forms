@@ -41,7 +41,7 @@ function Free()
 	Body = none;
 }
 
-function InitializeComponent()
+protected function InitializeComponent()
 {
 	local FComponent comp;
 

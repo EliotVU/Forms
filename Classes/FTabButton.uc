@@ -21,41 +21,22 @@ class FTabButton extends FButton;
 /** The FPage this button controls. */
 var(TabButton, Display) `{Automated} FPage TabPage;
 
-/** The FTabControler this button is associated with. */
-var(TabButton, Advanced) `{Automated} FTabControl TabControl;
-
-function Initialize( FIController c )
+function Free()
 {
-	super.Initialize( c );
-	TabControl = FTabControl(Parent);
-	if( TabPage.Parent == none )
-	{
-		if( TabControl.TabPagesParent != none )
-		{
-			TabPage.Parent = TabControl.TabPagesParent;
-		}
-		else TabPage.Parent = TabControl;
-	}
-	TabPage.Initialize( c );
+	super.Free();
+	TabPage = none;
 }
 
 protected function RenderComponent( Canvas C )
 {
 	super(FComponent).RenderComponent( C );
-	C.DrawColor = ((TabControl.ActivePage == TabPage)
+	C.DrawColor = ((FTabControl(Parent).ActivePage == TabPage)
 		? Style.SelectedColor 
 		: (bRenderCaption && !bImageUseStateColor) 
 			? Style.ImageColor 
 			: GetStateColor());
 	RenderBackground( C, C.DrawColor );
 	RenderButton( C );
-}
-
-function Free()
-{
-	super.Free();
-	TabControl = none;
-	TabPage = none;
 }
 
 defaultproperties

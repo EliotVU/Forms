@@ -26,16 +26,14 @@ var(MultiComponent, Advanced) protectedwrite editinline editfixedsize array<FCom
 /** Called for each component that is initialized and owned by this component. */
 delegate OnComponentInitialized( FComponent component );	// Instigated in FComponent.Initialize(...)
 
-/** Initialize all associated Components. */
-function Initialize( FIController c )
+protected function InitializeComponent()
 {
 	local FComponent component;
 
-	super.Initialize( c );
+	super.InitializeComponent();
 	foreach Components( component )
 	{
-		component.Parent = self;
-		component.Initialize( c );
+		component.Initialize( self );
 	} 	
 }
 
@@ -110,8 +108,7 @@ function bool IsHover( IntPoint mousePosition, out FComponent hoveredComponent )
 /** Add a component to the associated Components. */
 function AddComponent( FComponent component )
 {
-	component.Parent = self;
-	component.Initialize( Controller );
+	component.Initialize( self );
 	Components.AddItem( component );	
 }
 

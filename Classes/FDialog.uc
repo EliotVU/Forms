@@ -43,7 +43,7 @@ function Free()
 	OnDialogResult = none;
 }
 
-function InitializeComponent()
+protected function InitializeComponent()
 {
 	local FButton nextButton;
 	

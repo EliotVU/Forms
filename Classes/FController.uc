@@ -30,7 +30,7 @@ final function InitializeScene( optional class<FScene> sceneClass = class'FScene
 		ScenePointer = new( none, "Forms" ) sceneClass;
 		if( ScenePointer != none )
 		{
-			ScenePointer.Initialize( self );
+			ScenePointer.InitializeScene( self );
 		}
 		else
 		{

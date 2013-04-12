@@ -36,7 +36,7 @@ function Free()
 	OnSelect = none;
 }
 
-function InitializeComponent()
+protected function InitializeComponent()
 {
 	local int i, j;
 	local float columnSizeX, columnSizeY;

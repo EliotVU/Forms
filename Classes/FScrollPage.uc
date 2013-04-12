@@ -23,7 +23,7 @@ function Free()
 	ScrollBar = none;
 }
 
-function InitializeComponent()
+protected function InitializeComponent()
 {
 	super.InitializeComponent();
 	ScrollBar = FScrollBar(CreateComponent( class'FScrollBar' ));

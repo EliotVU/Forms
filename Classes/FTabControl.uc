@@ -1,49 +1,69 @@
-/*
-   Copyright 2012 Eliot van Uytfanghe
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
+/* ========================================================
+ * Copyright 2012 Eliot van Uytfanghe
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ========================================================
+ * FTabControl: A container for FTabButtons with associated FPages.
+ * ======================================================== */
 class FTabControl extends FMultiComponent;
 
-var(Component, Advanced) `{Automated} FPage ActivePage;
+/** The currently actively rendered and interactable tab's page. */
+var(TabControl, Advanced) `{Automated} FPage ActivePage;
 
-/** The parent instance for the TabPages if not none! */
-var FPage TabPagesParent;
+/** Put the @ActivePage within this ExternContainer. */
+var(TabControl, Advanced) FMultiComponent ExternContainer;
 
+/** Called when the tab control's active page is changed. */
 delegate OnSwitch( FPage oldPage, FPage newPage );
 
 function Free()
 {
 	super.Free();
-	TabPagesParent = none;
 	ActivePage = none;
 	OnSwitch = none;
+	ExternContainer = none;
 }
 
-function Initialize( FIController c )
+protected function InitializeComponent()
 {
 	local FComponent component;
+	local FTabButton tab;
 
-	super.Initialize( c );
+	super.InitializeComponent();
 	foreach Components( component )
 	{
 		if( FTabButton(component) != none )
 		{
-			component.OnClick = Click;
+			tab = FTabButton(component);
+			tab.OnClick = TabClicked;
+			if( tab.TabPage == none )
+			{
+				`Log( "Warning! " @ tab $ "'s TabPage is none!" );
+				continue;
+			
+			}
+			if( ExternContainer == none )
+			{
+				tab.TabPage.Initialize( self );	
+			}
+			else
+			{
+				ExternContainer.AddComponent( tab.TabPage );
+				tab.TabPage.SetVisible( false );
+			}
 		}
 	}
-
-	SetActivePage( ActivePage );
+	SetActivePage( ActivePage );	
 }
 
 function Render( Canvas C )
@@ -97,27 +117,37 @@ function bool IsHover( IntPoint mousePosition, out FComponent hoveredComponent )
 
 function SetActivePage( FPage newPage )
 {
-	local FPage C;
+	local FPage previousPage;
 
-	C = ActivePage;
+	previousPage = ActivePage;
 	ActivePage = newPage;
-	// Make sure the page gets garbage collected!
-	Scene().AddToPool( ActivePage );
-	OnSwitch( C, newPage );	
+
+	if( previousPage != none )
+	{
+		previousPage.SetVisible( false );
+	}
+
+	if( newPage != none )
+	{
+		newPage.SetVisible( true );
+	}
+
+	OnSwitch( previousPage, newPage );	
 }
 
-function Click( FComponent sender, optional bool bRight )
+function TabClicked( FComponent sender, optional bool bRight )
 {
-	local FPage N;
+	local FPage newPage;
 
+	// Consider this as click on the FTabControl component as well!
 	OnClick( sender, bRight );
 
-	N = FTabButton(sender).TabPage;
-	if( N == ActivePage )
+	newPage = FTabButton(sender).TabPage;
+	if( newPage == ActivePage )
 	{
 		return;
 	} 
-	SetActivePage( N );
+	SetActivePage( newPage );
 }
 
 defaultproperties

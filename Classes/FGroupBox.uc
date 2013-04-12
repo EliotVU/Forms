@@ -23,7 +23,7 @@ function Free()
 	Text = none;
 }
 
-function InitializeComponent()
+protected function InitializeComponent()
 {
 	super.InitializeComponent();
 	if( Text != none )
