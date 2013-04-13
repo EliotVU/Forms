@@ -16,7 +16,7 @@
  * FToolTip: A basic tooltip control with a label and a background, similar to that of Windows.
  * Can be extended either inside the component that initializes this tooltip or by extending this class.
  * ======================================================== */
-class FToolTip extends FMultiComponent;
+class FToolTip extends FToolTipBase;
 
 /** The tooltip's text. */
 var(ToolTip, Display) editconst string 			ToolTipText;

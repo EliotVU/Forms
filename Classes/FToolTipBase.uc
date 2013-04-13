@@ -15,7 +15,7 @@
  * ========================================================
  * FToolTipBase: See FToolTip.uc for an implementation.
  * ======================================================== */
-class FToolTipBase extends FComponent
+class FToolTipBase extends FMultiComponent
 	abstract;
 	
 /** For how long should the tooltip be delayed before being shown? In seconds. */
@@ -45,9 +45,8 @@ function bool CanRender()
 
 function AttachToPosition( IntPoint mousePosition, Vector2D screenSize )
 {
-	local float x, y, w, h;
+	local float x, y, h;
 
-	w = GetCachedWidth();
 	h = GetCachedHeight();
 	switch( ToolTipAttachPosition )
 	{
