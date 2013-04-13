@@ -166,6 +166,30 @@ Using delegates
     // - you have to use "sender." to perform code 
     // - because the function's code is not executed in the context of your class's instance,
     // - but in the generated DEFAULT__NAME object(UDK bug!)
+    
+Using tooltips
+
+    defaultproperties
+    {
+      begin object name=ExitButton class=FButton
+        // Position at the end of "MainMenu"
+        RelativePosition=(X=1.0,Y=1.0)
+        
+        // Without these the button would begin at X=1 and Y=1 but with those it will end at X=1 and Y=1 instead.
+        VerticalDock=VD_Bottom
+        HorizontalDock=HD_Right
+        
+        // The button text, you can set this optionally to Text="@UDKGameUI.Generic.Exit" 
+        // - which means the button's text will be whatever Exit is set to in UDKGameUI.ini
+        Text="Exit"
+        begin object name=ExitToolTip class=FToolTip
+          Text="Do you want to exit the game?"
+          // or if you want it to be localized, this can be done for any other FLabel as well!
+          //Text="@LOCALIZATION_INI_NAME.SECTION.KEY_NAME"
+        end object
+      end object
+      Components.Add(ExitButton)
+    }
 
 
 Other controls
