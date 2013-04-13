@@ -129,7 +129,7 @@ var(Component, Collision) enum ECollisionShape
 	end object	
 	Components.Add(oQuit)
  */
-var(Component, Display) editinline FToolTip				ToolTipComponent;
+var(Component, Display) editinline FToolTipBase			ToolTipComponent;
 
 /** The style for this component to use. */
 var(Component, Display) privatewrite editinline FStyle 	Style;
