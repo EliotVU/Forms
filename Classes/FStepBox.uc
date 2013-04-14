@@ -1,30 +1,29 @@
-/*
-   Copyright 2012 Eliot van Uytfanghe
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
+/* ========================================================
+ * Copyright 2012-2013 Eliot van Uytfanghe
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ========================================================
+ * FStepBox: An alternative to dropdown lists. 
+ * Expects an array of choices and adds two buttons a previous and next button to navigate through the list.
+ * ======================================================== */
 class FStepBox extends FMultiComponent;
 
-var(Component, Advanced) `{Automated} FButton Previous;
-var(Component, Advanced) `{Automated} FLabel SelectedChoice;
-var(Component, Advanced) `{Automated} FButton Next;
+var(Component, Advanced) FButton 		Previous;
+var(Component, Advanced) FLabel 		SelectedChoice;
+var(Component, Advanced) FButton 		Next;
 
-var(Component, Usage) array<string> Choices;
-var(Component, Usage) int ChoiceIndex;
-
-var(Component, Display) privatewrite editinline FStyle 
-	PreviousButtonStyle,
-	NextButtonStyle;
+var(Component, Usage) array<string> 	Choices;
+var(Component, Usage) int				ChoiceIndex;
 
 delegate OnValueChanged( FComponent sender );
 
@@ -34,50 +33,23 @@ function Free()
 	Previous = none;
 	SelectedChoice = none;
 	Next = none;
-	
-	if( PreviousButtonStyle != none )
-	{
-		PreviousButtonStyle.Free();
-		PreviousButtonStyle = none;
-	}
-	
-	if( NextButtonStyle != none )
-	{
-		NextButtonStyle.Free();
-		NextButtonStyle = none;
-	}
 	OnValueChanged = none;
 }
 
 protected function InitializeComponent()
 {
 	super.InitializeComponent();
-	Previous = FButton(CreateComponent( class'FButton' ));
-	Previous.SetPos( 0.0, 0.0 );
-	Previous.SetSize( 0.15, 1.0 );
-	Previous.SetMargin( 0.0, 0.0, 0.0, 0.0 );
+	Previous = FButton(CreateComponent( class'FButton',, Previous ));
 	Previous.OnClick = Click;
 	Previous.OnDoubleClick = Click;
-	Previous.bRenderCaption = false;
-	Previous.bJustify = true;
 	AddComponent( Previous );
 
-	SelectedChoice = FLabel(CreateComponent( class'FLabel' ));
-	SelectedChoice.SetPos( 0.15, 0.0 );
-	SelectedChoice.SetSize( 0.7, 1.0 );
-	SelectedChoice.SetMargin( 0.0, 0.0, 0.0, 0.0 );
-	SelectedChoice.TextAlign = TA_Center;
+	SelectedChoice = FLabel(CreateComponent( class'FLabel',, SelectedChoice ));
 	AddComponent( SelectedChoice );
 
-	Next = FButton(CreateComponent( class'FButton' ));
-	Next.SetPos( 1.0, 0.0 );
-	Next.SetSize( 0.15, 1.0 );
-	Next.SetMargin( 0.0, 0.0, 0.0, 0.0 );
-	Next.bRenderCaption = false;
+	Next = FButton(CreateComponent( class'FButton',, Next ));
 	Next.OnClick = Click;
 	Next.OnDoubleClick = Click;
-	Next.bJustify = true;
-	Next.HorizontalDock = HD_Right;
 	AddComponent( Next );
 	
 	UpdateChoice();
@@ -158,4 +130,33 @@ defaultproperties
 	bSupportHovering=`devmode
 
 	StyleName=Hidden
+
+	begin object name=oPrevButtonTemplate class=FButton
+		RelativePosition=(X=0.0,Y=0.0)
+		RelativeSize=(X=0.15,Y=1.0)
+		Margin=(W=0,X=0,Y=0,Z=0)
+		bRenderCaption=false
+		bJustify=true
+		StyleNames.Add(Previous)
+	end object
+	Previous=oPrevButtonTemplate
+
+	begin object name=oChoiceLabelTemplate class=FLabel
+		RelativePosition=(X=0.15,Y=0.0)
+		RelativeSize=(X=0.7,Y=1.0)
+		Margin=(W=0,X=0,Y=0,Z=0)
+		TextAlign=TA_Center
+	end object
+	SelectedChoice=oChoiceLabelTemplate
+
+	begin object name=oNextButtonTemplate class=FButton
+		RelativePosition=(X=1.0,Y=0.0)
+		RelativeSize=(X=0.15,Y=1.0)
+		Margin=(W=0,X=0,Y=0,Z=0)
+		HorizontalDock=HD_Right
+		bRenderCaption=false
+		bJustify=true
+		StyleNames.Add(Next)
+	end object
+	Next=oNextButtonTemplate
 }
