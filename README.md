@@ -15,6 +15,7 @@ Installing
 =====
 
 [Installing Forms - Wiki](http://github.com/EliotVU/Forms/wiki/Installing-Forms)
+[Customizing the Cursor Icons - Wiki](https://github.com/EliotVU/Forms/wiki/Customizing-the-Cursor-Icons)
 
 Example
 =====
