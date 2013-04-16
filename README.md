@@ -11,6 +11,11 @@ Forms in action:
 ![Potention](http://cloud.steampowered.com/ugc/540677266034363535/8F08FE0DA245238DDAE1250622ADF9E078294B0E/)
 Graphics not included!
 
+Installing
+=====
+
+[Installing Forms - Wiki](http://github.com/EliotVU/Forms/wiki/Installing-Forms)
+
 Example
 =====
 An example demonstrating how a typical menu's code could look like:
@@ -53,17 +58,8 @@ An example demonstrating how a typical menu's code could look like:
         Components.Add(oExitButton) // We must add our button to the components list, so it can be processed and drawn.
     }
 
-Installing Forms
-=====
-Read this short tutorial on installing forms: 
-
-  http://github.com/EliotVU/Forms/wiki/Installing-Forms
   
-Once installed, start by making your first menu: 
-
-  http://github.com/EliotVU/Forms/wiki/Your-First-Menu
-  
-Examples
+Component examples
 =====
 
 Creating a page with a button
