@@ -8,7 +8,7 @@ This framework will give you most of the common GUI building components of which
   Page, Button, Dialog, Tab Control, Label, and many more!
 
 Forms in action:
-![Potention](http://cloud.steampowered.com/ugc/540677266034363535/8F08FE0DA245238DDAE1250622ADF9E078294B0E/)
+![Potention](http://dl.dropboxusercontent.com/u/13770647/Linear%20Celerity%20project/ScreenShot00003%20%282%29.bmp)
 Graphics not included!
 
 Installing
