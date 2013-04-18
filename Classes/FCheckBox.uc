@@ -1,5 +1,5 @@
 /* ========================================================
- * Copyright 2012 Eliot van Uytfanghe
+ * Copyright 2012-2013 Eliot van Uytfanghe
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * ========================================================
- * FCheckBox: 
+ * FCheckBox: A simple button like component but instead toogles @bChecked and triggers OnChecked, 
+ *  - which is useful to setup boolean configurations such as "Enable Bloom".
  * ======================================================== */
 class FCheckBox extends FLabel;
 
@@ -30,11 +31,12 @@ function Free()
 protected function RenderComponent( Canvas C )
 {
 	super(FComponent).RenderComponent( C );
-	RenderBackground( C, bChecked ? FCheckBoxStyle(Style).CheckedColor : FCheckBoxStyle(Style).UncheckedColor );
+	RenderBackground( C, GetImageColor() );
 
 	if( Text != "" )
 	{
-		RenderLabel( C, LeftX, TopY, WidthX, HeightY, GetStateColor( TextColor ) );
+		TextDecoration = bChecked ? default.TextDecoration : D_Overlined;
+		RenderLabel( C, LeftX, TopY, WidthX, HeightY, GetStateColor( FLabelStyle(Style).TextColor ) );
 	}
 }
 
@@ -59,11 +61,13 @@ defaultproperties
 	OnClick=Click
 
 	Text="CheckBox"
-	TextColor=(R=255,G=255,B=255,A=255)
 	TextAlign=TA_Left
+	TextDecorationColor=(R=200,G=0,B=0,A=128)
+	TextDecorationSize=3
 
 	StyleNames.Add(CheckBox)
-	StyleClass=class'FCheckBoxStyle'
-
+	
 	bEnabled=true
+	bEnableClick=true
+	bEnableCollision=true
 }

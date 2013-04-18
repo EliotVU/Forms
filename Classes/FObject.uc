@@ -1,5 +1,5 @@
 /* ========================================================
- * Copyright 2012 Eliot van Uytfanghe
+ * Copyright 2012-2013 Eliot van Uytfanghe
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,15 @@ class FObject extends Object
 	hidecategories(Object)
 	abstract;
 
+//==============CONSTANTS==============
+const Colors = class'FColors';
+
+//==============INTERFACE==============
 function Free();
 function Render( Canvas C );
 
-public final function string SplitArray( array<name> nameArray, string spacer = "-" )
+//==============METHODS==============
+public final static function string SplitArray( array<name> nameArray, string spacer = "-" )
 {
 	local int i;
 	local string ret;
@@ -38,6 +43,11 @@ public final function string SplitArray( array<name> nameArray, string spacer = 
 	return ret;
 }
 
-defaultproperties
+public final static function Vector PointToVect( out IntPoint point )
 {
+	local Vector v;
+	
+	v.X = point.X;
+	v.Y = point.Y;
+	return v;	
 }

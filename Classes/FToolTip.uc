@@ -38,7 +38,7 @@ protected function InitializeComponent()
 {
 	super.InitializeComponent();
 
-	ToolTipBackground = FPage(CreateComponent( ToolTipBackground.Class, self, ToolTipBackground ));
+	ToolTipBackground = FPage(CreateComponent( ToolTipBackground.Class,, ToolTipBackground ));
 	AddComponent( ToolTipBackground );
 
 	ToolTipLabel = FLabel(CreateComponent( ToolTipLabel.Class, ToolTipBackground, ToolTipLabel ));

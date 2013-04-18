@@ -1,5 +1,5 @@
 /* ========================================================
- * Copyright 2012 Eliot van Uytfanghe
+ * Copyright 2012-2013 Eliot van Uytfanghe
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,15 @@
  * ======================================================== */
 class FDialog extends FWindow;
 
-var() enum EDialogButtons
+var(Dialog) editconst enum EDialogButtons
 {
 	DB_OK,
 	DB_OKCancel,
 	DB_YesNO
 } Buttons;
 
-var() FButton DialogButtonTemplate;
-var() string DialogTitle;
+var(Dialog) editconst `{Automated} FButton DialogButtonTemplate;
+var(Dialog) editconst string DialogTitle;
 
 var const string OKText, YESText, NOText, CANCELText; 
 
@@ -124,7 +124,7 @@ defaultproperties
 	end object
 	DialogButtonTemplate=oDialogButton
 	
-	bSupportHovering=false
+	bEnableCollision=false
 	DialogTitle="Dialog"
 
 	OKText="@Forms.Dialog.OK"

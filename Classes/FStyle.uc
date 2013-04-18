@@ -1,56 +1,70 @@
-/*
-   Copyright 2012 Eliot van Uytfanghe
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-/** A style object, where all the styles are configured with element objects. 
-	A style object is shared between more than one FComponent! */
+/* ========================================================
+ * Copyright 2012-2013 Eliot van Uytfanghe
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ========================================================
+ * FStyle: A shared and dynamically loaded style object from the "DefaultForms.ini"
+ * ======================================================== */
 class FStyle extends FObject
 	perobjectconfig
 	config(Forms);
 
+// Built-in and hardcoded image textures.
+
+/** If ImageName is set to ImageColor then use the ImageColor property as the image. */
+const IMAGE_BACKGROUND = "@ImageColor";
+
 /** The texture to be used as the component's background/image (If supported) */
-var(Style, Display) Texture2D					Image;
-var(Style, Positioning) TextureCoordinates		ImageCoords;
 var config const string							ImageName;
 var config const TextureCoordinates				ImageNameCoords;
-var(Style, Display) enum ETileStyle				
+var(Style, Display) Texture2D					Image;
+var(Style, Display) TextureCoordinates			ImageCoords;
+var(Style, Display) config float				ImageScaling;
+
+/** Image scaling method for @Image. */
+var(Style, Display) config enum EImageMethod		
 {
-	TS_Tile,
-	TS_TileStretched
-}												ImageStyle;
-var EBlendMode									ImageBlendMode;
+	/** Scales the image by repeating the horizontal and vertical center. */
+	IM_Scale,
+
+	/** Stretch the image like a photo. */
+	IM_Stretch
+}												ImageMethod;
+
+/** 
+ * Blending mode for @Image. Has only an affect if @ImageMethod is set to IM_Stretch. 
+ * See: http://udn.epicgames.com/Three/CanvasTechnicalGuide.html#Blending%20Modes
+ */
+var(Style, Display) config EBlendMode			ImageBlendMode;
 
 /** The texture to be used as the component's background/image (If supported) */
-var(Style, Display) Texture2D					Shadow;
-var(Style, Positioning) TextureCoordinates		ShadowCoords;
 var config const string							ShadowName;
 var config const TextureCoordinates				ShadowNameCoords;
+
+var(Style, Display) Texture2D					Shadow;
+var(Style, Display) TextureCoordinates			ShadowCoords;
 var(Style, Display) int							ShadowSize;
 
-/** The material to be used as the component's image (If supported) */
-var(Style, Display) Material					Material;
-var config const string							MaterialName;
+var(Style, Colors) config const bool 			bTransitionColor;
 
 var(Style, Colors) config const Color			ImageColor;
-var(Style, Colors) const Color					ShadowColor;
+var(Style, Colors) config const Color			ShadowColor;
+
 var(Style, Colors) config const Color			HoverColor;
 var(Style, Colors) config const Color			FocusColor;
 var(Style, Colors) config const Color			SelectedColor;
 var(Style, Colors) config const Color			ActiveColor;
 var(Style, Colors) config const Color			DisabledColor;
-
-var(Style, Display) bool						bPlainColors;
 
 /** Collection of elements to render after the associated component(s). */
 var(Style, Elements) config protectedwrite editinline array<struct sElement
@@ -58,13 +72,13 @@ var(Style, Elements) config protectedwrite editinline array<struct sElement
 	var transient FElement Element; 
 	var() name Name; 
 	var() class<FElement> Class;
-}> Elements;
+}> 												Elements;
 
 var(Style, Advanced) editinline FStyle			Inheritance;
 
 function Initialize()
 {
-	if( ImageName != "" )
+	if( ImageName != "" && ImageName != IMAGE_BACKGROUND )
 	{
 		Image = Texture2D(DynamicLoadObject( ImageName, class'Texture2D', true ));
 		if( ImageNameCoords.UL > 0.00 && ImageNameCoords.VL > 0.00 )
@@ -82,10 +96,8 @@ function Initialize()
 		}
 	}
 
-	if( MaterialName != "" )
-	{
-		Material = Material(DynamicLoadObject( MaterialName, class'Material', true ));
-	}
+	if( ImageScaling == 0.0 )
+		ImageScaling = 1.0;
 
 	InitializeElements();
 }
@@ -134,15 +146,17 @@ function DrawBackground( Canvas C, float width, float height )
 	local float UL, VL;
 	local float curX, curY;
 	local Color curColor;
-	
-	if( bPlainColors )
+
+	if( ImageName == IMAGE_BACKGROUND )
 	{
 		C.DrawRect( width, height );
 		return;
 	}
 	
 	if( Image == none )
+	{
 		return;
+	}
 		
 	if( Shadow != none )
 	{
@@ -158,13 +172,23 @@ function DrawBackground( Canvas C, float width, float height )
 	
 	UL = (ImageCoords.UL <= 1.0) ? float(Image.SizeX) : ImageCoords.UL;
 	VL = (ImageCoords.VL <= 1.0) ? float(Image.SizeY) : ImageCoords.VL;
-	if( ImageStyle == TS_TileStretched )
-	{	
-		C.DrawTileStretched( Image, width, height, ImageCoords.U, ImageCoords.V, UL, VL );
-	}
-	else if( ImageStyle == TS_Tile )
+	switch( ImageMethod )
 	{
-		C.DrawTile( Image, width, height, ImageCoords.U, ImageCoords.V, UL, VL,,, ImageBlendMode );
+		case IM_Scale:
+			C.DrawTileStretched( 
+				Image, width, height, 
+				ImageCoords.U, ImageCoords.V, UL, VL
+				,,,, ImageScaling
+			);
+			break;
+
+		case IM_Stretch:
+			C.DrawTile( 
+				Image, width, height, 
+				ImageCoords.U, ImageCoords.V, UL, VL
+				,,, ImageBlendMode 
+			);
+			break;
 	}
 }
 
@@ -198,22 +222,13 @@ function Free()
 	
 	Image = none;
 	Shadow = none;
-	Material = none;
 	Inheritance = none;
 }
 
 defaultproperties
 {
-	//HoverColor=(R=255,G=255,B=0,A=255)
-	//FocusColor=(R=180,G=180,B=180,A=255)
-	//ActiveColor=(R=200,G=200,B=200,A=255)
-	//DisabledColor=(R=0,G=0,B=0,A=255)
-	
 	ImageCoords=(U=0.0,V=0.0,UL=1.0,VL=1.0)
-	//ImageColor=(R=255,G=255,B=255,A=255)
-	ImageStyle=TS_TileStretched
 	
 	ShadowCoords=(U=0.0,V=0.0,UL=1.0,VL=1.0)
-	ShadowColor=(A=32)
 	ShadowSize=4
 }

@@ -1,28 +1,28 @@
-/*
-   Copyright 2012 Eliot van Uytfanghe
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
+/* ========================================================
+ * Copyright 2012-2013 Eliot van Uytfanghe
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ======================================================== */
 class FTextBox extends FInputBox;
 
-var(Component, Function) int MaxTextLength;
-var(Component, Function) bool bReadyOnly;
+var(TextBox, Function) int MaxTextLength;
+var(TextBox, Function) bool bReadyOnly;
 
-var(Component, Display) bool bUnderlined;
-var(Component, Display) bool bCarret;
+var(TextBox, Display) bool bUnderlined;
+var(TextBox, Display) bool bCarret;
 
-var(Component, Display) const Color UnderlineColor;
-var(Component, Display) const Color CarretColor;
+var(TextBox, Display) const Color UnderlineColor;
+var(TextBox, Display) const Color CarretColor;
 
 var transient int CarretIndex;
 var transient float LastCarretMoveTime;
@@ -36,13 +36,13 @@ protected function RenderComponent( Canvas C )
 
 	super(FComponent).RenderComponent( C );
 	RenderBackground( C );
-	RenderLabel( C, LeftX, TopY, WidthX, HeightY, TextColor, TXL, TYL );
+	RenderLabel( C, LeftX, TopY, WidthX, HeightY, FLabelStyle(Style).TextColor, TXL, TYL );
 	if( HasFocus() && bEditing )
 	{
 		// Underline
 		if( bUnderlined )
 		{
-			C.SetPos( C.CurX - (TextRenderInfo.bClipText ? 0.0 : TXL), C.CurY + TYL );
+			C.SetPos( C.CurX - (FLabelStyle(Style).TextRenderInfo.bClipText ? 0.0 : TXL), C.CurY + TYL );
 			C.DrawColor = UnderlineColor;
 			C.DrawRect( TXL, 1 );
 		}

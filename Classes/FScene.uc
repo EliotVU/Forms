@@ -1,18 +1,18 @@
-/*
-   Copyright 2012 Eliot van Uytfanghe
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
+/* ========================================================
+ * Copyright 2012-2013 Eliot van Uytfanghe
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ======================================================== */
 class FScene extends FComponent;
 
 /** Add objects to this pool that have to be free'd on level change! :TODO: */
@@ -37,8 +37,6 @@ var protectedwrite transient FComponent 							HoveredComponent;
 var protectedwrite transient FComponent 							LastHoveredComponent;
 
 var protectedwrite transient FComponent 							ActiveComponent;
-
-var protectedwrite transient FToolTip								ActiveToolTip;
 
 /** Whether to pause the game when the scene is visible. */
 var(Scene) bool														bPausedWhileVisible;
@@ -87,7 +85,7 @@ var transient Rotator 												LastPlayerRotation;
 var transient bool 													bCtrl, bAlt, bShift;
 
 `if( `isdefined( DEBUG ) )
-	var(Scene, Debug) transient bool 								bRenderRectangles;
+	var(Scene, Debug) transient bool 								bDebugModeIsActive;
 `endif
 
 delegate OnPageRemoved( FPage sender );
@@ -159,7 +157,8 @@ protected function UpdatePages( float DeltaTime )
 	
 	foreach Pages( page )
 	{
-		page.Update( DeltaTime );
+		// HACK: Use RenderDeltaTime as DeltaTime is always -1???
+		page.Update( RenderDeltaTime );
 	} 
 }
 
@@ -247,7 +246,14 @@ protected function MouseMove( FScene scene, float DeltaTime )
 		if( page.CanRender() && !bCollided && page.CanInteract()
 			&& page.IsHover( MousePosition, HoveredComponent ) )
 		{
-			if( (HoveredComponent != none && HoveredComponent.bSupportHovering) )
+			if( (HoveredComponent != none 
+				&& (HoveredComponent.bEnableCollision
+					`if( `isdefined( DEBUG ) )
+						 || bDebugModeIsActive 
+					`endif
+					)
+				) 
+			)
 			{
 				bCollided = true;
 				if( LastHoveredComponent != HoveredComponent )
@@ -306,7 +312,7 @@ function Render( Canvas C )
 	//UpdateSceneRatio();
 	super.Render( C );
 	`if( `isdefined( DEBUG ) )
-		if( bRenderRectangles )
+		if( bDebugModeIsActive )
 		{
 			RenderGrid( C );
 		}
@@ -321,7 +327,7 @@ function Render( Canvas C )
 	}
 	
 	`if( `isdefined( DEBUG ) )
-		if( bRenderRectangles )
+		if( bDebugModeIsActive )
 		{
 			RenderGridBar( C, false );
 			RenderGridBar( C, true );
@@ -329,7 +335,7 @@ function Render( Canvas C )
 		RenderDebug( C );
 	`endif
 
-	if( bRenderCursor && (!bTimeOutCursor || `STimeSince( LastMouseMoveTime ) < MouseCursorTimeOut) )
+	if( bRenderCursor && (!bTimeOutCursor || `STimeSince( LastActivityTime ) < MouseCursorTimeOut) )
 	{
 		RenderCursor( C );
 	}
@@ -503,7 +509,7 @@ protected function RenderCursor( Canvas C )
 	
 	C.SetPos( MousePosition.X, MousePosition.Y );
 	C.DrawColor = class'HUD'.default.WhiteColor;
-	if( HoveredComponent != none && HoveredComponent.bSupportSelection )
+	if( HoveredComponent != none && HoveredComponent.bEnableClick )
 	{
 		cursorSizeX = CursorTouchCoords.UL * CursorScaling;
 		cursorSizeY = CursorTouchCoords.VL * CursorScaling;
@@ -523,7 +529,7 @@ protected function RenderCursor( Canvas C )
 	}
 	
 	`if( `isdefined( DEBUG ) )
-		if( bRenderRectangles )
+		if( bDebugModeIsActive )
 		{
 			C.SetDrawColor( 240, 240, 240, 200 );
 			
@@ -537,32 +543,9 @@ protected function RenderCursor( Canvas C )
 	`endif
 }
 
-function Free()
-{
-	// To make sure we remove postprocess and undo pause.
-	SetVisible( false );
-	Pages.Length = 0;
-	CursorsImage = none;
-	ClickSound = none;
-	HoverSound = none;
-	MenuPostProcessChain = none;
-	
-	ActiveComponent = none;
-	HoveredComponent = none;
-	SelectedComponent = none;
-	LastSelectedComponent = none;
-	LastHoveredComponent = none;
-	ActiveToolTip = none;
-	
-	FreeObjects();
-
-	GlobalStyle = none;
-	super.Free();
-}
-
 /*function UpdateSceneRatio()
 {
-	if( bConsiderAspectRatio ^^ bRenderRectangles )
+	if( bConsiderAspectRatio ^^ bDebugModeIsActive )
 	{
 		if( true )	// TODO: Proper detection
 		{
@@ -634,10 +617,23 @@ final function AddPage( FPage page )
 	`endif
 
 	page.Initialize( self );
-	page.Opened();
-	Pages.InsertItem( 0, page );
 
+	Pages.InsertItem( 0, page );
 	OnPageAdded( page );
+
+	page.Opened();	
+}
+
+final function RemovePage( FPage page )
+{	
+	`if( `isdefined( DEBUG ) )
+		Player().ClientMessage( "RemovedPage:" @ page );
+	`endif
+
+	page.Closed();
+
+	Pages.RemoveItem( page );
+	OnPageRemoved( page );
 }
 
 final simulated function ClosePage( optional bool bCloseAll )
@@ -655,18 +651,6 @@ final simulated function ClosePage( optional bool bCloseAll )
 	{
 		RemovePage( Pages[0] );
 	}
-}
-
-final function RemovePage( FPage page )
-{	
-	`if( `isdefined( DEBUG ) )
-		Player().ClientMessage( "RemovedPage:" @ page );
-	`endif
-
-	page.Closed();
-	page.Parent = none;
-	Pages.RemoveItem( page );
-	OnPageRemoved( page );
 }
 
 final function EmptyPages()
@@ -791,7 +775,7 @@ function bool KeyInput( name Key, EInputEvent EventType )
 			case 'RightShift':
 				bShift = true;
 				`if( `isdefined( DEBUG ) )
-					bRenderRectangles = true;
+					bDebugModeIsActive = true;
 				`endif
 				break;
 		}
@@ -834,7 +818,7 @@ function bool KeyInput( name Key, EInputEvent EventType )
 					LastClickTime = `STime;
 					LastClickPosition = MousePosition;
 
-					if( !inputComponent.bSupportSelection )
+					if( !inputComponent.bEnableClick )
 					{
 						break;
 					}
@@ -868,14 +852,14 @@ function bool KeyInput( name Key, EInputEvent EventType )
 			case 'MouseScrollUp':
 				if( HoveredComponent != none )
 				{
-					HoveredComponent.OnMouseWheelInput( HoveredComponent, true );
+					HoveredComponent.BubbleMouseWheelInput( HoveredComponent, true );
 				}
 				break;
 
 			case 'MouseScrollDown':
 				if( HoveredComponent != none )
 				{
-					HoveredComponent.OnMouseWheelInput( HoveredComponent, false );
+					HoveredComponent.BubbleMouseWheelInput( HoveredComponent, false );
 				}
 				break;	
 				
@@ -893,7 +877,7 @@ function bool KeyInput( name Key, EInputEvent EventType )
 			case 'RightShift':
 				bShift = false;
 				`if( `isdefined( DEBUG ) )
-					bRenderRectangles = false;
+					bDebugModeIsActive = false;
 				`endif
 				break;	
 		}
@@ -966,6 +950,35 @@ protected final function PlayClickSound()
 	Player().ClientPlaySound( ClickSound );
 }
 
+function Free()
+{
+	FreeObjects();
+
+	// Styles were added to the ObjectsPool as well so no need to iterate them.
+	Styles.Length = 0;
+
+	// To make sure we remove postprocess and undo pause.
+	SetVisible( false );
+	Pages.Length = 0;
+	MenuPostProcessChain = none;
+
+	CursorsImage = none;
+	ClickSound = none;
+	HoverSound = none;
+	
+	ActiveComponent = none;
+	HoveredComponent = none;
+	SelectedComponent = none;
+	LastSelectedComponent = none;
+	LastHoveredComponent = none;
+	GlobalStyle = none;
+
+	OnPageRemoved = none;
+	OnPageAdded = none;
+	OnPostRenderPages = none;
+	super.Free();
+}
+
 /** Adds an object to the pool. All objects in the pool can then be free'd calling Free(). */
 final function AddToPool( FObject formObject )
 {
@@ -983,15 +996,17 @@ final function FreeObject( FObject formObject )
 
 final function FreeObjects()
 {
-	local FObject formObject;
+	local FObject fObj;
 	
 	`Log( "Free'ing" @ ObjectsPool.Length @ "objects!" );
-	foreach ObjectsPool( formObject )
+	foreach ObjectsPool( fObj )
 	{
-		formObject.Free();
+		if( fObj == self )
+			continue;
+
+		fObj.Free();
 	}
 	ObjectsPool.Length = 0;
-	Styles.Length = 0;
 }
 
 private final function RegisterStyle( FStyle styleObject )

@@ -1,5 +1,5 @@
 /* ========================================================
- * Copyright 2012 Eliot van Uytfanghe
+ * Copyright 2012-2013 Eliot van Uytfanghe
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,6 @@ class FComponent extends FObject
 	perobjectlocalized
 	abstract;
 
-const Colors = class'FColors';
-
 /** Cannot be used(same for other objects) from delegate events if that delegate is initialized via the DefaultProperties block! */
 var protectedwrite transient editconst FIController Controller;
 
@@ -36,8 +34,8 @@ var(Component, Function) protectedwrite bool bVisible;
 /** Is this component interactable? */
 var(Component, Function) protectedwrite bool bEnabled;
 
-var(Component, Function) const bool bSupportSelection;
-var(Component, Function) const bool bSupportHovering;
+var(Component, Function) const bool bEnableClick;
+var(Component, Function) const bool bEnableCollision;
 
 /** The relative position of this component, relative starting from the parent's position, in percentage! */
 var(Component, Positioning) privatewrite Vector2D RelativePosition;
@@ -132,8 +130,12 @@ var(Component, Collision) enum ECollisionShape
 var(Component, Display) editinline FToolTipBase			ToolTipComponent;
 
 /** The style for this component to use. */
-var(Component, Display) privatewrite editinline FStyle 	Style;
-var private editinline FStyle							InitStyle, HoverStyle, ActiveStyle, FocusStyle;
+var(Component, Display) protectedwrite editinline FStyle 	Style;
+var privatewrite editinline FStyle							InitStyle,
+															PrevStyle, 
+															HoverStyle, 
+															ActiveStyle, 
+															FocusStyle;
 
 /** 
  * A style object will be created and assigned to @Style based on an ini configuration 
@@ -176,7 +178,7 @@ var transient edithide editconst float LastHoveredTime, LastUnhoveredTime;
 var transient edithide editconst float LastFocusedTime, LastUnfocusedTime;
 var transient edithide editconst float LastActiveTime, LastUnactiveTime;
 var transient edithide editconst float LastStateChangeTime;
-var transient edithide editconst Color LastStateColor;
+var transient edithide editconst Color LastStateColor, LastImageColor;
 
 // KB/M EVENTS - Only called if hovered or focused!
 delegate OnClick( FComponent sender, optional bool bRight );
@@ -184,6 +186,17 @@ delegate OnDoubleClick( FComponent sender, optional bool bRight );
 delegate OnMouseButtonPressed( FComponent sender, optional bool bRight );
 delegate OnMouseButtonRelease( FComponent sender, optional bool bRight );
 delegate OnMouseWheelInput( FComponent sender, optional bool bUp );
+
+function BubbleMouseWheelInput( FComponent sender, optional bool bUp )
+{
+	if( OnMouseWheelInput != none )
+	{
+		OnMouseWheelInput( sender, bUp );
+		return;
+	}
+	Parent.BubbleMouseWheelInput( sender, bUp );
+}
+
 delegate OnMouseMove( FScene scene, float DeltaTime );
 delegate bool OnKeyInput( name Key, EInputEvent EventType );
 delegate bool OnCharInput( string Unicode );
@@ -253,7 +266,7 @@ protected function InitializeComponent()
 	BindStyle();
 }
 
-public final function ResetStyle()
+/*public final function ResetStyle()
 {
 	if( HoverStyle != none ){Scene().FreeObject( HoverStyle ); HoverStyle = none;}
 	if( ActiveStyle != none ){Scene().FreeObject( ActiveStyle ); ActiveStyle = none;}
@@ -265,7 +278,7 @@ public final function ResetStyle()
 	//ResetConfig( true );
 
 	BindStyle();
-}
+}*/
 
 private final function BindStyle()
 {
@@ -274,20 +287,30 @@ private final function BindStyle()
 	styleIdentifier = (StyleNames.Length > 0) ? SplitArray( StyleNames, "-" ) : string(StyleName);
 	Style = Scene().GetStyle( styleIdentifier, StyleClass );
 	InitStyle = Style;
+	PrevStyle = InitStyle;
 
+	InitStateStyles( styleIdentifier );
+}
+
+protected function InitStateStyles( string styleId )
+{
 	// All states inherit the default's style not Global:Hover( not supported :( ))
-	HoverStyle = GetStateStyle( styleIdentifier, "hover" );
-	ActiveStyle = GetStateStyle( styleIdentifier, "active" );
-	FocusStyle = GetStateStyle( styleIdentifier, "focus" );
-
+	HoverStyle = bEnableCollision ? GetStateStyle( styleId, "hover" ) : none;
 	if( HoverStyle == none ) HoverStyle = InitStyle;
+
+	ActiveStyle = (bEnableCollision && bEnableClick) ? GetStateStyle( styleId, "active", HoverStyle ) : none;
 	if( ActiveStyle == none ) ActiveStyle = InitStyle;
+
+	FocusStyle = (bEnableCollision && bEnableClick) ? GetStateStyle( styleId, "focus" ) : none;
 	if( FocusStyle == none ) FocusStyle = InitStyle;
 }
 
-private final function FStyle GetStateStyle( string styleIdentifier, string stateName )
+protected final function FStyle GetStateStyle( string styleIdentifier, string stateName, FStyle inheritStyle = InitStyle )
 {
-	return Scene().GetStyle( styleIdentifier $ ":" $ stateName, StyleClass, InitStyle );
+	if( inheritStyle == none )
+		inheritStyle = InitStyle;
+
+	return Scene().GetStyle( styleIdentifier $ ":" $ stateName, StyleClass, inheritStyle );
 }
 
 /** Called every tick if Enabled and Visible. */
@@ -309,11 +332,18 @@ function Refresh()
 /** Render this object. Override RenderComponent to draw component specific visuals. */
 function Render( Canvas C )
 {
+	local float oldClipX, oldClipY;
+	local float oldOrgX, oldOrgY;
+
 	// This re-calculates the position and size.
 	Refresh();
 	
 	if( bClipComponent )
 	{
+		oldClipX = C.ClipX;
+		oldClipY = C.ClipY;
+		oldOrgX = C.OrgX;
+		oldOrgY = C.OrgY;
 		C.SetOrigin( C.OrgX + LeftX, C.OrgY + TopY );
 		C.SetClip( WidthX, HeightY );
 
@@ -337,7 +367,7 @@ function Render( Canvas C )
 	OnPostRender( self, C );
 
 	`if( `isdefined( DEBUG ) )
-		if( Scene().bRenderRectangles )
+		if( Scene().bDebugModeIsActive )
 		{
 			//C.SetPos( 0, 0 );	
 			//C.DrawColor = class'FColors'.default.DarkColor;
@@ -361,13 +391,13 @@ function Render( Canvas C )
 
 	if( bClipComponent )
 	{
-		C.SetClip( C.SizeX, C.SizeY );
-		
 		// Restore so that GetCachedLeft() can still function.
 		TopY = C.OrgY;
 		LeftX = C.OrgX;
+
+		C.SetOrigin( oldOrgX, oldOrgY );
+		C.SetClip( oldClipX, oldClipY );	
 	}
-	C.SetOrigin( 0, 0 );
 }
 
 /** Override this to render anything specific to an unique component. */
@@ -384,7 +414,7 @@ function Free()
 	// POINTERS
 	Controller = none;
 	Parent = none;
-	Style = none; InitStyle = none; HoverStyle = none; ActiveStyle = none; FocusStyle = none;
+	Style = none; InitStyle = none; PrevStyle = none; HoverStyle = none; ActiveStyle = none; FocusStyle = none;
 	ToolTipComponent = none;
 
 	// DELEGATES
@@ -523,9 +553,7 @@ final function float GetCachedLeft()
 	return LeftX;
 }
 
-/**
- * Determine whether this component should receive Render calls.
- */
+/** Determine whether this component should receive Render calls. */
 function bool CanRender()
 {
 	return bVisible;
@@ -536,7 +564,7 @@ function bool CanInteract()
 {
 	return (bEnabled 
 	`if( `isdefined( DEBUG ) )
-		|| Scene().bRenderRectangles
+		|| Scene().bDebugModeIsActive
 	`endif
 	) && CanRender();
 }
@@ -581,15 +609,6 @@ final function Vector2D GetSize()
 	return v;
 }
 
-final static function Vector PointToVect( out IntPoint point )
-{
-	local Vector v;
-	
-	v.X = point.X;
-	v.Y = point.Y;
-	return v;	
-}
-
 final protected function bool Collides( out IntPoint mousePosition )
 {
 	local Vector2D pos, size;
@@ -612,6 +631,26 @@ final protected function bool Collides( out IntPoint mousePosition )
 	return false;
 }
 
+final function FStyle GetPresentStyle()
+{	
+	if( IsActive() )
+	{
+		return ActiveStyle;
+	}
+	else if( IsHovered() )
+	{
+		return HoverStyle;	
+	}
+	else if( HasFocus() )
+	{
+		return FocusStyle;
+	}
+	else
+	{
+		return InitStyle;
+	}
+}
+
 // TODO: Move all of the states code to Scene using its own delegates.
 
 /** Notify that the component is selected! */
@@ -629,13 +668,15 @@ final function Focus()
 /** Notify that the component is no longer selected! */
 final function UnFocus()
 {
-	Style = InitStyle;
 	LastUnfocusedTime = `STime;
 	LastStateChangeTime = LastUnfocusedTime;
 	InteractionState = InteractionState & ~ES_Selected;
 	OnUnFocus( self );
 	
 	Scene().OnUnFocus( self );
+
+	PrevStyle = Style;
+	Style = GetPresentStyle();
 }
 
 final function Active()
@@ -651,13 +692,15 @@ final function Active()
 
 final function UnActive()
 {
-	Style = InitStyle;
 	LastUnactiveTime = `STime;
 	LastStateChangeTime = LastUnactiveTime;
 	InteractionState = InteractionState & ~ES_Active;
 	OnUnActive( self );
 	
 	Scene().OnUnActive( self );
+
+	PrevStyle = Style;
+	Style = GetPresentStyle();
 }
 
 final function Hover()
@@ -673,13 +716,15 @@ final function Hover()
 
 final function UnHover()
 {
-	Style = InitStyle;
 	LastUnhoveredTime = `STime; 
 	LastStateChangeTime = LastUnhoveredTime;
 	InteractionState = InteractionState & ~ES_Hover;
 	OnUnHover( self );
 	
 	Scene().OnUnHover( self );
+
+	PrevStyle = Style;
+	Style = GetPresentStyle();
 }
 
 //=====================================================
@@ -701,16 +746,8 @@ final function string ConsoleCommand( const string command )
 }
 
 final protected function RenderBackground( Canvas C, 
-	optional Color drawColor = Style != none 
-		? Style.ImageColor 
-		: class'HUD'.default.WhiteColor )
+	optional Color drawColor = GetImageColor() )
 {
-	if( Style == none )
-	{
-		//`Log( "Attempting to draw a background for component:" @ self @ "without a style!" );
-		return;
-	}
-	
 	C.DrawColor = drawColor;
 	Style.DrawBackground( C, WidthX, HeightY );
 }
@@ -728,6 +765,39 @@ final function bool HasFocus()
 function bool IsActive()
 {
 	return (InteractionState & ES_Active) != ES_None;
+}
+
+final function Color GetImageColor()
+{
+	local Color newColor;
+	local float pct;
+	local FStyle lastStyle, destStyle;
+
+	if( !InitStyle.bTransitionColor )
+		return Style.ImageColor;
+
+	if( InitStyle == Style )
+	{
+		lastStyle = PrevStyle;
+		destStyle = InitStyle;
+	}
+	else
+	{
+		lastStyle = InitStyle;
+		destStyle = Style;
+	}
+
+	if( LastImageColor.A == 0 )
+		LastImageColor = lastStyle.ImageColor;
+
+	if( LastImageColor == Style.ImageColor )
+		return LastImageColor;
+
+	pct = FMin( `STimeSince( LastStateChangeTime )/1.5, 1.0 );
+	newColor = LastImageColor + destStyle.ImageColor*pct - LastImageColor*pct;	
+	newColor.A = Style.ImageColor.A;
+	LastImageColor = newColor;
+	return newColor;
 }
 
 /** Returns a color based on this component's state such as hover, focus, selected or disabled! */
@@ -762,6 +832,12 @@ final protected function FadingSwapColor( out Color newColor, const out Color de
 {
 	const FadingSwapTime = 4.0;
 	local float pct;
+
+	if( !InitStyle.bTransitionColor )
+	{
+		newColor = destColor;
+		return;
+	}
 	
 	pct = FMin( `STimeSince( oldColorTime )/FadingSwapTime, 1.0 );
 	newColor = LastStateColor + destColor*pct - LastStateColor*pct;
@@ -812,9 +888,8 @@ defaultproperties
 {
 	bVisible=true
 	bEnabled=true
-	bSupportSelection=true
-	bSupportHovering=true
-	bClipComponent=false
+	bEnableClick=true
+	bEnableCollision=true
 
 	StyleName=Hidden
 	StyleClass=class'FStyle'

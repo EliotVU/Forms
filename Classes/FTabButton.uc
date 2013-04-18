@@ -1,5 +1,5 @@
 /* ========================================================
- * Copyright 2012 Eliot van Uytfanghe
+ * Copyright 2012-2013 Eliot van Uytfanghe
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,12 +30,10 @@ function Free()
 protected function RenderComponent( Canvas C )
 {
 	super(FComponent).RenderComponent( C );
-	C.DrawColor = ((FTabControl(Parent).ActivePage == TabPage)
-		? Style.SelectedColor 
-		: (bRenderCaption && !bImageUseStateColor) 
-			? Style.ImageColor 
-			: GetStateColor());
-	RenderBackground( C, C.DrawColor );
+	TextDecoration = (FTabControl(Parent).ActivePage == TabPage) 
+		? D_Underlined 
+		: default.TextDecoration;
+	RenderBackground( C, GetImageColor() );
 	RenderButton( C );
 }
 
@@ -43,4 +41,6 @@ defaultproperties
 {
 	StyleNames.Add(TabButton)
 	bAnimateOnHover=true
+	TextDecorationColor=(R=127,G=127,B=127,A=128)
+	TextDecorationSize=2
 }

@@ -1,42 +1,48 @@
-/*
-   Copyright 2012 Eliot van Uytfanghe
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
+/* ========================================================
+ * Copyright 2012-2013 Eliot van Uytfanghe
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ========================================================
+ * FScrollComponent: Base functionality for any component that wants scrolling functionality.
+ * ======================================================== */
 class FScrollComponent extends FComponent
 	abstract;
 
-/** The value of the scroller. */
-var(Component, Usage) float MinValue;
-var(Component, Usage) float MaxValue;
-var(Component, Usage) float Value;
+/** The present value of the scroller. */
+var(Scroll, Usage) float Value;
+
+/** The minimum @Value can be. */
+var(Scroll, Usage) float MinValue;
+
+/** The maximum @Value can be. */
+var(Scroll, Usage) float MaxValue;
 
 // Must be implemented by subclasses.
-var(Component, Usage) float SnapPower;
+var(Scroll, Usage) float SnapPower;
 
-var(Component, Usage) bool bInteger;
+var(Scroll, Usage) bool bInteger;
 
-/** If true, SetValue will be performed while sliding. */
-var(Component, Usage) bool bDynamic;
+/** If true, SetValue() will be performed while sliding. */
+var(Scroll, Usage) bool bDynamic;
 
-// Must be supported by subclasses.
-var(Component, Display) enum EDirection
+// Not yet implemented!
+var(Scroll, Display) enum EDirection
 {
 	D_Horizontal,
 	D_Vertical
 } Direction;
 
-var transient bool bSliding;
+var transient bool bSliding, bWasRightClick;
 var transient IntPoint RelativeMousePosition;
 
 delegate OnValueChanged( FComponent sender );
@@ -49,16 +55,19 @@ function Free()
 
 function MouseButtonPressed( FComponent sender, optional bool bRight )
 {
-	if( bRight )
+	// Don't allow dual clicking(both left and right)
+	if( bSliding && bRight != bWasRightClick )
 		return;
-		
+
+	bWasRightClick = bRight;
 	StartSliding();
 	OnMouseMove = MouseMove;
 }
 
 function MouseButtonRelease( FComponent sender, optional bool bRight )
 {
-	if( bRight )
+	// Only stop if it's the same button as the one that initiated!
+	if( bRight != bWasRightClick )
 		return;
 		
 	if( bSliding )
@@ -100,7 +109,6 @@ function StartSliding()
 function StopSliding()
 {
 	bSliding = false;
-	UpdateRelativeMousePosition();
 	UpdateValue();
 }
 
@@ -125,12 +133,17 @@ function float CalcValue()
 	return FClamp( bInteger ? float(int(newValue)) : newValue, MinValue, MaxValue );
 }
 
+/**
+ * Update the @Value variable in here.
+ * -- 
+ * Called everytime:
+ *	The mouse moves within this component @MouseMove
+ *  The user starts sliding @StartSliding()
+ *	The user stops sliding @StopSliding()
+ */
 function UpdateValue()
 {
-	if( bSliding )
-	{
-		UpdateRelativeMousePosition();
-	}
+	UpdateRelativeMousePosition();
 
 	// Only update the value if sliding is inactive or if Real-Time(bDynamic)
 	if( !bSliding || bDynamic )

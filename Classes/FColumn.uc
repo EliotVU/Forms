@@ -1,5 +1,5 @@
 /* ========================================================
- * Copyright 2012 Eliot van Uytfanghe
+ * Copyright 2012-2013 Eliot van Uytfanghe
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ protected function RenderComponent( Canvas C )
 	super(FComponent).RenderComponent( C );
 	RenderBackground( C );
 	RenderImage( C );
-	RenderLabel( C, LeftX, TopY, WidthX, HeightY, TextColor );
+	RenderLabel( C, LeftX, TopY, WidthX, HeightY, FLabelStyle(Style).TextColor );
 	
 	if( IsSelected() )
 	{
@@ -80,4 +80,6 @@ defaultproperties
 	StyleNames.Add(Column)
 	
 	bEnabled=true
+	bEnableClick=true
+	bEnableCollision=true
 }

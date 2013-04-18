@@ -1,22 +1,21 @@
-/*
-   Copyright 2012 Eliot van Uytfanghe
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-//=============================================================================
-// FController: The Input processing, updating and drawing redirector for the 'FScene' class.
-// Within: We use within so we don't have to cast PlayerController on the Outer reference!
-//=============================================================================
+/* ========================================================
+ * Copyright 2012-2013 Eliot van Uytfanghe
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ========================================================
+ * FController: The Input processing, updating and drawing redirector for the 'FScene' class.
+ * Within: We use within so we don't have to cast PlayerController on the @Outer reference!
+ * ======================================================== */
 class FController extends Interaction within UDKPlayerController implements(FIController)
 	config(Forms);
 
@@ -86,7 +85,7 @@ event PostRender( Canvas C )
 	}
 }
 
-exec function ReloadStyle()
+/*exec function ReloadStyle()
 {
 	local FObject obj;
 
@@ -98,7 +97,7 @@ exec function ReloadStyle()
 			FComponent(obj).ResetStyle();
 		}
 	}
-}
+}*/
 
 function NotifyGameSessionEnded()
 {

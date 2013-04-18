@@ -1,5 +1,5 @@
 /* ========================================================
- * Copyright 2012 Eliot van Uytfanghe
+ * Copyright 2012-2013 Eliot van Uytfanghe
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,4 +20,6 @@ class FContainer extends FMultiComponent;
 defaultproperties
 {
 	Padding=(X=0,Y=0,Z=0,W=0)
+	bEnableClick=false
+	bEnableCollision=false
 }

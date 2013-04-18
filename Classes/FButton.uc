@@ -1,5 +1,5 @@
 /* ========================================================
- * Copyright 2012 Eliot van Uytfanghe
+ * Copyright 2012-2013 Eliot van Uytfanghe
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@
 class FButton extends FLabel;
 
 var(Button, Display) bool					bRenderCaption;
-var(Button, Display) bool					bImageUseStateColor;
 var(Button, Display) bool					bAnimateOnHover;
 var(Button, Display) float					AnimateSpeed;
 var(Button, Display) float					AnimateOffset;
@@ -32,11 +31,8 @@ function Free()
 	Icon.Texture = none;
 }
 
-// TODO: Using DeltaTime from Tick breaks the speed O_O
 function Update( float deltaTime )
 {
-	// FIXME: deltaTime is always -1.0.
-	deltaTime = Scene().RenderDeltaTime;
 	super.Update( deltaTime );
 	if( bAnimateOnHover )
 	{
@@ -55,9 +51,7 @@ protected function RenderComponent( Canvas C )
 {
 	super(FComponent).RenderComponent( C );
 	C.SetPos( LeftX, TopY );
-	// If no caption, then colorize the background based on the component's state.
-	C.DrawColor = (bRenderCaption && !bImageUseStateColor) ? Style.ImageColor : GetStateColor();
-	RenderBackground( C, C.DrawColor );
+	RenderBackground( C, GetImageColor() );
 	RenderButton( C );
 }
 
@@ -66,13 +60,6 @@ protected function RenderButton( Canvas C )
 	local float x, y;
 	local float icoSize;
 	
-	//if( HasFocus() )
-	//{
-		//C.SetPos( LeftX, C.CurY );
-		//C.DrawColor = Style.FocusColor;
-		//C.DrawBox( WidthX, HeightY );
-	//}
-
 	if( bRenderCaption && Text != "" )
 	{
 		x = LeftX + TextMoveOffset;
@@ -81,9 +68,7 @@ protected function RenderButton( Canvas C )
 			x += HeightY;		
 		}
 		
-		RenderLabel( C, x, TopY, WidthX, HeightY, 
-			(bImageUseStateColor) ? TextColor : GetStateColor( TextColor ),, icoSize
-		);
+		RenderLabel( C, x, TopY, WidthX, HeightY, GetStateColor( FLabelStyle(Style).TextColor ),, icoSize );
 	} 
 	else if( Icon.Texture != none )
 	{
@@ -98,7 +83,7 @@ protected function RenderButton( Canvas C )
 		x = LeftX + Padding.W + (HeightY - icoSize)*0.5; 
 		y = TopY + HeightY*0.5 - icoSize*0.5;
 		C.SetPos( x, y );
-		C.DrawColor = bImageUseStateColor ? class'HUD'.default.WhiteColor : GetStateColor( class'HUD'.default.WhiteColor );
+		C.DrawColor = GetStateColor( class'HUD'.default.WhiteColor );
 		C.DrawTile( Icon.Texture, icoSize, icoSize, Icon.U, Icon.V, Icon.UL, Icon.VL );
 	}
 }
@@ -110,12 +95,12 @@ defaultproperties
 	Padding=(W=4)
 
 	Text="Button"
-	TextFont=MultiFont'UI_Fonts_Final.HUD.MF_Medium'
-	TextColor=(R=255,G=255,B=255,A=255)
 	TextAlign=TA_Center
 	bRenderCaption=true
 
 	bEnabled=true
+	bEnableClick=true
+	bEnableCollision=true
 
 	AnimateSpeed=15
 	AnimateOffset=6

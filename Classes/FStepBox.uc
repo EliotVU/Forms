@@ -126,8 +126,8 @@ defaultproperties
 {
 	Padding=(X=2,Y=2,W=2,Z=2)
 	
-	bSupportSelection=`devmode
-	bSupportHovering=`devmode
+	bEnableClick=`devmode
+	bEnableCollision=`devmode
 
 	StyleName=Hidden
 

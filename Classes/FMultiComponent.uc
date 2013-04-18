@@ -1,5 +1,5 @@
 /* ========================================================
- * Copyright 2012 Eliot van Uytfanghe
+ * Copyright 2012-2013 Eliot van Uytfanghe
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,14 @@ var(MultiComponent, Advanced) protectedwrite editinline editfixedsize array<FCom
 /** Called for each component that is initialized and owned by this component. */
 delegate OnComponentInitialized( FComponent component );	// Instigated in FComponent.Initialize(...)
 
+// Do NOT call Free on other objects here!
+function Free()
+{
+	super.Free();
+	OnComponentInitialized = none;
+	Components.Length = 0;
+}
+
 protected function InitializeComponent()
 {
 	local FComponent component;
@@ -37,48 +45,45 @@ protected function InitializeComponent()
 	} 	
 }
 
-function Render( Canvas C )
+function Render( Canvas c )
 {
-	super.Render( C );
-	RenderChildren( C );
+	super.Render( c );
+	RenderChildren( c );
 }
 
-/** Render all associated Components. */
-protected function RenderChildren( Canvas C )
+/**
+ * Renders all associated @Components. 
+ * Components are rendered in the order from top to bottom.
+ */
+protected function RenderChildren( Canvas c )
 {
-	local FComponent component;
+	local int i;
 
-	foreach Components( component )
+	for( i = Components.Length - 1; i >= 0; -- i )
 	{
-		if( component.CanRender() )
+		if( Components[i].CanRender() )
 		{
-			component.Render( C );
+			Components[i].Render( c );
 		}
 	}
 }
 
-/** Update all associated Components. */
-function Update( float DeltaTime )
+/** Updates all associated @Components. */
+function Update( float deltaTime )
 {
 	local FComponent component;
 
-	super.Update( DeltaTime );
+	super.Update( deltaTime );
 	foreach Components( component )
 	{
-		component.Update( DeltaTime );
+		component.Update( deltaTime );
 	}
 }
 
-
-// Do NOT call Free on other objects here!
-function Free()
-{
-	OnComponentInitialized = none;
-	Components.Length = 0;
-	super.Free();
-}
-
-/** Test all associated components for collision. */
+/** 
+ * Test all associated @Components for collision. 
+ * Components are tested in the order from bottom to top.
+ */
 function bool IsHover( IntPoint mousePosition, out FComponent hoveredComponent )
 {
 	local FComponent component;
@@ -105,14 +110,21 @@ function bool IsHover( IntPoint mousePosition, out FComponent hoveredComponent )
 	return false;
 }
 
-/** Add a component to the associated Components. */
+/** Adds a component to the associated @Components. */
 function AddComponent( FComponent component )
 {
 	component.Initialize( self );
 	Components.AddItem( component );	
 }
 
-/** Remove a component from the associated Components. */
+/** Inserts a component to the associated @Components. */
+function InsertComponent( FComponent component, int index )
+{
+	component.Initialize( self );
+	Components.InsertItem( index, component );	
+}
+
+/** Removes a component by reference. And optionally free its resources. */
 function RemoveComponent( FComponent component, optional bool freeComponent = false )
 {
 	Components.RemoveItem( component );
@@ -124,7 +136,7 @@ function RemoveComponent( FComponent component, optional bool freeComponent = fa
 	}
 }
 
-/** Find a component within the associated Components. */
+/** Finds a component by name. */
 final function FComponent FindComponentByName( const name componentName )
 {
 	local FComponent component;

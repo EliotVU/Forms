@@ -1,5 +1,5 @@
 /* ========================================================
- * Copyright 2012 Eliot van Uytfanghe
+ * Copyright 2012-2013 Eliot van Uytfanghe
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * ========================================================
- * FCheckBoxStyle: Adds configurable styling options for FCheckBox.
+ * FLabelStyle: Adds configurable styling options for FLabel and anything extending that class.
  * ======================================================== */
-class FCheckBoxStyle extends FStyle;
+class FLabelStyle extends FStyle;
 
-var(Style, Colors) config const Color	CheckedColor;
-var(Style, Colors) config const Color	UncheckedColor;
+var(Style, Display) config const Color				TextColor;
+var(Style, Display) Font							TextFont;
+var config string									TextFontName;
+var(Style, Display) config const FontRenderInfo		TextRenderInfo;
+var(Style, Display) config const Vector2D			TextFontScaling;
+
+function Initialize()
+{
+	if( TextFontName != "" )
+	{
+		TextFont = Font(DynamicLoadObject( TextFontName, class'Font', true ));
+	}
+	super.Initialize();
+}
+
+function Free()
+{
+	super.Free();
+	TextFont = none;
+}

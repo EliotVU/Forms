@@ -1,5 +1,5 @@
 /* ========================================================
- * Copyright 2012 Eliot van Uytfanghe
+ * Copyright 2012-2013 Eliot van Uytfanghe
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,14 +53,14 @@ protected function InitializeComponent()
 	local string bindKey;
 	
 	super.InitializeComponent();
-	ActionLabel = FLabel(CreateComponent( ActionLabel.Class, self, ActionLabel ));
+	ActionLabel = FLabel(CreateComponent( ActionLabel.Class,, ActionLabel ));
 	ActionLabel.SetText( ActionName );
 	AddComponent( ActionLabel );
 
 	bindKey = GetBindedKeyForCommand( ActionCommand, PrimaryKeyIndex, true );
 	if( bindKey != UNBOUND )
 	{
-		ActionKey = FInputBox(CreateComponent( ActionKey.Class, self, ActionKey ));
+		ActionKey = FInputBox(CreateComponent( ActionKey.Class,, ActionKey ));
 		ActionKey.SetText( bindKey );
 		ActionKey.OnTextChanged = BindChanged;
 		// Single click?
@@ -75,7 +75,7 @@ protected function InitializeComponent()
 	bindKey = GetBindedKeyForCommand( ActionCommand, SecondaryKeyIndex );
 	if( bindKey != UNBOUND )
 	{
-		ActionSecondaryKey = FInputBox(CreateComponent( ActionSecondaryKey.Class, self, ActionSecondaryKey ));
+		ActionSecondaryKey = FInputBox(CreateComponent( ActionSecondaryKey.Class,, ActionSecondaryKey ));
 		ActionSecondaryKey.SetText( bindKey );
 		ActionSecondaryKey.OnTextChanged = BindChanged;
 		AddComponent( ActionSecondaryKey );
@@ -161,14 +161,44 @@ final function string GetBindedKeyForCommand( string command, out int bindIndex,
 
 defaultproperties
 {
-	bSupportSelection=`devmode
-	bSupportHovering=`devmode
+	bEnableClick=false
+	bEnableCollision=false
 	
 	ActionName="None"
 	ActionCommand=""
 	bBindSecondary=true
 	
 	Padding=(W=4,X=4,Y=4,Z=4)
+	RelativeSize=(X=1.0,Y=0.1)
+
+	// FIXME: Not re-initialized after garbage collecting!
+	begin object name=oHints class=FToolTip
+		begin object name=oToolTipBackground class=FPage
+			RelativePosition=(X=0.0,Y=0.0)
+			RelativeSize=(X=1.0,Y=1.0)
+			StyleNames.Empty()
+			StyleNames.Add(ToolTipBackground)
+			begin object name=oCancelLabel class=FLabel
+				RelativePosition=(X=0.0,Y=0.5)
+				RelativeSize=(X=1.0,Y=0.5)
+				RelativeOffset=(X=0.0,Y=0.0)
+				Text="@Forms.InputBox.CancelText"
+			end object
+			Components.Add(oCancelLabel)
+		end object
+		ToolTipBackground=oToolTipBackground
+
+		ToolTipText="@Forms.InputBox.BindText"
+		begin object name=oHintLabel class=FLabel
+			RelativePosition=(X=0.0,Y=0.0)
+			RelativeSize=(X=1.0,Y=0.5)
+			RelativeOffset=(X=0.0,Y=0.0)
+		end object
+		ToolTipLabel=oHintLabel
+		
+		RelativeSize=(X=250,Y=80)
+		ToolTipAttachPosition=P_Mouse
+	end object
 
 	begin object name=oLAction class=FLabel
 		RelativePosition=(X=0.00,Y=0.00)
@@ -181,6 +211,7 @@ defaultproperties
 		RelativePosition=(X=0.40,Y=0.00)
 		RelativeSize=(X=0.30,Y=1.00)
 		Margin=(W=0,X=0,Y=0,Z=0)
+		ToolTipComponent=oHints
 	end object
 	ActionKey=oIBActionKey
 	
@@ -188,6 +219,7 @@ defaultproperties
 		RelativePosition=(X=0.70,Y=0.00)
 		RelativeSize=(X=0.30,Y=1.00)
 		Margin=(W=0,X=0,Y=0,Z=0)
+		ToolTipComponent=oHints
 	end object
 	ActionSecondaryKey=oIBActionSecondaryKey
 

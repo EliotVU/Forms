@@ -1,30 +1,28 @@
-/*
-   Copyright 2012 Eliot van Uytfanghe
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-/**
- * MinValue is used as the Minimum(pix), where MaxValue is used as Maximum(pix), and Value is the pixels we've scrolled past.
+/* ========================================================
+ * Copyright 2012-2013 Eliot van Uytfanghe
  *
-*/
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ========================================================
+ * FScrollBar: A scroll bar similar to Sublime Text 2's scroll bar.
+ * ======================================================== */
 class FScrollBar extends FScrollComponent;
 
-var(Component, Usage) float StepProgress;
-var(Component, Functionality) FMultiComponent MaskComponent;
+var(ScrollBar, Advanced) editinline FMultiComponent	 	MaskComponent;
+var(ScrollBar, Function) float 							StepProgress;
 
-var() protected transient float VisibleHeight;
-var protected transient float ClickOffset;
-var protected transient float InterpolatedValue;
+var protected transient float							StartPosY, StartValue;
+var protected transient float 							InterpolatedValue;
+var protected transient float 							VisibleHeight;
 
 function Free()
 {
@@ -33,39 +31,15 @@ function Free()
 }
 
 /** Must be called after all components in MaskComponent have been initialized! */
-function InitializeScrollBar()
+protected function InitializeComponent()
 {
-	local FComponent component;
-	local float endPos, maxHeight;
-
+	super.InitializeComponent();
 	Assert( MaskComponent != none );
 
-	MaskComponent.Refresh();
-	VisibleHeight = MaskComponent.GetCachedHeight();
-	foreach MaskComponent.Components( component )
-	{
-		component.Refresh();
-		endPos = component.GetCachedTop() + component.GetCachedHeight();
-		if( endPos >= maxHeight )
-		{
-			maxHeight = endPos;	
-		} 
-	}
-
 	MinValue = 0.0;
-	if( maxHeight > VisibleHeight )
-	{
-		MaxValue = maxHeight;
-	} 
-	else 
-	{
-		MaxValue = VisibleHeight;
-		//SetVisible( false );
-	}
-	
 	Value = 0.0;
-
 	OnValueChanged = ValueChanged;
+	OnMouseWheelInput = MouseWheelInput;
 }
 
 function MouseWheelInput( FComponent sender, optional bool bUp )
@@ -95,19 +69,39 @@ function ScrollDown()
 
 function Update( float deltaTime )
 {
-	local float valueToAdd;
+	local float incrValue;
+	local FComponent component;
+	local float endPos, maxHeight;
 
+	incrValue = Abs( InterpolatedValue )*deltaTime;
 	if( InterpolatedValue > 0 )
 	{
-		valueToAdd = InterpolatedValue*0.1*deltaTime;
-		InterpolatedValue = FMax( InterpolatedValue - valueToAdd, 0 );
-		SetValue( Value + -valueToAdd );
+		InterpolatedValue = FMax( InterpolatedValue - incrValue, 0 );	
 	}
 	else if( InterpolatedValue < 0 )
 	{
-		valueToAdd = -InterpolatedValue*-0.1*-deltaTime;
-		InterpolatedValue = FMin( InterpolatedValue + valueToAdd, 0 );
-		SetValue( Value + valueToAdd );
+		InterpolatedValue = -FMax( Abs( InterpolatedValue ) - incrValue, 0 );
+		incrValue = -incrValue;
+	}
+	SetValue( Value + incrValue );
+
+	foreach MaskComponent.Components( component )
+	{
+		endPos = component.GetCachedTop() + component.GetCachedHeight();
+		if( endPos >= maxHeight )
+		{
+			maxHeight = endPos;	
+		} 
+	}
+
+	VisibleHeight = MaskComponent.GetCachedHeight();
+	if( maxHeight > VisibleHeight )
+	{
+		MaxValue = maxHeight;
+	} 
+	else 
+	{
+		MaxValue = VisibleHeight;
 	}
 }
 
@@ -118,27 +112,26 @@ function float GetSliderSize()
 
 function float GetSliderOffset()
 {
-	return FMin( Value/MaxValue*HeightY, MaxValue - GetSliderSize() );
+	return FMin( Value/MaxValue*HeightY, MaxValue - GetSliderSize() )*0.5;
+}
+
+protected function RenderComponent( Canvas C )
+{
+	super(FComponent).RenderComponent( C );
+	RenderSlider( C );
 }
 
 protected function RenderSlider( Canvas C )
 {
 	local float sliderY;
 	local float sliderSize;
-	local FScrollStyle myStyle;
 	
-	myStyle = FScrollStyle(Style);
-	if( myStyle == none )
-	{
-		//`Log( "No FScrollStyle found for" @ self, 'Forms' );
-		return;
-	}
-
 	sliderY = GetSliderOffset();
 	sliderSize = GetSliderSize();	
+
 	C.SetPos( LeftX, TopY + sliderY );
-	C.DrawColor = GetStateColor();
-	myStyle.DrawTracker( C, WidthX, sliderSize );
+	C.DrawColor = GetImageColor();
+	Style.DrawBackground( C, WidthX, sliderSize );
 }
 
 function SetValue( float newValue )
@@ -149,41 +142,36 @@ function SetValue( float newValue )
 
 function ValueChanged( FComponent sender )
 {
-	// Update just incase!
-	VisibleHeight = MaskComponent.GetCachedHeight();
-	MaskComponent.OriginOffset.Y = -FClamp( Value, MinValue, MaxValue );
-}
-
-function StartSliding()
-{
-	local float yPos;
-
-	yPos = Scene().MousePosition.Y - TopY;
-	if( yPos >= GetSliderOffset() && yPos <= GetSliderOffset() + GetSliderSize() )
-	{
-		bSliding = true;
-		ClickOffset = GetSliderOffset() - yPos;
-	}
-	else if( yPos < GetSliderOffset() )
-	{
-		ScrollUp();
-		StopSliding();
-	}
-	else if( yPos > GetSliderOffset() + GetSliderSize() )
-	{
-		ScrollDown();
-		StopSliding();
-	}
+	MaskComponent.OriginOffset.Y = -FClamp( Value, MinValue, MaxValue )*0.5;
 }
 
 function UpdateValue()
 {
 	if( bSliding )
 	{
-		//RelativeMousePosition.X = Clamp( Scene().MousePosition.X - LeftX, 0.0, WidthX );
 		RelativeMousePosition.Y = FClamp( Scene().MousePosition.Y - TopY, 0.0, HeightY );
-		SetValue( RelativeMousePosition.Y + ClickOffset );
+		SetValue( StartValue + (RelativeMousePosition.Y - StartPosY)*2.0 );
 		InterpolatedValue = 0;
+	}
+}
+
+function StartSliding()
+{
+	// Stop previous interpolation.
+	InterpolatedValue = 0;
+	StartPosY = Scene().MousePosition.Y - TopY;
+	StartValue = Value;
+	if( StartPosY >= GetSliderOffset() && StartPosY <= GetSliderOffset() + GetSliderSize() )
+	{
+		bSliding = true;
+	}
+	else if( StartPosY < GetSliderOffset() )
+	{
+		ScrollUp();
+	}
+	else if( StartPosY > GetSliderOffset() + GetSliderSize() )
+	{
+		ScrollDown();
 	}
 }
 
@@ -195,12 +183,16 @@ function StopSliding()
 defaultproperties
 {
 	RelativePosition=(X=1.0,Y=0.0)
-	RelativeSize=(X=0.05,Y=1.0)
+	RelativeSize=(X=32,Y=1.0)
+	Margin=(W=0,X=0,Y=4,Z=4)
+	Padding=(W=8,X=8,Y=0,Z=0)
 
 	HorizontalDock=HD_Right
 	Positioning=P_Fixed
+	Direction=D_Vertical
 
-	StepProgress=0.1
+	StepProgress=0.25
 
-	OnMouseWheelInput=MouseWheelInput
+	StyleNames.Add(ScrollBar)
+	StyleClass=class'FStyle'
 }

@@ -1,5 +1,5 @@
 /* ========================================================
- * Copyright 2012 Eliot van Uytfanghe
+ * Copyright 2012-2013 Eliot van Uytfanghe
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ protected function InitializeComponent()
 		Text.SetSize( 0.3, 40 );
 		Text.SetMargin( Text.Margin.W, -Padding.Y, Text.Margin.X, Text.Margin.Z*2 );
 		Text.TextVAlign = TA_Center;
-		Text.bClipComponent = false;
 		AddComponent( Text );
 	}
 }
@@ -73,8 +72,8 @@ protected function RenderComponent( Canvas C )
 
 defaultproperties
 {
-	bSupportSelection=`devmode
-	bSupportHovering=`devmode
+	bEnableClick=false
+	bEnableCollision=false
 	
 	Padding=(W=8,X=8,Y=8,Z=8)
 
