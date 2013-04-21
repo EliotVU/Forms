@@ -54,7 +54,7 @@ var(Label, Display) enum EVAlign
 	TA_Bottom
 }												TextVAlign;
 
-var(Label, Positioning) const Vector2D			RelativeOffset;
+var(Label, Positioning) Vector2D				RelativeOffset;
 var(Label, Positioning) bool					bAutoSize;
 
 var private bool bAutoSized;

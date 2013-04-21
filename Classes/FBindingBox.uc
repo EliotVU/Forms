@@ -70,7 +70,10 @@ protected function InitializeComponent()
 	}
 	
 	if( !bBindSecondary )
+	{
+		ActionKey.SetSize( ActionKey.RelativeSize.X * 2.0, ActionKey.RelativeSize.Y );
 		return;
+	}
 		
 	bindKey = GetBindedKeyForCommand( ActionCommand, SecondaryKeyIndex );
 	if( bindKey != UNBOUND )
@@ -171,6 +174,8 @@ defaultproperties
 	Padding=(W=4,X=4,Y=4,Z=4)
 	RelativeSize=(X=1.0,Y=0.1)
 
+	StyleNames.Add(BindingBox)
+
 	// FIXME: Not re-initialized after garbage collecting!
 	begin object name=oHints class=FToolTip
 		begin object name=oToolTipBackground class=FPage
@@ -203,7 +208,9 @@ defaultproperties
 	begin object name=oLAction class=FLabel
 		RelativePosition=(X=0.00,Y=0.00)
 		RelativeSize=(X=0.40,Y=1.00)
+		RelativeOffset=(X=4)
 		Margin=(W=0,X=0,Y=0,Z=0)
+		StyleNames.Add(InputAction)
 	end object
 	ActionLabel=oLAction
 	
@@ -212,6 +219,8 @@ defaultproperties
 		RelativeSize=(X=0.30,Y=1.00)
 		Margin=(W=0,X=0,Y=0,Z=0)
 		ToolTipComponent=oHints
+		StyleNames.Add(InputKey)
+		TextAlign=TA_Center
 	end object
 	ActionKey=oIBActionKey
 	
@@ -220,8 +229,8 @@ defaultproperties
 		RelativeSize=(X=0.30,Y=1.00)
 		Margin=(W=0,X=0,Y=0,Z=0)
 		ToolTipComponent=oHints
+		StyleNames.Add(InputKey)
+		TextAlign=TA_Center
 	end object
 	ActionSecondaryKey=oIBActionSecondaryKey
-
-	StyleName=Default
 }

@@ -25,6 +25,7 @@ var transient string OriginalText;
 protected function RenderComponent( Canvas C )
 {
 	super(FComponent).RenderComponent( C );
+	RenderBackground( C );
 	TextDecoration = bEditing ? D_Underlined : default.TextDecoration;
 	RenderLabel( C, LeftX, TopY, WidthX, HeightY, GetStateColor( FLabelStyle(Style).TextColor ) );
 }
