@@ -202,9 +202,9 @@ protected function UpdateWiggle( float DeltaTime )
 		SetPos( diff, RelativePosition.Y );
 	}
 	
-	if( (GetWidth() - MousePosition.X) <= 64.0 )
+	if( (CalcWidth() - MousePosition.X) <= 64.0 )
 	{
-		diff = FInterpTo( RelativePosition.X, -0.1, RenderDeltaTime, 1.0 - ((GetWidth() - MousePosition.X)/65.0) );
+		diff = FInterpTo( RelativePosition.X, -0.1, RenderDeltaTime, 1.0 - ((CalcWidth() - MousePosition.X)/65.0) );
 		SetPos( diff, RelativePosition.Y );
 	}
 	else
@@ -224,9 +224,9 @@ protected function UpdateWiggle( float DeltaTime )
 		SetPos( RelativePosition.X, diff );
 	}
 	
-	if( (GetHeight() - MousePosition.Y) <= 64.0 )
+	if( (CalcHeight() - MousePosition.Y) <= 64.0 )
 	{
-		diff = FInterpTo( RelativePosition.Y, -0.1, RenderDeltaTime, 1.0 - ((GetHeight() - MousePosition.Y)/65.0) );
+		diff = FInterpTo( RelativePosition.Y, -0.1, RenderDeltaTime, 1.0 - ((CalcHeight() - MousePosition.Y)/65.0) );
 		SetPos( RelativePosition.X, diff );
 	}
 	else
@@ -309,8 +309,8 @@ function Render( Canvas C )
 	}
 	
 	ResetCanvas( C );	
-	//UpdateSceneRatio();
-	super.Render( C );
+	Refresh();
+	
 	`if( `isdefined( DEBUG ) )
 		if( bDebugModeIsActive )
 		{
@@ -351,28 +351,28 @@ protected function RenderGrid( Canvas C )
 	local float X, Y;
 	local int i;
 	
-	gridRows = HeightY/gridSize;
-	gridColumns = WidthX/gridSize;	
+	gridRows = SizeY/gridSize;
+	gridColumns = SizeX/gridSize;	
 	
 	// Grid color
 	C.SetDrawColor( 40, 40, 40, 74 );
 	
-	X = LeftX;
-	Y = TopY;
+	X = PosX;
+	Y = PosY;
 	for( i = 0; i < gridRows; ++ i )
 	{
 		Y += gridSize;
 		C.SetPos( X, Y );
-		C.DrawRect( WidthX, 1 );
+		C.DrawRect( SizeX, 1 );
 	}
 	
-	X = LeftX;
-	Y = TopY;
+	X = PosX;
+	Y = PosY;
 	for( i = 0; i < gridColumns; ++ i )
 	{
 		X += gridSize;
 		C.SetPos( X, Y );
-		C.DrawRect( 1, HeightY );
+		C.DrawRect( 1, SizeY );
 	}
 }
 
@@ -385,38 +385,38 @@ protected function RenderGridBar( Canvas C, bool bVertical )
 	local int i;
 	local string s;
 	
-	gridAmount = bVertical ? HeightY/gridSize : WidthX/gridSize;
-	X = LeftX;
-	Y = TopY;
+	gridAmount = bVertical ? SizeY/gridSize : SizeX/gridSize;
+	X = PosX;
+	Y = PosY;
 
 	C.SetPos( X, Y );
 	C.SetDrawColor( 255, 255, 255, 150 );
 	if( bVertical )
 	{
 		C.SetPos( X, Y + gridSize );
-		C.DrawRect( gridSize, HeightY - gridSize );
+		C.DrawRect( gridSize, SizeY - gridSize );
 	}
 	else
 	{
-		C.DrawRect( WidthX, gridSize );
+		C.DrawRect( SizeX, gridSize );
 	}
 	
 	C.SetDrawColor( 200, 0, 0, 200 );
 	if( bVertical )
 	{
 		C.SetPos( X + (gridSize - 1), Y + gridSize );
-		C.DrawRect( 1, HeightY - gridSize );
+		C.DrawRect( 1, SizeY - gridSize );
 	}
 	else
 	{
 		C.SetPos( X + gridSize, Y + (gridSize - 1) );
-		C.DrawRect( WidthX - gridSize, 1 );	
+		C.DrawRect( SizeX - gridSize, 1 );	
 	}
 	
-	X = LeftX;
-	Y = TopY;
+	X = PosX;
+	Y = PosY;
 	C.Font = Font'EngineFonts.TinyFont';
-	for( i = 1; i < WidthX/gridSize - 1; ++ i )
+	for( i = 1; i < SizeX/gridSize - 1; ++ i )
 	{
 		C.SetDrawColor( 140, 0, 0, 200 );
 		if( bVertical )
@@ -453,12 +453,12 @@ protected function RenderGridBar( Canvas C, bool bVertical )
 	C.SetDrawColor( 0, 0, 200 );
 	if( bVertical )
 	{
-		C.SetPos( LeftX, MousePosition.Y - MousePosition.Y%gridSnap );
+		C.SetPos( PosX, MousePosition.Y - MousePosition.Y%gridSnap );
 		C.DrawRect( gridSize, 1 );
 	}
 	else
 	{
-		C.SetPos( MousePosition.X - MousePosition.X%gridSnap, TopY );
+		C.SetPos( MousePosition.X - MousePosition.X%gridSnap, PosY );
 		C.DrawRect( 1, gridSize );
 	}
 }
@@ -500,8 +500,8 @@ protected function RenderCursor( Canvas C )
 	//{
 		//Player().myHUD.Canvas = C;
 		//Player().myHUD.Draw2DLine( 
-			//SelectedComponent.GetLeft() + SelectedComponent.GetWidth()*0.5, 
-			//SelectedComponent.GetTop() + SelectedComponent.GetHeight()*0.5,
+			//SelectedComponent.CalcLeft() + SelectedComponent.CalcWidth()*0.5, 
+			//SelectedComponent.CalcTop() + SelectedComponent.CalcHeight()*0.5,
 			//MousePosition.X, MousePosition.Y,
 			//class'HUD'.default.RedColor
 		//);
@@ -539,6 +539,13 @@ protected function RenderCursor( Canvas C )
 
 			C.SetPos( MousePosition.X + cursorSizeX + 8, MousePosition.Y );	
 			C.DrawText( "Y:" @ MousePosition.Y );
+
+			if( HoveredComponent != none )
+			{
+				C.SetPos( MousePosition.X, MousePosition.Y + cursorSizeY + 8 + 32 );	
+				C.DrawText( "CX:" @ HoveredComponent.GetLeft(), true );	
+				C.DrawText( "CY:" @ HoveredComponent.GetTop(), true );	
+			}
 		}
 	`endif
 }
@@ -570,29 +577,29 @@ protected function RenderCursor( Canvas C )
 	//);
 
 	//SetPos( 
-		//((Size.X - GetWidth()) * Ratio.X * 0.5) / Size.X, 
-		//((Size.Y - GetHeight()) * Ratio.Y * 0.5) / Size.Y
+		//((Size.X - CalcWidth()) * Ratio.X * 0.5) / Size.X, 
+		//((Size.Y - CalcHeight()) * Ratio.Y * 0.5) / Size.Y
 	//);
 }*/
 
-protected function float GetHeight()
+protected function float CalcHeight()
 {
 	return Size.Y * RelativeSize.Y;
 }
 
-protected function float GetWidth()
+protected function float CalcWidth()
 {
 	return Size.X * RelativeSize.X;
 }
 
-protected function float GetTop()
+protected function float CalcTop()
 {
-	return GetHeight() * RelativePosition.Y;
+	return CalcHeight() * RelativePosition.Y;
 }
 
-protected function float GetLeft()
+protected function float CalcLeft()
 {
-	return GetWidth() * RelativePosition.X;
+	return CalcWidth() * RelativePosition.X;
 }
 
 final simulated function FPage OpenPage( class<FPage> pageClass )

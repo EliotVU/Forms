@@ -27,7 +27,7 @@ protected function RenderComponent( Canvas C )
 	super(FComponent).RenderComponent( C );
 	RenderBackground( C );
 	TextDecoration = bEditing ? D_Underlined : default.TextDecoration;
-	RenderLabel( C, LeftX, TopY, WidthX, HeightY, GetStateColor( FLabelStyle(Style).TextColor ) );
+	RenderLabel( C, PosX, PosY, SizeX, SizeY, GetStateColor( FLabelStyle(Style).TextColor ) );
 }
 
 function StartEdit( FComponent sender, optional bool bRight )

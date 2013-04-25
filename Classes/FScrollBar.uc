@@ -87,14 +87,14 @@ function Update( float deltaTime )
 
 	foreach MaskComponent.Components( component )
 	{
-		endPos = component.GetCachedTop() + component.GetCachedHeight();
+		endPos = component.GetTop() + component.GetHeight();
 		if( endPos >= maxHeight )
 		{
 			maxHeight = endPos;	
 		} 
 	}
 
-	VisibleHeight = MaskComponent.GetCachedHeight();
+	VisibleHeight = MaskComponent.GetHeight();
 	if( maxHeight > VisibleHeight )
 	{
 		MaxValue = maxHeight;
@@ -107,12 +107,12 @@ function Update( float deltaTime )
 
 function float GetSliderSize()
 {
-	return HeightY*(VisibleHeight/MaxValue);
+	return SizeY*(VisibleHeight/MaxValue);
 }
 
 function float GetSliderOffset()
 {
-	return FMin( Value/MaxValue*HeightY, MaxValue - GetSliderSize() )*0.5;
+	return FMin( Value/MaxValue*SizeY, MaxValue - GetSliderSize() )*0.5;
 }
 
 protected function RenderComponent( Canvas C )
@@ -129,9 +129,9 @@ protected function RenderSlider( Canvas C )
 	sliderY = GetSliderOffset();
 	sliderSize = GetSliderSize();	
 
-	C.SetPos( LeftX, TopY + sliderY );
+	C.SetPos( PosX, PosY + sliderY );
 	C.DrawColor = GetImageColor();
-	Style.DrawBackground( C, WidthX, sliderSize );
+	Style.DrawBackground( C, SizeX, sliderSize );
 }
 
 function SetValue( float newValue )
@@ -149,7 +149,7 @@ function UpdateValue()
 {
 	if( bSliding )
 	{
-		RelativeMousePosition.Y = FClamp( Scene().MousePosition.Y - TopY, 0.0, HeightY );
+		RelativeMousePosition.Y = FClamp( Scene().MousePosition.Y - PosY, 0.0, SizeY );
 		SetValue( StartValue + (RelativeMousePosition.Y - StartPosY)*2.0 );
 		InterpolatedValue = 0;
 	}
@@ -159,7 +159,7 @@ function StartSliding()
 {
 	// Stop previous interpolation.
 	InterpolatedValue = 0;
-	StartPosY = Scene().MousePosition.Y - TopY;
+	StartPosY = Scene().MousePosition.Y - PosY;
 	StartValue = Value;
 	if( StartPosY >= GetSliderOffset() && StartPosY <= GetSliderOffset() + GetSliderSize() )
 	{

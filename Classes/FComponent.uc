@@ -22,26 +22,22 @@ class FComponent extends FObject
 	perobjectlocalized
 	abstract;
 
-/** Cannot be used(same for other objects) from delegate events if that delegate is initialized via the DefaultProperties block! */
-var protectedwrite transient editconst FIController Controller;
-
-/** Cannot be used(same for other objects) from delegate events if that delegate is initialized via the DefaultProperties block! */
-var(Component, Advanced) protectedwrite noimport editconst FComponent Parent;
-
 /** Is this component visible? */
-var(Component, Function) protectedwrite bool bVisible;
+var(Component, Function) protectedwrite bool 					bVisible;
 
 /** Is this component interactable? */
-var(Component, Function) protectedwrite bool bEnabled;
+var(Component, Function) protectedwrite bool 					bEnabled;
 
-var(Component, Function) const bool bEnableClick;
-var(Component, Function) const bool bEnableCollision;
+var(Component, Function) const bool 							bEnableClick;
+var(Component, Function) const bool 							bEnableCollision;
 
 /** The relative position of this component, relative starting from the parent's position, in percentage! */
-var(Component, Positioning) privatewrite Vector2D RelativePosition;
+var(Component, Positioning) privatewrite Vector2D 				RelativePosition;
 
 /** The relative size of this component, relative starting from the parent's size, in percentage! */
-var(Component, Positioning) privatewrite Vector2D RelativeSize;
+var(Component, Positioning) privatewrite Vector2D 				RelativeSize;
+
+var(Component, Positioning) const editconst string 				Size;
 
 /**
  *  X, W, Y, Z margin in pixels:
@@ -50,7 +46,7 @@ var(Component, Positioning) privatewrite Vector2D RelativeSize;
  *	Y = Bottom	Margin
  *	Z = Top		Margin
  */
-var(Component, Positioning) privatewrite Vector4 Margin;
+var(Component, Positioning) privatewrite Vector4 				Margin;
 
 /**
  *  X, W, Y, Z padding in pixels:
@@ -59,21 +55,19 @@ var(Component, Positioning) privatewrite Vector4 Margin;
  *	Y = Bottom	Padding
  *	Z = Top		Padding
  */
-var(Component, Positioning) privatewrite Vector4 Padding;
+var(Component, Positioning) privatewrite Vector4 				Padding;
 
-struct atomic Boundary
-{
-	var() float Min, Max;
-	var() bool bEnabled;
-};
 /** Max/Min width for this component. */
-var(Component, Positioning) Boundary WidthBoundary;
+var(Component, Positioning) Boundary 							WidthBoundary;
 
 /** Max/Min height for this component. */
-var(Component, Positioning) Boundary HeightBoundary;
+var(Component, Positioning) Boundary 							HeightBoundary;
 
 /** The width of the component will be set to that of height in pixels. */
-var(Component, Positioning) bool bJustify;
+var(Component, Positioning) bool								bJustify;
+
+/** Whether to clip anything going out of this component's region. */
+var(Component, Display) bool									bClipComponent;
 
 /** The X(of RelativePosition) that the component will stick to. */
 var(Component, Positioning) enum EHorizontalDock
@@ -82,7 +76,7 @@ var(Component, Positioning) enum EHorizontalDock
 	HD_Left,
 	/** End drawing at RelativePosition X. */
 	HD_Right
-} HorizontalDock;
+} 																HorizontalDock;
 
 /** The Y(of RelativePosition) that the component will stick to. */
 var(Component, Positioning) enum EVerticalDock
@@ -91,7 +85,7 @@ var(Component, Positioning) enum EVerticalDock
 	VD_Top,
 	/** End drawing at RelativePosition Y. */
 	VD_Bottom
-} VerticalDock;
+} 																VerticalDock;
 
 /** How to handle positioning for this component. */
 var(Component, Positioning) enum EPositioning
@@ -100,14 +94,14 @@ var(Component, Positioning) enum EPositioning
 	P_Relative,
 	/** Position Fixed: Scrolling will not move this component. */
 	P_Fixed,
-} Positioning;
+} 																Positioning;
 
 /** The collision shape of this component. */
 var(Component, Collision) enum ECollisionShape
 {
 	CS_Rectangle,
 	CS_Circle
-} CollisionShape;
+} 																CollisionShape;
 
 /**
  * If assigned to a FToolTip then the assigned component will be rendered upon hovering this component.
@@ -127,15 +121,7 @@ var(Component, Collision) enum ECollisionShape
 	end object	
 	Components.Add(oQuit)
  */
-var(Component, Display) editinline FToolTipBase			ToolTipComponent;
-
-/** The style for this component to use. */
-var(Component, Display) protectedwrite editinline FStyle 	Style;
-var privatewrite editinline FStyle							InitStyle,
-															PrevStyle, 
-															HoverStyle, 
-															ActiveStyle, 
-															FocusStyle;
+var(Component, Display) editconst editinline FToolTipBase		ToolTipComponent;
 
 /** 
  * A style object will be created and assigned to @Style based on an ini configuration 
@@ -148,13 +134,18 @@ var privatewrite editinline FStyle							InitStyle,
  * ---
  * If the array is empty then @StyleName will be used instead.
  */
-var const private array<name> 							StyleNames;
-var const private name									StyleName;
+var(Component, Display) editconst const private array<name> 	StyleNames;
+var(Component, Display) editconst const private name			StyleName;
+var(Component, Display) editconst const private class<FStyle>	StyleClass;
 
-var const private class<FStyle>							StyleClass;
+/** The style for this component to use. */
+var(Component, Display) protectedwrite editinline FStyle 		Style;
 
-/** Whether to clip anything going out of this component region. */
-var(Component, Display) bool bClipComponent;
+var privatewrite FStyle											InitStyle,
+																PrevStyle, 
+																HoverStyle, 
+																ActiveStyle, 
+																FocusStyle;
 
 const ES_None			= 0x00;
 const ES_Hover			= 0x01;
@@ -164,8 +155,16 @@ const ES_Active			= 0x04;
 /** The current interaction state, e.g. Hover, Selected or Active. */
 var transient editconst byte InteractionState;
 
-// This component's cached positions and size.
-var protectedwrite transient editconst float TopY, LeftX, WidthX, HeightY;
+/** 
+ * An absolute position in pixels, for this component. 
+ * if bClipComponent is true then PosY will be relative from Canvas.Org*.
+ */
+var privatewrite transient editconst float PosY, PosX;
+
+/** 
+ * An absolute size in pixels, for this component. 
+ */
+var privatewrite transient editconst float SizeX, SizeY;
 
 // A dynamic position offset(Controlled by scrolling).
 var transient Vector2D OriginOffset;
@@ -179,6 +178,12 @@ var transient edithide editconst float LastFocusedTime, LastUnfocusedTime;
 var transient edithide editconst float LastActiveTime, LastUnactiveTime;
 var transient edithide editconst float LastStateChangeTime;
 var transient edithide editconst Color LastStateColor, LastImageColor;
+
+/** Cannot be used(same for other objects) from delegate events if that delegate is initialized via the DefaultProperties block! */
+var protectedwrite transient editconst FIController Controller;
+
+/** Cannot be used(same for other objects) from delegate events if that delegate is initialized via the DefaultProperties block! */
+var protectedwrite noimport editconst FComponent Parent;
 
 // KB/M EVENTS - Only called if hovered or focused!
 delegate OnClick( FComponent sender, optional bool bRight );
@@ -238,6 +243,7 @@ final function Initialize( FComponent within )
 	}
 	Scene().AddToPool( self );
 
+	InitializeProperties();
 	InitializeComponent();
 
 	// Post initialize
@@ -246,10 +252,60 @@ final function Initialize( FComponent within )
 		FMultiComponent(Parent).OnComponentInitialized( self );
 	}
 	OnInitialize( self );
+}
 
-	`if( `isdefined( DEBUG ) )
-		SaveConfig();
-	`endif
+private final function InitializeProperties()
+{
+	if( Size != "" )
+	{
+		if( InStr( Size, " " ) == INDEX_NONE )
+		{
+			`Warn( "Invalid @Size formatting." );
+		}
+		else InitSizeProperty();
+	}
+} 
+
+private final function InitSizeProperty()
+{
+	local string remaining, val1, mes1, val2, mes2;
+
+	// Parses: [0-9\.]px|em|pct [0-9\.]px|em|pct
+	val1 = Token( Size, remaining, PARSE_NUMERIC );
+	mes1 = Token( remaining, remaining, PARSE_NAME );
+
+	val2 = Token( remaining, remaining, PARSE_NUMERIC );
+	mes2 = Token( remaining, remaining, PARSE_NAME );
+
+	switch( mes1 )
+	{
+		case "em":
+			RelativeSize.X = float(val1);
+			break;
+
+		case "px":
+			RelativeSize.X = Round(float(val1));
+			break;
+
+		case "pct":
+			RelativeSize.X = float(val1)/100.0;
+			break;
+	}
+
+	switch( mes2 )
+	{
+		case "em":
+			RelativeSize.Y = float(val2);
+			break;
+
+		case "px":
+			RelativeSize.Y = Round(float(val2));
+			break;
+
+		case "pct":
+			RelativeSize.Y = float(val2)/100.0;
+			break;
+	}
 }
 
 /** Called after this component has been fully registered but not yet completely initialized. */
@@ -323,10 +379,10 @@ function Update( float DeltaTime )
 /** Re-calculate all positions and sizes. */
 function Refresh()
 {
-	TopY = GetTop();
-	LeftX = GetLeft();
-	WidthX = GetWidth();
-	HeightY = GetHeight();
+	PosY = CalcTop();
+	PosX = CalcLeft();
+	SizeX = CalcWidth();
+	SizeY = CalcHeight();
 }
 
 /** Render this object. Override RenderComponent to draw component specific visuals. */
@@ -340,68 +396,56 @@ function Render( Canvas C )
 	
 	if( bClipComponent )
 	{
-		oldClipX = C.ClipX;
-		oldClipY = C.ClipY;
-		oldOrgX = C.OrgX;
-		oldOrgY = C.OrgY;
-		C.SetOrigin( C.OrgX + LeftX, C.OrgY + TopY );
-		C.SetClip( WidthX, HeightY );
-
-		// Foolish hack :P Sets new start position for the draw functions without hardcoding 0 there!
-		TopY = 0;
-		LeftX = 0;
-		
-		// SELF REMINDER: Use Pos? + Org? if the pos is independent of Origin.
+		C.PushMaskRegion( PosX, PosY, SizeX, SizeY );
 	}
 
-	if( Style != none )
-	{
-		Style.Render( C );
-		Style.RenderFirstElements( C, self );
-		
-		C.SetPos( LeftX, TopY );
-		RenderComponent( C );
-		
-		Style.RenderLastElements( C, self );
-	}
-	OnPostRender( self, C );
+	PreRender( C );
+		if( Style != none )
+		{
+			Style.Render( C );
+			Style.RenderFirstElements( C, self );
+			
+			C.SetPos( PosX, PosY );
+			RenderComponent( C );
+			
+			Style.RenderLastElements( C, self );
+		}
+	PostRender( C );
 
 	`if( `isdefined( DEBUG ) )
 		if( Scene().bDebugModeIsActive )
 		{
-			//C.SetPos( 0, 0 );	
-			//C.DrawColor = class'FColors'.default.DarkColor;
-			//C.DrawColor.A = IsHovered() ? 200 : 64;
-			//C.DrawBox( C.ClipX, C.ClipY );
+			C.DrawColor = Colors.static.FadeOut( IsHovered() 
+				? Colors.default.SapphireColor
+				: Colors.default.GrayColor, 50.00 
+			);
+			C.SetPos( PosX, PosY );	
+			C.DrawBox( SizeX, SizeY );	
 
-			if( IsHovered() )
+			if( bClipComponent )
 			{
-				C.SetPos( LeftX, TopY );	
-				C.DrawColor = Colors.static.FadeOut( Colors.default.SapphireColor, 50.00 );
-				C.DrawBox( WidthX, HeightY );	
-			}
-			else
-			{
-				C.SetPos( LeftX, TopY );	
-				C.DrawColor = Colors.static.FadeOut( Colors.default.GrayColor, 50.00 );
-				C.DrawBox( WidthX, HeightY );	
+				C.Draw2DLine( PosX, PosY, SizeX, SizeY, C.DrawColor );
 			}
 		}
 	`endif
 
 	if( bClipComponent )
 	{
-		// Restore so that GetCachedLeft() can still function.
-		TopY = C.OrgY;
-		LeftX = C.OrgX;
-
-		C.SetOrigin( oldOrgX, oldOrgY );
-		C.SetClip( oldClipX, oldClipY );	
+		C.PopMaskRegion();	
 	}
 }
 
+/** Performed before this component(@RenderComponent()) has been drawn. */
+protected function PreRender( Canvas C );
+
 /** Override this to render anything specific to an unique component. */
 protected function RenderComponent( Canvas C );
+
+/** Performed after this component(@RenderComponent()) has been drawn. */
+protected function PostRender( Canvas C )
+{
+	OnPostRender( self, C );
+}
 
 /** 
  *	Override this to clear any Object/Actor references! 
@@ -482,78 +526,133 @@ final function SetPadding( const float leftPixels, const float topPixels, const 
 }
 
 /** Calculates the screen height for this component. */
-protected function float GetHeight()
+protected function float CalcHeight()
 {
 	local float h;
 	
 	h = (RelativeSize.Y > 1.0 
 		? RelativeSize.Y 
-		: Parent.GetCachedHeight() * RelativeSize.Y) 
+		: Parent.GetHeight() * RelativeSize.Y) 
 		- (Margin.Y << 1) - (Parent.Padding.Y << 1);
 		
 	return HeightBoundary.bEnabled ? FClamp( h, HeightBoundary.Min, HeightBoundary.Max ) : h;
 }
 
-/** Retrieves the cached Height that was calculated the last time this component was rendered. Recommend for use within Tick functions. */
-final function float GetCachedHeight()
-{
-	return HeightY;
-}
-
 /** Calculates the screen width for this component. */
-protected function float GetWidth()
+protected function float CalcWidth()
 {
 	local float w;
 	
 	w = (bJustify 
-		? GetCachedHeight() 
+		? GetHeight() 
 		: RelativeSize.X > 1.0 
 			? RelativeSize.X 
-			: Parent.GetCachedWidth() * RelativeSize.X) 
+			: Parent.GetWidth() * RelativeSize.X) 
 			- (Margin.X << 1) - (Parent.Padding.X << 1);
 	
 	return WidthBoundary.bEnabled ? FClamp( w, WidthBoundary.Min, WidthBoundary.Max ) : w;
 }
 
-/** Retrieves the cached Width that was calculated the last time this component was rendered. Recommend for use within Tick functions. */
-final function float GetCachedWidth()
-{
-	return WidthX;
-}
-
 /** Calculates the top screen position for this component. */
-protected function float GetTop()
+protected function float CalcTop()
 {
 	local float y, oy;
 	
-	y = (Parent.GetCachedTop() + Parent.GetCachedHeight() * RelativePosition.Y);
-	oy = (Margin.Z + Parent.Padding.Z) + ((Positioning < EPositioning.P_Fixed) ? Parent.OriginOffset.Y : 0.0f);
-	return (VerticalDock == VD_Bottom) ? y - GetCachedHeight() - oy : y + oy;
-}
-
-/** Retrieves the cached Top that was calculated the last time this component was rendered. Recommend for use within Tick functions. */
-final function float GetCachedTop()
-{
-	return TopY;
+	y = (Parent.GetTop() + Parent.GetHeight() * RelativePosition.Y);
+	oy = (Margin.Z + Parent.Padding.Z) + ((Positioning < EPositioning.P_Fixed) ? 
+		VerticalDock == VD_Bottom ? -Parent.OriginOffset.Y : Parent.OriginOffset.Y : 0.0f);
+	return (VerticalDock == VD_Bottom) ? y - GetHeight() - oy : y + oy;
 }
 
 /** Calculates the left screen position for this component. */
-protected function float GetLeft()
+protected function float CalcLeft()
 {
 	local float x, ox;
 	
-	x = (Parent.GetCachedLeft() + Parent.GetCachedWidth() * RelativePosition.X);
-	ox = (Margin.W + Parent.Padding.W) + ((Positioning < EPositioning.P_Fixed) ? Parent.OriginOffset.X : 0.0f);	
-	return (HorizontalDock == HD_Right) ? x - GetCachedWidth() - ox : x + ox;
+	x = (Parent.GetLeft() + Parent.GetWidth() * RelativePosition.X);
+	ox = (Margin.W + Parent.Padding.W) + ((Positioning < EPositioning.P_Fixed) ? 
+		HorizontalDock == HD_Right ? -Parent.OriginOffset.X : Parent.OriginOffset.X : 0.0f);	
+	return (HorizontalDock == HD_Right) ? x - GetWidth() - ox : x + ox;
 }
 
-/** Retrieves the cached Left that was calculated the last time this component was rendered. Recommend for use within Tick functions. */
-final function float GetCachedLeft()
+/** 
+ * Retrieves the height for this component.
+ */
+final function float GetHeight()
 {
-	return LeftX;
+	return SizeY;
 }
 
-/** Determine whether this component should receive Render calls. */
+/** 
+ * Retrieves the width for this component.
+ */
+final function float GetWidth()
+{
+	return SizeX;
+}
+
+/** 
+ * Retrieves the left side position for this component.
+ */
+final function float GetLeft()
+{
+	return PosX;
+}
+
+/** 
+ * Retrieves the right side position for this component.
+ */
+final function float GetRight()
+{
+	return PosX + SizeX;
+}
+
+/** 
+ * Retrieves the top side position for this component.
+ */
+final function float GetTop()
+{
+	return PosY;
+}
+
+/** 
+ * Retrieves the bottom side position for this component.
+ */
+final function float GetBottom()
+{
+	return PosY + SizeY;
+}
+
+final function Vector2D GetPosition()
+{
+	local Vector2D v;
+	
+	v.X = GetLeft();
+	v.Y = GetTop();
+	return v;
+}
+
+final function Vector2D GetSize()
+{
+	local Vector2D v;
+	
+	v.X = GetWidth();
+	v.Y = GetHeight();
+	return v;
+}
+
+final function Rect GetRect()
+{
+	local Rect r;
+	
+	r.X = GetLeft();
+	r.Y = GetTop();
+	r.W = GetWidth();
+	r.H = GetHeight();
+	return r;
+}
+
+/** Determine whether this component should receive Render() calls. */
 function bool CanRender()
 {
 	return bVisible;
@@ -591,42 +690,24 @@ function bool IsHover( IntPoint mousePosition, out FComponent hoveredComponent )
 	return false;
 }
 
-final function Vector2D GetPosition()
-{
-	local Vector2D v;
-	
-	v.X = GetCachedLeft();
-	v.Y = GetCachedTop();
-	return v;
-}
-
-final function Vector2D GetSize()
-{
-	local Vector2D v;
-	
-	v.X = GetCachedWidth();
-	v.Y = GetCachedHeight();
-	return v;
-}
-
 final protected function bool Collides( out IntPoint mousePosition )
 {
-	local Vector2D pos, size;
+	local Vector2D cPos, cSize;
 	
-	pos = GetPosition();
-	size = GetSize();
+	cPos = GetPosition();
+	cSize = GetSize();
 	switch( CollisionShape )
 	{
 		case CS_Rectangle:
-			return ((mousePosition.X >= pos.X) && (mousePosition.X <= pos.X + size.X))
+			return ((mousePosition.X >= cPos.X) && (mousePosition.X <= cPos.X + cSize.X))
 					&& 
-				   ((mousePosition.Y >= pos.Y) && (mousePosition.Y <= pos.Y + size.Y));
+				   ((mousePosition.Y >= cPos.Y) && (mousePosition.Y <= cPos.Y + cSize.Y));
 					   
 		// My math is terrible :D
 		case CS_Circle:
-			pos.X += size.X*(0.5 - HorizontalDock);
-			pos.Y += size.Y*(0.5 - VerticalDock);
-			return Abs( pos.X - mousePosition.X ) <= size.X && Abs( pos.Y - mousePosition.Y ) <= size.Y; 
+			cPos.X += cSize.X*(0.5 - HorizontalDock);
+			cPos.Y += cSize.Y*(0.5 - VerticalDock);
+			return Abs( cPos.X - mousePosition.X ) <= cSize.X && Abs( cPos.Y - mousePosition.Y ) <= cSize.Y; 
 	}
 	return false;
 }
@@ -749,7 +830,7 @@ final protected function RenderBackground( Canvas C,
 	optional Color drawColor = GetImageColor() )
 {
 	C.DrawColor = drawColor;
-	Style.DrawBackground( C, WidthX, HeightY );
+	Style.DrawBackground( C, SizeX, SizeY );
 }
 
 final function bool IsHovered()
@@ -856,32 +937,16 @@ final protected function FComponent CreateComponent( const class<FComponent> com
 	return new(componentOuter, componentName) componentClass (componentTemplate);
 }
 
-final static function StartClipping( Canvas C, out float x, out float y )
-{
-	local float xc, yc;
-	
-	xc = C.ClipX;
-	yc = C.ClipY;
-	C.SetClip( x, y );
-	x = xc;
-	y = yc;
-}
-
-final static function StopClipping( Canvas C, const float x, const float y )
-{
-	C.SetClip( x, y );
-}
-
 // ALT: RelativePosition.X - (pixels/GetLeft()*RelativePosition.X)
 final function float MoveLeft( const float pixels )
 {
-	return (GetCachedLeft() + pixels)/Parent.GetCachedWidth();
+	return (GetLeft() + pixels)/Parent.GetWidth();
 }
 
 // ALT: RelativePosition.Y - (pixels/GetTop()*RelativePosition.Y)
 final function float MoveTop( const float pixels )
 {
-	return (GetCachedTop() + pixels)/Parent.GetCachedHeight();
+	return (GetTop() + pixels)/Parent.GetHeight();
 }
 
 defaultproperties

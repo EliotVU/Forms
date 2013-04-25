@@ -90,20 +90,20 @@ final private function LocalizeText()
 	}	
 }
 
-final function int GetCharacterIndexAt( float posX )
+final function int GetCharacterIndexAt( float charPosX )
 {
 	local int xl, yl;
 	local int i, charIndex;
 	local string s;
 
 	charIndex = INDEX_NONE;
-	if( posX >= 0.0 )
+	if( charPosX >= 0.0 )
 	{
 		for( i = 0; i < Len( Text ); ++ i )
 		{
 			s = Left( Text, i );
 			FLabelStyle(Style).TextFont.GetStringHeightAndWidth( s, yl, xl );
-			if( posX >= xl )
+			if( charPosX >= xl )
 			{
 				charIndex = i + 1;
 			}
@@ -116,14 +116,13 @@ final function int GetCharacterIndexAt( float posX )
 protected function RenderComponent( Canvas C )
 {
 	super.RenderComponent( C );
-	RenderLabel( C, LeftX, TopY, WidthX, HeightY, FLabelStyle(Style).TextColor );
+	RenderLabel( C, PosX, PosY, SizeX, SizeY, FLabelStyle(Style).TextColor );
 }
 
 final protected function RenderLabel( Canvas C, float X, float Y, float W, float H, Color drawColor, optional out float XL, optional out float YL )
 {
 	local float AX, AY;
 //	local float cX, cY;
-	local FontRenderInfo renderInfo;
 	local FLabelStyle sty;
 
 	sty = FLabelStyle(Style);
@@ -143,8 +142,8 @@ final protected function RenderLabel( Canvas C, float X, float Y, float W, float
 	
 	if( bAutoSize && !bAutoSized )
 	{
-		// ALT: XL/Parent.GetCachedWidth() or just XL.
-		SetSize( XL/GetCachedWidth()*RelativeSize.X, YL/GetCachedHeight()*RelativeSize.Y );
+		// ALT: XL/Parent.GetWidth() or just XL.
+		SetSize( XL/GetWidth()*RelativeSize.X, YL/GetHeight()*RelativeSize.Y );
 		bAutoSized = true;
 	}
 
@@ -177,22 +176,10 @@ final protected function RenderLabel( Canvas C, float X, float Y, float W, float
 			AY = Y + H - YL;
 			break;
 	}
-	
-	//if( TextRenderInfo.bClipText )
-	//{
-		//cX = XL;
-		//cY = YL;
-		//StartClipping( C, cX, cY );
-	//}
 
 	C.SetPos( AX, AY );
 	C.DrawColor = drawColor;
 	C.DrawText( Text, false, sty.TextFontScaling.X, sty.TextFontScaling.Y, sty.TextRenderInfo );
-	
-	//if( TextRenderInfo.bClipText )
-	//{
-		//StopClipping( C, cX, cY );
-	//}
 	
 	switch( TextDecoration )
 	{

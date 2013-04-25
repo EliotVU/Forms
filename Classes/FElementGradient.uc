@@ -74,12 +74,12 @@ function RenderElement( Canvas C, FComponent Object )
 	local float orgX, orgY;
 	local float XL, YL;
 
-	XL = Object.GetCachedWidth();
-	YL = Object.GetCachedHeight();
+	XL = Object.GetWidth();
+	YL = Object.GetHeight();
 
 	lines = YL/float(Quality) + 1;
-	orgX = Object.GetCachedLeft();
-	orgY = Object.GetCachedTop();
+	orgX = Object.GetLeft();
+	orgY = Object.GetTop();
 	C.SetPos( orgX, orgY );
 	C.PreOptimizeDrawTiles( lines, Pixel );
 	for( i = 0; i < lines; ++ i )

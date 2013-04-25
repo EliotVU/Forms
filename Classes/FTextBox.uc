@@ -36,7 +36,7 @@ protected function RenderComponent( Canvas C )
 
 	super(FComponent).RenderComponent( C );
 	RenderBackground( C );
-	RenderLabel( C, LeftX, TopY, WidthX, HeightY, FLabelStyle(Style).TextColor, TXL, TYL );
+	RenderLabel( C, PosX, PosY, SizeX, SizeY, FLabelStyle(Style).TextColor, TXL, TYL );
 	if( HasFocus() && bEditing )
 	{
 		// Underline
@@ -71,7 +71,7 @@ function StartEdit( FComponent sender, optional bool bRight )
 
 	super.StartEdit( sender, bRight );
 
-	relativeClickPosX = FMin( Scene().MousePosition.X - GetCachedLeft() - RelativeOffset.X, GetCachedWidth() );
+	relativeClickPosX = FMin( Scene().MousePosition.X - GetLeft() - RelativeOffset.X, GetWidth() );
 	CarretIndex = GetCharacterIndexAt( relativeClickPosX );
 	LastCarretMoveTime = `STime;
 }
@@ -145,21 +145,21 @@ final function MoveCarretRight()
 	LastCarretMoveTime = `STime;
 }
 
-function bool CharInput( string Unicode )
+function bool CharInput( string chr )
 {
 	local string newText;
 
 	if( bReadyOnly )
 		return false;
 
-	if( bEditing && IsChar( Unicode ) )
+	if( bEditing && IsChar( chr ) )
 	{
 		if( Len( Text ) >= MaxTextLength )
 		{
 			BackSpace();	
 		}
 		newText = Left( Text, CarretIndex );
-		newText $= Unicode;
+		newText $= chr;
 		newText $= Mid( Text, CarretIndex );
 		SetText( newText );
 		MoveCarretRight();
@@ -168,11 +168,11 @@ function bool CharInput( string Unicode )
 	return false;
 }
 
-final static function bool IsChar( string Unicode )
+final static function bool IsChar( string chr )
 {
 	local int Code;
 
-	Code = Asc( Unicode );
+	Code = Asc( chr );
 	return Code >= 0x20 && Code <= 0x7E;
 }
 

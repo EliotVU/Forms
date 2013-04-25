@@ -58,22 +58,22 @@ protected function RenderSlider( Canvas C )
 	}
 		
 	// Progress bar
-	trackWidth = WidthX*0.02;
+	trackWidth = SizeX*0.02;
 	sliderX = FClamp( 
-		bSliding ? WidthX*(GetSliderBegin()/GetSliderEnd()) : Value/MaxValue*GetSliderEnd(), 0.0,
-		WidthX - trackWidth 
+		bSliding ? SizeX*(GetSliderBegin()/GetSliderEnd()) : Value/MaxValue*GetSliderEnd(), 0.0,
+		SizeX - trackWidth 
 	) - trackWidth*0.5;
-	//C.SetPos( LeftX, TopY );
-	//Style.DrawBackground( C, sliderX, HeightY );
+	//C.SetPos( PosX, PosY );
+	//Style.DrawBackground( C, sliderX, SizeY );
 
 	// Tracker
-	C.SetPos( LeftX + sliderX + trackWidth*0.5, TopY );
-	myStyle.DrawTracker( C, trackWidth, HeightY );
+	C.SetPos( PosX + sliderX + trackWidth*0.5, PosY );
+	myStyle.DrawTracker( C, trackWidth, SizeY );
 
 	// Label
 	S = PreFix $ cur $ PostFix $ "/" $ PreFix $ max $ PostFix;
 	C.StrLen( S, XL, YL );
-	C.SetPos( LeftX + WidthX*0.5 - XL*0.5, TopY + (HeightY*0.5 - YL*0.5) );
+	C.SetPos( PosX + SizeX*0.5 - XL*0.5, PosY + (SizeY*0.5 - YL*0.5) );
 	C.DrawColor = GetStateColor();
 	C.DrawText( S, false, 1.0, 1.0, TextRenderInfo );
 }

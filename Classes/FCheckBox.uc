@@ -36,7 +36,7 @@ protected function RenderComponent( Canvas C )
 	if( Text != "" )
 	{
 		TextDecoration = bChecked ? default.TextDecoration : D_Overlined;
-		RenderLabel( C, LeftX, TopY, WidthX, HeightY, GetStateColor( FLabelStyle(Style).TextColor ) );
+		RenderLabel( C, PosX, PosY, SizeX, SizeY, GetStateColor( FLabelStyle(Style).TextColor ) );
 	}
 }
 

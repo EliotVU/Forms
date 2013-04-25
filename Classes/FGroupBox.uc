@@ -41,33 +41,33 @@ protected function RenderComponent( Canvas C )
 	C.DrawColor = Style.ImageColor;
 	
 	// Left
-	C.SetPos( LeftX, TopY + Padding.Z*0.5 );
-	C.DrawRect( 1, HeightY - Padding.Z*0.5 );
+	C.SetPos( PosX, PosY + Padding.Z*0.5 );
+	C.DrawRect( 1, SizeY - Padding.Z*0.5 );
 	
 	// Right
-	C.SetPos( LeftX + WidthX - 1, TopY + Padding.Z*0.5 );
-	C.DrawRect( 1, HeightY - Padding.Z*0.5 );
+	C.SetPos( PosX + SizeX - 1, PosY + Padding.Z*0.5 );
+	C.DrawRect( 1, SizeY - Padding.Z*0.5 );
 	
 	if( Text != none )
 	{
 		// Top Left
-		C.SetPos( LeftX, TopY + Padding.Z*0.5 );
-		C.DrawRect( Text.GetCachedLeft() - (LeftX + C.OrgX) - Padding.W, 1 );
+		C.SetPos( PosX, PosY + Padding.Z*0.5 );
+		C.DrawRect( Text.GetLeft() - (PosX + C.OrgX) - Padding.W, 1 );
 	
 		// Top Right
-		C.SetPos( Text.GetCachedLeft() + Text.GetCachedWidth() + Padding.X, TopY + Padding.Z*0.5 );
-		C.DrawRect( WidthX - (Text.GetCachedLeft() - (LeftX + C.OrgX)) - Text.GetCachedWidth() - Padding.X, 1 );	
+		C.SetPos( Text.GetLeft() + Text.GetWidth() + Padding.X, PosY + Padding.Z*0.5 );
+		C.DrawRect( SizeX - (Text.GetLeft() - (PosX + C.OrgX)) - Text.GetWidth() - Padding.X, 1 );	
 	}
 	else
 	{
 		// Top
-		C.SetPos( LeftX, TopY );
-		C.DrawRect( WidthX, 1 );	
+		C.SetPos( PosX, PosY );
+		C.DrawRect( SizeX, 1 );	
 	}
 	
 	// Bottom
-	C.SetPos( LeftX, TopY + HeightY - 1 );
-	C.DrawRect( WidthX, 1 );		
+	C.SetPos( PosX, PosY + SizeY - 1 );
+	C.DrawRect( SizeX, 1 );		
 }
 
 defaultproperties

@@ -50,7 +50,7 @@ function Update( float deltaTime )
 protected function RenderComponent( Canvas C )
 {
 	super(FComponent).RenderComponent( C );
-	C.SetPos( LeftX, TopY );
+	C.SetPos( PosX, PosY );
 	RenderBackground( C, GetImageColor() );
 	RenderButton( C );
 }
@@ -62,26 +62,26 @@ protected function RenderButton( Canvas C )
 	
 	if( bRenderCaption && Text != "" )
 	{
-		x = LeftX + TextMoveOffset;
+		x = PosX + TextMoveOffset;
 		if( Icon.Texture != none )
 		{
-			x += HeightY;		
+			x += SizeY;		
 		}
 		
-		RenderLabel( C, x, TopY, WidthX, HeightY, GetStateColor( FLabelStyle(Style).TextColor ),, icoSize );
+		RenderLabel( C, x, PosY, SizeX, SizeY, GetStateColor( FLabelStyle(Style).TextColor ),, icoSize );
 	} 
 	else if( Icon.Texture != none )
 	{
-		if( Icon.Texture.GetSurfaceHeight() < HeightY ) 
-			icoSize = HeightY;
+		if( Icon.Texture.GetSurfaceHeight() < SizeY ) 
+			icoSize = SizeY;
 		else 
 			icoSize = Icon.Texture.GetSurfaceHeight(); 
 	}
 	
 	if( Icon.Texture != none )
 	{
-		x = LeftX + Padding.W + (HeightY - icoSize)*0.5; 
-		y = TopY + HeightY*0.5 - icoSize*0.5;
+		x = PosX + Padding.W + (SizeY - icoSize)*0.5; 
+		y = PosY + SizeY*0.5 - icoSize*0.5;
 		C.SetPos( x, y );
 		C.DrawColor = GetStateColor( class'HUD'.default.WhiteColor );
 		C.DrawTile( Icon.Texture, icoSize, icoSize, Icon.U, Icon.V, Icon.UL, Icon.VL );

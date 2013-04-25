@@ -66,10 +66,10 @@ protected function InitializeComponent()
 	SetActivePage( ActivePage );	
 }
 
-function Render( Canvas C )
+protected function PostRender( Canvas C )
 {
-	super.Render( C );
-	if( ActivePage != none && ActivePage.CanRender() )
+	super.PostRender( C );
+	if( ExternContainer == none && ActivePage != none && ActivePage.CanRender() )
 	{
 		ActivePage.Render( C );
 	}
@@ -78,7 +78,7 @@ function Render( Canvas C )
 function Update( float DeltaTime )
 {
 	super.Update( DeltaTime );
-	if( ActivePage != none && ActivePage.CanInteract() )
+	if( ExternContainer == none && ActivePage != none && ActivePage.CanInteract() )
 	{
 		ActivePage.Update( DeltaTime );
 	}
@@ -105,7 +105,7 @@ function bool IsHover( IntPoint mousePosition, out FComponent hoveredComponent )
 		if( !bHover )
 		{
 			hoveredComponent = none;
-			if( ActivePage != none && ActivePage.CanInteract() && ActivePage.IsHover( mousePosition, hoveredComponent ) )
+			if( ExternContainer == none && ActivePage != none && ActivePage.CanInteract() && ActivePage.IsHover( mousePosition, hoveredComponent ) )
 			{
 				bHover = true;
 			}

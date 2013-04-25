@@ -53,7 +53,7 @@ protected function InitializeComponent()
 	switch( sender )
 	{
 		case ToolTipLabel:
-			SetSize( ToolTipLabel.GetWidth() + Padding.W + Padding.X, GetCachedHeight() );
+			SetSize( ToolTipLabel.CalcWidth() + Padding.W + Padding.X, GetHeight() );
 			break;
 	}
 }*/

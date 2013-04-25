@@ -45,9 +45,10 @@ protected function InitializeComponent()
 	} 	
 }
 
-function Render( Canvas c )
+/** Performed after this component(@RenderComponent()) has been drawn. */
+protected function PostRender( Canvas c )
 {
-	super.Render( c );
+	super.Postrender( c );
 	RenderChildren( c );
 }
 

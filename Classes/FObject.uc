@@ -22,6 +22,18 @@ class FObject extends Object
 //==============CONSTANTS==============
 const Colors = class'FColors';
 
+//==============STRUCTURES=============
+struct atomic Rect
+{
+	var float X, Y, W, H;
+};
+
+struct atomic Boundary
+{
+	var() float Min, Max;
+	var() bool bEnabled;
+};
+
 //==============INTERFACE==============
 function Free();
 function Render( Canvas C );
@@ -37,7 +49,7 @@ public final static function string SplitArray( array<name> nameArray, string sp
 		ret $= nameArray[i];
 		if( i != nameArray.Length - 1 )
 		{
-			ret $= "-";
+			ret $= spacer;
 		}
 	}
 	return ret;
@@ -50,4 +62,68 @@ public final static function Vector PointToVect( out IntPoint point )
 	v.X = point.X;
 	v.Y = point.Y;
 	return v;	
+}
+
+const PARSE_NUMERIC = 0;
+const PARSE_NAME = 1;
+
+public final static function string Token( string data, out string unparsed, byte parseMode )
+{
+	local int i, startIdx;
+	local array<string> s;
+	local string result;
+
+	for( i = 0; i < Len( data ); ++ i )
+	{
+		s.AddItem( Mid( Left( data, i + 1 ), i ) );
+	}
+
+	// Get leading char
+	// " 1" = 1
+	// " " = ??
+	// "1 " = 1
+	for( i = 0; i < s.Length; ++ i )
+	{
+		if( s[i] != " " )
+		{
+			startIdx = i;
+			break;
+		}
+	}
+
+	switch( parseMode )
+	{
+		case PARSE_NUMERIC:
+			// Parse for numerics
+			// [0-9\.]
+			for( i = startIdx; i < s.Length; ++ i )
+			{
+				if( (Asc( s[i] ) >= Asc( "0" ) && Asc( s[i] ) <= Asc( "9" )) || (s[i] == ".") )
+				{
+					result $= s[i];
+					continue;
+				}
+				break;
+			}
+			unparsed = Mid( data, i );
+			break;
+
+		case PARSE_NAME:
+			// Parse for names
+			// [a-zA-Z_]
+			for( i = startIdx; i < s.Length; ++ i )
+			{
+				if( (Asc( s[i] ) >= Asc( "a" ) && Asc( s[i] ) <= Asc( "z" )) 
+					|| (Asc( s[i] ) >= Asc( "A" ) && Asc( s[i] ) <= Asc( "Z" ))
+					|| (s[i] == "_") )
+				{
+					result $= s[i];
+					continue;
+				}
+				break;
+			}
+			unparsed = Mid( data, i );
+			break;
+	}
+	return result;
 }

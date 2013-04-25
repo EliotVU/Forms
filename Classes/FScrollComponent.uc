@@ -154,8 +154,8 @@ function UpdateValue()
 
 final function UpdateRelativeMousePosition()
 {
-	RelativeMousePosition.X = FClamp( Scene().MousePosition.X - LeftX, 0.0, WidthX );
-	RelativeMousePosition.Y = FClamp( Scene().MousePosition.Y - TopY, 0.0, HeightY );
+	RelativeMousePosition.X = FClamp( Scene().MousePosition.X - PosX, 0.0, SizeX );
+	RelativeMousePosition.Y = FClamp( Scene().MousePosition.Y - PosY, 0.0, SizeY );
 }
 
 final function float GetSliderBegin()
@@ -165,7 +165,7 @@ final function float GetSliderBegin()
 
 final function float GetSliderEnd()
 {
-	return Direction == D_Horizontal ? WidthX : HeightY;
+	return Direction == D_Horizontal ? SizeX : SizeY;
 }
 
 defaultproperties

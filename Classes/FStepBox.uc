@@ -18,12 +18,12 @@
  * ======================================================== */
 class FStepBox extends FMultiComponent;
 
-var(Component, Advanced) FButton 		Previous;
-var(Component, Advanced) FLabel 		SelectedChoice;
-var(Component, Advanced) FButton 		Next;
+var(StepBox, Advanced) FButton 		Previous;
+var(StepBox, Advanced) FLabel 		SelectedChoice;
+var(StepBox, Advanced) FButton 		Next;
 
-var(Component, Usage) array<string> 	Choices;
-var(Component, Usage) int				ChoiceIndex;
+var(StepBox, Usage) array<string> 	Choices;
+var(StepBox, Usage) int				ChoiceIndex;
 
 delegate OnValueChanged( FComponent sender );
 
@@ -60,11 +60,11 @@ function Click( FComponent sender, optional bool bRight )
 	switch( sender )
 	{
 		case Previous:
-			StepLeft();
+			PreviousChoice();
 			break;
 
 		case Next:
-			StepRight();
+			NextChoice();
 			break;
 	}
 }
@@ -75,7 +75,7 @@ protected function RenderComponent( Canvas C )
 	RenderBackground( C );
 }
 
-function StepLeft()
+function PreviousChoice()
 {
 	local int newIndex;
 	
@@ -87,7 +87,7 @@ function StepLeft()
 	}
 }
 
-function StepRight()
+function NextChoice()
 {
 	local int newIndex;
 	

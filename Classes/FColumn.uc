@@ -34,21 +34,21 @@ protected function RenderComponent( Canvas C )
 	super(FComponent).RenderComponent( C );
 	RenderBackground( C );
 	RenderImage( C );
-	RenderLabel( C, LeftX, TopY, WidthX, HeightY, FLabelStyle(Style).TextColor );
+	RenderLabel( C, PosX, PosY, SizeX, SizeY, FLabelStyle(Style).TextColor );
 	
 	if( IsSelected() )
 	{
-		C.SetPos( LeftX, TopY );
+		C.SetPos( PosX, PosY );
 		// Still try to use another color if selected but also hovered or active.
 		C.DrawColor = GetStateColor( Style.ActiveColor );
-		C.DrawBox( WidthX, HeightY );
+		C.DrawBox( SizeX, SizeY );
 	}
 	else if( IsHovered() )
 	{
-		C.SetPos( LeftX, TopY );
+		C.SetPos( PosX, PosY );
 		// Even though we are hovered, lets still use other colors if it is both hovered and active etc.
 		C.DrawColor = GetStateColor();
-		C.DrawBox( WidthX, HeightY );
+		C.DrawBox( SizeX, SizeY );
 	}
 	// For the sake of undoing previous states.
 	else GetStateColor();
@@ -59,9 +59,9 @@ protected function RenderImage( Canvas C )
 	if( ColumnImage == none )
 		return;
 		
-	C.SetPos( LeftX, TopY );
+	C.SetPos( PosX, PosY );
 	C.DrawColor = Style.ImageColor;
-	C.DrawTile( ColumnImage, WidthX, HeightY, 0, 0, ColumnImage.SizeX, ColumnImage.SizeY );
+	C.DrawTile( ColumnImage, SizeX, SizeY, 0, 0, ColumnImage.SizeX, ColumnImage.SizeY );
 }
 
 final function bool IsSelected()

@@ -25,9 +25,9 @@ protected function RenderComponent( Canvas C )
 
 protected function RenderImage( Canvas C )
 {
-	C.SetPos( LeftX, TopY );
+	C.SetPos( PosX, PosY );
 	C.DrawColor = Style.ImageColor;
-	Style.DrawBackground( C, WidthX, HeightY );
+	Style.DrawBackground( C, SizeX, SizeY );
 }
 
 defaultproperties

@@ -47,7 +47,7 @@ function AttachToPosition( IntPoint mousePosition, Vector2D screenSize )
 {
 	local float x, y, h;
 
-	h = GetCachedHeight();
+	h = GetHeight();
 	switch( ToolTipAttachPosition )
 	{
 		case P_Mouse:
@@ -62,13 +62,13 @@ function AttachToPosition( IntPoint mousePosition, Vector2D screenSize )
 			break;
 
 		case P_Component:
-			x = FComponent(Outer).GetCachedLeft()/screenSize.X;
-			y = (FComponent(Outer).GetCachedTop() + FComponent(Outer).GetCachedHeight())/screenSize.Y;
+			x = FComponent(Outer).GetLeft()/screenSize.X;
+			y = (FComponent(Outer).GetTop() + FComponent(Outer).GetHeight())/screenSize.Y;
 
 			// Align above if the tooltip would overflow screen size.
 			if( y+h > screenSize.Y )
 			{
-				y -= (FComponent(Outer).GetCachedHeight() + h)/screenSize.Y;
+				y -= (FComponent(Outer).GetHeight() + h)/screenSize.Y;
 			}
 			break;
 	}	

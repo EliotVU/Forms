@@ -71,8 +71,8 @@ protected function RenderComponent( Canvas C )
 	if( HasFocus() )
 	{
 		C.DrawColor = Style.FocusColor;
-		C.SetPos( LeftX, C.CurY );
-		C.DrawBox( WidthX, HeightY );
+		C.SetPos( PosX, C.CurY );
+		C.DrawBox( SizeX, SizeY );
 	}
 	super(FComponent).RenderComponent( C );
 }
