@@ -1,23 +1,29 @@
-Forms
+Forms - GUI framework
 =====
-Forms is a graphical user interface(GUI) framework for the Unreal Development Kit(UDK). Purely programmed in UnrealScript independent of Scaleforms and UIScene. 
-Inspired by the OOP and subobjects semantics of the Unreal Engine 2 GUIs framework.
+Forms is a graphical user interface(GUI) framework for the Unreal Development Kit(UDK). Completely written in UnrealScript.
 
-This framework will give you most of the common GUI building components of which: 
-
-  Page, Button, Dialog, Tab Control, Label, and many more!
-
-Forms in action:
+Example Demo
+=====
 ![Potention](https://imageshack.us/a/img15/1985/920c66fdba564d189ef1306.png)
-Graphics not included!
+You can view an example by following this guide [Installing Forms - Wiki](http://github.com/EliotVU/Forms/wiki/Installing-Forms)
 
-Installing
+Features
 =====
+- Pages(Scrollable)
+- Windows
+- Buttons
+- Checkboxes
+- BindingBoxes
+- GroupBoxes
+- TextBoxes
+- Sliders
+- Labels(Paragraphs)
+- ColumnSets
+- Dialogs(Draggable)
+- Tabs
+- ToolTips
 
-[Installing Forms - Wiki](http://github.com/EliotVU/Forms/wiki/Installing-Forms)
-[Customizing the Cursor Icons - Wiki](https://github.com/EliotVU/Forms/wiki/Customizing-the-Cursor-Icons)
-
-Example
+Documentation
 =====
 An example demonstrating how a typical menu's code could look like:
 
