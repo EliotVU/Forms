@@ -17,6 +17,7 @@ Controls
 - BindingBoxes
 - GroupBoxes
 - TextBoxes
+- StepBoxes
 - Sliders
 - Labels(Paragraphs)
 - ColumnSets
