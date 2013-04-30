@@ -7,7 +7,7 @@ Example Demo
 ![Potention](https://imageshack.us/a/img15/1985/920c66fdba564d189ef1306.png)
 You can view an example by following this guide [Installing Forms - Wiki](http://github.com/EliotVU/Forms/wiki/Installing-Forms)
 
-Features
+Controls
 =====
 - Pages(Scrollable)
 - Windows
@@ -22,6 +22,13 @@ Features
 - Dialogs(Draggable)
 - Tabs
 - ToolTips
+- And more...
+
+Features
+=====
+- 100% UnrealScript
+- Doesn't require Adobe Flash Professional
+- Customizable controls through DefaultForms.ini(Hover, Focus, and Active states)
 
 Documentation
 =====
