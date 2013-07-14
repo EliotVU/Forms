@@ -57,8 +57,6 @@ An example demonstrating how a typical menu's code could look like:
     
         // Let's add a button to exit the game.
         begin object name=oExitButton class=FButton
-            // Red
-            TextColor=(R=255,G=0,B=0,A=255)
             // Caption(We use Text because FButton extends FLabel)
             Text="Exit"
             // Delegate OnClick to OnExit, we'll add this function later, see below!
@@ -235,6 +233,7 @@ And hold Shift and CTRL, then click on a component you wish to modify; This will
 About
 =====
 Home: http://eliotvu.com/portfolio/view/48/forms-udk-gui-framework
+
 Forums: http://eliotvu.com/forum/forumdisplay.php?fid=11
 
 License
