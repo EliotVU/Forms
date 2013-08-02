@@ -67,8 +67,8 @@ var SoundCue														HoverSound;
 
 var transient IntPoint 												MousePosition;
 var transient IntPoint 												LastMousePosition;
-var transient Vector2D 												Size;
-var transient Vector2D 												Ratio;
+var transient Vector2D 												ScreenSize;
+var transient Vector2D 												ScreenRatio;
 
 var protectedwrite transient float 									RenderDeltaTime;
 var privatewrite transient float 									LastRenderTime;
@@ -113,7 +113,12 @@ protected function InitializeComponent()
 	} 	
 
 	LoadConfigurations();
-	LocalPlayer(Controller.Player().Player).ViewportClient.GetViewportSize( Size );
+}
+
+function Refresh()
+{
+	super.Refresh();
+	LocalPlayer(Controller.Player().Player).ViewportClient.GetViewportSize( ScreenSize );	
 }
 
 protected function LoadConfigurations()
@@ -295,10 +300,10 @@ function Render( Canvas C )
 	RenderDeltaTime = `STimeSince( LastRenderTime );
 	
 	// Resolution has been changed!
-	if( C.SizeX != Size.X )
+	if( C.SizeX != ScreenSize.X )
 	{
-		Size.X = C.SizeX;
-		Size.Y = C.SizeY;
+		ScreenSize.X = C.SizeX;
+		ScreenSize.Y = C.SizeY;
 	}
 	
 	// Don't put this in CanRender(), if CanRender() returns false, then Update() won't be called 
@@ -482,13 +487,17 @@ protected function RenderDebug( Canvas C )
 	C.DrawColor = class'HUD'.default.WhiteColor;
 	C.DrawColor.A = 100;
 	C.Font = class'Engine'.static.GetTinyFont();
-	C.DrawText( "HC:" $ HoveredComponent, true );
-	C.DrawText( "SC:" $ SelectedComponent, true );
+	C.DrawText( "Hovering:" $ HoveredComponent, true );
+	C.DrawText( "Selected:" $ SelectedComponent, true );
 	if( HoveredComponent != none )
 	{
-		C.DrawText( "P-C:" $ HoveredComponent.Parent @ HoveredComponent.Controller, true );
+		C.DrawText( "Parent:" $ HoveredComponent.Parent, true );
+		if( HoveredComponent.Style != none )
+		{
+			C.DrawText( "Style:" $ HoveredComponent.Style, true );	
+		}
 	}
-	C.DrawText( "Objects:" @ ObjectsPool.Length );
+	C.DrawText( "Pooled Objects:" @ ObjectsPool.Length );
 }
 
 protected function RenderCursor( Canvas C )
@@ -556,40 +565,40 @@ protected function RenderCursor( Canvas C )
 	{
 		if( true )	// TODO: Proper detection
 		{
-			Ratio.X = Size.X / 1280.f;
-			Ratio.Y = Size.Y / 720.f;
+			ScreenRatio.X = Size.X / 1280.f;
+			ScreenRatio.Y = Size.Y / 720.f;
 		}
 		else
 		{
-			Ratio.X = Size.X / 1024.f;
-			Ratio.Y = Size.Y / 768.f;
+			ScreenRatio.X = Size.X / 1024.f;
+			ScreenRatio.Y = Size.Y / 768.f;
 		}
 	}
 	else
 	{
-		Ratio.X = 1.0;
-		Ratio.Y = 1.0;
+		ScreenRatio.X = 1.0;
+		ScreenRatio.Y = 1.0;
 	}
 
 	//SetSize( 
-		//Size.X * Ratio.X / Size.X,
-		//Size.Y * Ratio.Y / Size.Y
+		//ScreenSize.X * ScreenRatio.X / ScreenSize.X,
+		//ScreenSize.Y * ScreenRatio.Y / ScreenSize.Y
 	//);
 
 	//SetPos( 
-		//((Size.X - CalcWidth()) * Ratio.X * 0.5) / Size.X, 
-		//((Size.Y - CalcHeight()) * Ratio.Y * 0.5) / Size.Y
+		//((ScreenSize.X - CalcWidth()) * ScreenRatio.X * 0.5) / ScreenSize.X, 
+		//((ScreenSize.Y - CalcHeight()) * ScreenRatio.Y * 0.5) / ScreenSize.Y
 	//);
 }*/
 
 protected function float CalcHeight()
 {
-	return Size.Y * RelativeSize.Y;
+	return ScreenSize.Y * RelativeSize.Y;
 }
 
 protected function float CalcWidth()
 {
-	return Size.X * RelativeSize.X;
+	return ScreenSize.X * RelativeSize.X;
 }
 
 protected function float CalcTop()
@@ -731,7 +740,7 @@ function bool KeyInput( name Key, EInputEvent EventType )
 		{
 			switch( Key )
 			{
-				case 'Space':
+				case 'Spacebar':
 				case 'Enter':
 					SelectedComponent.OnClick( SelectedComponent );
 					break;
@@ -939,7 +948,7 @@ function ComponentHovered( FComponent sender )
 
 	if( sender.ToolTipComponent != none )
 	{
-		sender.ToolTipComponent.AttachToPosition( MousePosition, Size );
+		sender.ToolTipComponent.AttachToPosition( MousePosition, ScreenSize );
 	}
 }
 
