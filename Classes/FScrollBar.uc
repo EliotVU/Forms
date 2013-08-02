@@ -19,10 +19,11 @@ class FScrollBar extends FScrollComponent;
 
 var(ScrollBar, Advanced) editinline FMultiComponent	 	MaskComponent;
 var(ScrollBar, Function) float 							StepProgress;
+var(ScrollBar, Function) bool 							bScrollSmooth;
 
-var protected transient float							StartPosY, StartValue;
-var protected transient float 							InterpolatedValue;
-var protected transient float 							VisibleHeight;
+var protected transient editconst float					StartPos, StartValue;
+var protected transient editconst float 				InterpolatedValue;
+var protected transient editconst float 				VisibleHeight;
 
 function Free()
 {
@@ -38,42 +39,45 @@ protected function InitializeComponent()
 
 	MinValue = 0.0;
 	Value = 0.0;
-	OnValueChanged = ValueChanged;
 	OnMouseWheelInput = MouseWheelInput;
 }
 
 function MouseWheelInput( FComponent sender, optional bool bUp )
 {
-	if( bSliding )
+	if( !CanInteract() || bSliding )
 		return;
 
 	if( bUp )
 	{
-		ScrollUp();
+		ScrollDecrement();
 	}
 	else
 	{
-		ScrollDown();
+		ScrollIncrement();
 	}
 }
 
-function ScrollUp()
+function ScrollDecrement()
 {
 	InterpolatedValue = -(MaxValue*StepProgress);
 }
 
-function ScrollDown()
+function ScrollIncrement()
 {
 	InterpolatedValue = (MaxValue*StepProgress);
 }
 
 function Update( float deltaTime )
 {
-	local float incrValue;
-	local FComponent component;
-	local float endPos, maxHeight;
+	InterpolateValue( deltaTime );
+	UpdateMaxValue();
+}
 
-	incrValue = Abs( InterpolatedValue )*deltaTime;
+function InterpolateValue( float deltaTime )
+{
+	local float incrValue;
+
+	incrValue = (bScrollSmooth ? Abs( InterpolatedValue )*deltaTime : Abs( InterpolatedValue ));
 	if( InterpolatedValue > 0 )
 	{
 		InterpolatedValue = FMax( InterpolatedValue - incrValue, 0 );	
@@ -83,10 +87,23 @@ function Update( float deltaTime )
 		InterpolatedValue = -FMax( Abs( InterpolatedValue ) - incrValue, 0 );
 		incrValue = -incrValue;
 	}
-	SetValue( Value + incrValue );
+	
+	if( incrValue != 0 )
+	{
+		SetValue( Value + incrValue );
+	}
+}
+
+function UpdateMaxValue()
+{
+	local FComponent component;
+	local float endPos, maxHeight;
 
 	foreach MaskComponent.Components( component )
 	{
+		if( component.Positioning == P_Fixed )
+			continue;
+
 		endPos = component.GetTop() + component.GetHeight();
 		if( endPos >= maxHeight )
 		{
@@ -94,25 +111,33 @@ function Update( float deltaTime )
 		} 
 	}
 
+	maxHeight = maxHeight - MaskComponent.OriginOffset.Y;
+
 	VisibleHeight = MaskComponent.GetHeight();
 	if( maxHeight > VisibleHeight )
 	{
 		MaxValue = maxHeight;
+		SetEnabled( true );
+		SetVisible( true );
 	} 
-	else 
+	else // Nothing to be scrolled.
 	{
 		MaxValue = VisibleHeight;
+		SetEnabled( false );
+		SetVisible( false );
 	}
 }
 
+// Get visible pixels in ScrollBar ratio.
 function float GetSliderSize()
 {
-	return SizeY*(VisibleHeight/MaxValue);
+	return MaxValue > 0 ? VisibleHeight/MaxValue*SizeY : SizeY;
 }
 
+// Get skipped pixels in ScrollBar ratio.
 function float GetSliderOffset()
 {
-	return FMin( Value/MaxValue*SizeY, MaxValue - GetSliderSize() )*0.5;
+	return MaxValue > 0 ? Value/MaxValue*SizeY : 0.0;
 }
 
 protected function RenderComponent( Canvas C )
@@ -136,42 +161,48 @@ protected function RenderSlider( Canvas C )
 
 function SetValue( float newValue )
 {
-	Value = FClamp( newValue, MinValue, MaxValue - GetSliderSize() );
+	Value = FClamp( newValue, MinValue, MaxValue - VisibleHeight );
 	OnValueChanged( self );
 }
 
-function ValueChanged( FComponent sender )
-{
-	MaskComponent.OriginOffset.Y = -FClamp( Value, MinValue, MaxValue )*0.5;
-}
-
+/**
+ * Update the @Value variable in here.
+ * -- 
+ * Called everytime:
+ *	The mouse moves within this component @MouseMove
+ *  The user starts sliding @StartSliding()
+ *	The user stops sliding @StopSliding()
+ */
 function UpdateValue()
 {
+	UpdateRelativeMousePosition();
 	if( bSliding )
 	{
-		RelativeMousePosition.Y = FClamp( Scene().MousePosition.Y - PosY, 0.0, SizeY );
-		SetValue( StartValue + (RelativeMousePosition.Y - StartPosY)*2.0 );
-		InterpolatedValue = 0;
+		SetValue( StartValue + (RelativeMousePosition.Y - StartPos)*2.0 );
+		InterpolatedValue = 0; // Stop active interpolation.
 	}
 }
 
 function StartSliding()
 {
-	// Stop previous interpolation.
-	InterpolatedValue = 0;
-	StartPosY = Scene().MousePosition.Y - PosY;
+	InterpolatedValue = 0; // Stop active interpolation.
+	
+	StartPos = Direction == D_Horizontal 
+		? Scene().MousePosition.X - PosX 
+		: Scene().MousePosition.Y - PosY;
+
 	StartValue = Value;
-	if( StartPosY >= GetSliderOffset() && StartPosY <= GetSliderOffset() + GetSliderSize() )
+	if( StartPos >= GetSliderOffset() && StartPos <= GetSliderOffset() + GetSliderSize() )
 	{
 		bSliding = true;
 	}
-	else if( StartPosY < GetSliderOffset() )
+	else if( StartPos < GetSliderOffset() )
 	{
-		ScrollUp();
+		ScrollDecrement();
 	}
-	else if( StartPosY > GetSliderOffset() + GetSliderSize() )
+	else if( StartPos > GetSliderOffset() + GetSliderSize() )
 	{
-		ScrollDown();
+		ScrollIncrement();
 	}
 }
 
@@ -195,4 +226,7 @@ defaultproperties
 
 	StyleNames.Add(ScrollBar)
 	StyleClass=class'FStyle'
+
+	bDynamic=false
+	bScrollSmooth=true
 }

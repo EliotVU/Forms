@@ -30,10 +30,16 @@ protected function InitializeComponent()
 	super.InitializeComponent();
 	ScrollBar = FScrollBar(CreateComponent( class'FScrollBar',, ScrollBar ));
 	ScrollBar.MaskComponent = self;
+	ScrollBar.OnValueChanged = ScrollBarValueChanged;
 	InsertComponent( ScrollBar, 0 );
 
 	// Redirect any mouse wheel input on this page or any of its components.
 	OnMouseWheelInput = ScrollBar.OnMouseWheelInput;
+}
+
+function ScrollBarValueChanged( FComponent sender )
+{
+	OriginOffset.Y = -ScrollBar.Value;
 }
 
 defaultproperties

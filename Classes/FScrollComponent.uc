@@ -42,8 +42,8 @@ var(Scroll, Display) enum EDirection
 	D_Vertical
 } Direction;
 
-var transient bool bSliding, bWasRightClick;
-var transient IntPoint RelativeMousePosition;
+var transient editconst bool bSliding, bWasRightClick;
+var transient editconst IntPoint RelativeMousePosition;
 
 delegate OnValueChanged( FComponent sender );
 
