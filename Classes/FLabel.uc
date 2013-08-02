@@ -70,7 +70,11 @@ function Free()
 protected function InitializeComponent()
 {
 	super.InitializeComponent();
-	LocalizeText();
+
+	if( Text != "" )
+	{
+		LocalizeText();
+	}
 }
 
 final private function LocalizeText()
