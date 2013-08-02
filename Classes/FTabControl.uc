@@ -125,11 +125,13 @@ function SetActivePage( FPage newPage )
 	if( previousPage != none )
 	{
 		previousPage.SetVisible( false );
+		previousPage.Closed();
 	}
 
 	if( newPage != none )
 	{
 		newPage.SetVisible( true );
+		newPage.Opened();
 	}
 
 	OnSwitch( previousPage, newPage );	
