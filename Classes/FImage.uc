@@ -36,4 +36,6 @@ defaultproperties
 	RelativeSize=(X=64,Y=64)
 
 	bEnabled=`devmode
+	bEnableClick=false
+	bEnableCollision=false
 }
