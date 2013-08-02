@@ -28,22 +28,8 @@ protected function RenderSlider( Canvas C )
 	local FScrollStyle myStyle;
 	
 	myStyle = FScrollStyle(Style);
-	if( myStyle == none )
-	{
-		//`Log( "No FScrollStyle found for" @ self, 'Forms' );
-		return;
-	}
-	
-	if( bSliding )
-	{
-		C.DrawColor = GetStateColor();
-	}
-	else
-	{
-		C.DrawColor = myStyle.TrackImageColor;
-	}	
-		
-	//cur = string(float(cur) - float(cur) % SnapPower + SnapPower);
+	Assert( myStyle != none );
+
 	cur = bDynamic ? string(Value) : string(CalcValue());
 	max = string(MaxValue);
 	if( bInteger )
@@ -58,16 +44,15 @@ protected function RenderSlider( Canvas C )
 	}
 		
 	// Progress bar
-	trackWidth = SizeX*0.02;
+	trackWidth = SizeX*0.06;
 	sliderX = FClamp( 
 		bSliding ? SizeX*(GetSliderBegin()/GetSliderEnd()) : Value/MaxValue*GetSliderEnd(), 0.0,
 		SizeX - trackWidth 
 	) - trackWidth*0.5;
-	//C.SetPos( PosX, PosY );
-	//Style.DrawBackground( C, sliderX, SizeY );
 
 	// Tracker
 	C.SetPos( PosX + sliderX + trackWidth*0.5, PosY );
+	C.DrawColor = bSliding ? GetStateColor() : myStyle.TrackImageColor;
 	myStyle.DrawTracker( C, trackWidth, SizeY );
 
 	// Label
