@@ -114,6 +114,7 @@ function bool IsHover( IntPoint mousePosition, out FComponent hoveredComponent )
 /** Adds a component to the associated @Components. */
 function AddComponent( FComponent component )
 {
+	Assert( Parent != none ); // Never add any component if this MultiComponent is not initialized.
 	component.Initialize( self );
 	Components.AddItem( component );	
 }
@@ -121,6 +122,7 @@ function AddComponent( FComponent component )
 /** Inserts a component to the associated @Components. */
 function InsertComponent( FComponent component, int index )
 {
+	Assert( Parent != none ); // Never insert any component if this MultiComponent is not initialized.
 	component.Initialize( self );
 	Components.InsertItem( index, component );	
 }
@@ -134,6 +136,115 @@ function RemoveComponent( FComponent component, optional bool freeComponent = fa
 	if( freeComponent )
 	{
 		Scene().FreeObject( component );
+	}
+}
+
+/**
+ * Finds a component based on a query selector.
+ *
+ * @param query - The component selector:
+ *                ".CheckBox" - returns the first component with "CheckBox" as its style class.
+ *                "#MyCheckBox" - returns the first component with its name as "MyCheckBox".
+ *                "FCheckBox" - returns the first component of unreal class FCheckBox.
+ *
+ * @returns the matched component.
+ */
+final function FComponent FindComponent( const string query )
+{
+	return FindComponents( query )[0];
+}
+
+/**
+ * Finds components recursively, based on a query selector.
+ *
+ * @param query - The component selector:
+ *                ".CheckBox" - returns all components with "CheckBox" as its style class.
+ *                "#MyCheckBox" - returns all components with its name as "MyCheckBox".
+ *                "FCheckBox" - returns all components of unreal class FCheckBox.
+ *
+ * @returns recursively every component that matched the query.
+ */
+final function array<FComponent> FindComponents( const string query )
+{
+	local string filter;
+	local array<FComponent> selected;
+
+	filter = Left( query, 1 );
+	switch( filter )
+	{
+		// Select by class
+		case ".":
+			FindByClass( Mid( query, 1 ), selected );
+			break;
+
+		case "#":
+			FindById( Mid( query, 1 ), selected );
+			break;
+
+		default:
+			FindByType( query, selected );
+			break;
+	}
+	return selected;
+}
+
+private function FindByClass( const string className, out array<FComponent> matchedComponents )
+{
+	local int i;
+	local FComponent c;
+
+	for( i = 0; i < Components.Length; ++ i )
+	{
+		c = Components[i];
+		if( FMultiComponent(c) != none )
+		{
+			FMultiComponent(c).FindByClass( className, matchedComponents );
+		}
+
+		if( c.HasClass( className ) )
+		{
+			matchedComponents.AddItem( c );
+		}
+	}
+}
+
+private function FindById( const string idName, out array<FComponent> matchedComponents )
+{
+	local int i;
+	local FComponent c;
+
+	for( i = 0; i < Components.Length; ++ i )
+	{
+		c = Components[i];
+		if( FMultiComponent(c) != none )
+		{
+			FMultiComponent(c).FindById( idName, matchedComponents );
+		}
+
+		if( string(c.Name) == idName )
+		{
+			matchedComponents.AddItem( c );
+		}
+	}
+}
+
+private function FindByType( const string typeName, out array<FComponent> matchedComponents )
+{
+	local int i;
+	local FComponent c;
+
+	for( i = 0; i < Components.Length; ++ i )
+	{
+		c = Components[i];
+		if( FMultiComponent(c) != none )
+		{
+			FMultiComponent(c).FindByClass( typeName, matchedComponents );
+		}
+
+		if( string(c.Class.Name) == typeName )
+		{
+			matchedComponents.AddItem( c );
+		}
 	}
 }
 

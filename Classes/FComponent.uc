@@ -31,6 +31,28 @@ var(Component, Function) protectedwrite bool 					bEnabled;
 var(Component, Function) const bool 							bEnableClick;
 var(Component, Function) const bool 							bEnableCollision;
 
+/** How RelativePosition and RelativeSize values should be handled. Auto-configured through the Size variable. */
+var editconst enum EMeasureMethod
+{
+	/** 
+	 * 1.0 = 100% of parent's size/position. 
+	 * 100.0 = 100 pixels for size, but for position 100 = 1000% of parent's size. 
+	 */
+	EM_Standard,
+
+	/**
+	 * 1.0 = 1 pixel.
+	 * 100.0 = 100 pixels.
+	 */
+	EM_Pixels,
+
+	/**
+	 * 1.0 = 100% of parent's size/position.
+	 * 100.0 = 1000% of parent's size/position.
+	 */
+	EM_Percentage
+} MMPosX, MMPosY, MMSizeX, MMSizeY;
+
 /** The relative position of this component, relative starting from the parent's position, in percentage! */
 var(Component, Positioning) privatewrite Vector2D 				RelativePosition;
 
@@ -185,16 +207,24 @@ var protectedwrite transient editconst FIController Controller;
 /** Cannot be used(same for other objects) from delegate events if that delegate is initialized via the DefaultProperties block! */
 var protectedwrite noimport editconst FComponent Parent;
 
-// KB/M EVENTS - Only called if hovered or focused!
+/**
+ * Triggered when this component is: 
+ *   (Hovered and mouse clicked), 
+ *   (Focussed and Enter|Spacebar is released), 
+ *   (Hovered and tapped/touch).
+ *
+ * @param bRight - Alternative click(Rightmouse click).
+ */
 delegate OnClick( FComponent sender, optional bool bRight );
 delegate OnDoubleClick( FComponent sender, optional bool bRight );
+
 delegate OnMouseButtonPressed( FComponent sender, optional bool bRight );
 delegate OnMouseButtonRelease( FComponent sender, optional bool bRight );
 delegate OnMouseWheelInput( FComponent sender, optional bool bUp );
 
 function BubbleMouseWheelInput( FComponent sender, optional bool bUp )
 {
-	if( OnMouseWheelInput != none )
+	if( CanInteract() && OnMouseWheelInput != none )
 	{
 		OnMouseWheelInput( sender, bUp );
 		return;
@@ -202,7 +232,10 @@ function BubbleMouseWheelInput( FComponent sender, optional bool bUp )
 	Parent.BubbleMouseWheelInput( sender, bUp );
 }
 
+/** Triggered for active components everytime the mouse made a move inbetween a Tick() event. */
 delegate OnMouseMove( FScene scene, float DeltaTime );
+
+/** Triggered for focussed components for every keyboard input. */
 delegate bool OnKeyInput( name Key, EInputEvent EventType );
 delegate bool OnCharInput( string Unicode );
 
@@ -369,6 +402,27 @@ protected final function FStyle GetStateStyle( string styleIdentifier, string st
 	return Scene().GetStyle( styleIdentifier $ ":" $ stateName, StyleClass, inheritStyle );
 }
 
+/**
+ * Checks if this component contains a specified style class.
+ * 
+ * @param className - The style class to match against.
+ * 
+ * @return true if contains a specified style class.
+ */
+final function bool HasClass( string className )
+{
+	local name n;
+
+	foreach StyleNames( n )
+	{
+		if( string(n) == className )
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 /** Called every tick if Enabled and Visible. */
 function Update( float DeltaTime )
 {
@@ -388,9 +442,6 @@ function Refresh()
 /** Render this object. Override RenderComponent to draw component specific visuals. */
 function Render( Canvas C )
 {
-	local float oldClipX, oldClipY;
-	local float oldOrgX, oldOrgY;
-
 	// This re-calculates the position and size.
 	Refresh();
 	
@@ -535,7 +586,7 @@ protected function float CalcHeight()
 		: Parent.GetHeight() * RelativeSize.Y) 
 		- (Margin.Y << 1) - (Parent.Padding.Y << 1);
 		
-	return HeightBoundary.bEnabled ? FClamp( h, HeightBoundary.Min, HeightBoundary.Max ) : h;
+	return int(HeightBoundary.bEnabled ? FClamp( h, HeightBoundary.Min, HeightBoundary.Max ) : h);
 }
 
 /** Calculates the screen width for this component. */
@@ -550,7 +601,7 @@ protected function float CalcWidth()
 			: Parent.GetWidth() * RelativeSize.X) 
 			- (Margin.X << 1) - (Parent.Padding.X << 1);
 	
-	return WidthBoundary.bEnabled ? FClamp( w, WidthBoundary.Min, WidthBoundary.Max ) : w;
+	return int(WidthBoundary.bEnabled ? FClamp( w, WidthBoundary.Min, WidthBoundary.Max ) : w);
 }
 
 /** Calculates the top screen position for this component. */
@@ -561,7 +612,7 @@ protected function float CalcTop()
 	y = (Parent.GetTop() + Parent.GetHeight() * RelativePosition.Y);
 	oy = (Margin.Z + Parent.Padding.Z) + ((Positioning < EPositioning.P_Fixed) ? 
 		VerticalDock == VD_Bottom ? -Parent.OriginOffset.Y : Parent.OriginOffset.Y : 0.0f);
-	return (VerticalDock == VD_Bottom) ? y - GetHeight() - oy : y + oy;
+	return int((VerticalDock == VD_Bottom) ? y - GetHeight() - oy : y + oy);
 }
 
 /** Calculates the left screen position for this component. */
@@ -572,7 +623,7 @@ protected function float CalcLeft()
 	x = (Parent.GetLeft() + Parent.GetWidth() * RelativePosition.X);
 	ox = (Margin.W + Parent.Padding.W) + ((Positioning < EPositioning.P_Fixed) ? 
 		HorizontalDock == HD_Right ? -Parent.OriginOffset.X : Parent.OriginOffset.X : 0.0f);	
-	return (HorizontalDock == HD_Right) ? x - GetWidth() - ox : x + ox;
+	return int((HorizontalDock == HD_Right) ? x - GetWidth() - ox : x + ox);
 }
 
 /** 
@@ -670,14 +721,20 @@ function bool CanInteract()
 
 final function SetVisible( const bool v )
 {
-	bVisible = v;
-	OnVisibleChanged( self );
+	if( bVisible != v )
+	{
+		bVisible = v;
+		OnVisibleChanged( self );
+	}
 }
 
 final function SetEnabled( const bool e )
 {
-	bEnabled = e;
-	OnEnabledChanged( self );
+	if( bEnabled != e )
+	{
+		bEnabled = e;
+		OnEnabledChanged( self );
+	}
 }
 
 function bool IsHover( IntPoint mousePosition, out FComponent hoveredComponent )
@@ -876,37 +933,34 @@ final function Color GetImageColor()
 
 	pct = FMin( `STimeSince( LastStateChangeTime )/1.5, 1.0 );
 	newColor = LastImageColor + destStyle.ImageColor*pct - LastImageColor*pct;	
-	newColor.A = Style.ImageColor.A;
+	newColor.A = Style.ImageColor.A + destStyle.ImageColor.A*pct - Style.ImageColor.A*pct;
 	LastImageColor = newColor;
 	return newColor;
 }
 
 /** Returns a color based on this component's state such as hover, focus, selected or disabled! */
-final function Color GetStateColor( optional Color defaultColor = Style.ImageColor )
+final function Color GetStateColor( optional Color destColor = Style.ImageColor )
 {
-	local Color newStateColor;
+	local Color newColor;
 	
 	if( !CanInteract() )
 	{
-		newStateColor = Style.DisabledColor;
+		destColor = Style.DisabledColor;
 	}
 	else if( IsActive() )
 	{
-		FadingSwapColor( newStateColor, Style.ActiveColor, LastStateChangeTime );	
+		destColor = Style.ActiveColor;
 	}
 	else if( IsHovered() )
 	{
-		FadingSwapColor( newStateColor, Style.HoverColor, LastStateChangeTime );
+		destColor = Style.HoverColor;
 	}
 	else if( HasFocus() )
 	{
-		FadingSwapColor( newStateColor, Style.FocusColor, LastStateChangeTime );	
+		destColor = Style.FocusColor;
 	}
-	else
-	{
-		FadingSwapColor( newStateColor, defaultColor, LastStateChangeTime );	
-	}
-	return newStateColor;
+	FadingSwapColor( newColor, destColor, LastStateChangeTime );	
+	return newColor;
 }
 
 final protected function FadingSwapColor( out Color newColor, const out Color destColor, const float oldColorTime )
@@ -922,7 +976,8 @@ final protected function FadingSwapColor( out Color newColor, const out Color de
 	
 	pct = FMin( `STimeSince( oldColorTime )/FadingSwapTime, 1.0 );
 	newColor = LastStateColor + destColor*pct - LastStateColor*pct;
-	newColor.A = destColor.A;
+	newColor.A = LastStateColor.A + destColor.A*pct - LastStateColor.A*pct;
+	//newColor.A = destColor.A;
 	LastStateColor = newColor;
 }
 
