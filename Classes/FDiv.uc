@@ -13,37 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * ========================================================
- * FPage: Nearly identical to FDiv but has a default styling and serves Open/Close functionality. Most of the function code is in FScene.
- * This is a required component for the FScene in order to use any other component
+ * FDiv: Similar to the idea of HTML's div element.
+ * This class can render a background, has no padding nor margin and no collision. Requires you to add a style of your own.
+ * Used for the sake of background decoration(Like a header), no actual function purpose.
  * ======================================================== */
-class FPage extends FDiv;
+class FDiv extends FMultiComponent;
 
-// Open, Close functionality works only on FPages with the FScene as parent's instance.
-delegate OnOpen( FPage sender );
-delegate OnClose( FPage sender );
-
-function Free()
+protected function RenderComponent( Canvas C )
 {
-	super.Free();
-	OnOpen = none;
-	OnClose = none;
-}
-
-function Opened()
-{
-	OnOpen( self );
-}
-
-function Closed()
-{
-	OnClose( self );
+	super.RenderComponent( C );
+	RenderBackground( C );
 }
 
 defaultproperties
 {
+	bEnableClick=false
+	bEnableCollision=false
+	
 	Margin=(X=0,Y=0,Z=0,W=0)
-	Padding=(X=8,Y=8,Z=8,W=8)
-	RelativeSize=(X=0.8,Y=0.8)
-
-	StyleNames.Add(Page)
+	Padding=(W=0,X=0,Y=0,Z=0)
+	RelativeSize=(X=1.0,Y=1.0)
 }
