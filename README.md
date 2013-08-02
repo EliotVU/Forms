@@ -1,23 +1,38 @@
-Forms
+Forms - GUI framework
 =====
-Forms is a graphical user interface(GUI) framework for the Unreal Development Kit(UDK). Purely programmed in UnrealScript independent of Scaleforms and UIScene. 
-Inspired by the OOP and subobjects semantics of the Unreal Engine 2 GUIs framework.
+Forms is a graphical user interface(GUI) framework for the Unreal Development Kit(UDK). Completely written in UnrealScript.
 
-This framework will give you most of the common GUI building components of which: 
-
-  Page, Button, Dialog, Tab Control, Label, and many more!
-
-Forms in action:
+Example Demo
+=====
+(Forms in action on Linear Celerity)
 ![Potention](https://imageshack.us/a/img15/1985/920c66fdba564d189ef1306.png)
-Graphics not included!
+You can view an example by following this guide [Installing Forms - Wiki](http://github.com/EliotVU/Forms/wiki/Installing-Forms)
 
-Installing
+Controls
 =====
+- Pages(Scrollable)
+- Windows
+- Buttons
+- Checkboxes
+- BindingBoxes
+- GroupBoxes
+- TextBoxes
+- StepBoxes
+- Sliders
+- Labels(Paragraphs)
+- ColumnSets
+- Dialogs(Draggable)
+- Tabs
+- ToolTips
+- And more...
 
-[Installing Forms - Wiki](http://github.com/EliotVU/Forms/wiki/Installing-Forms)
-[Customizing the Cursor Icons - Wiki](https://github.com/EliotVU/Forms/wiki/Customizing-the-Cursor-Icons)
+Features
+=====
+- 100% UnrealScript
+- Doesn't require Adobe Flash Professional
+- Customizable controls through DefaultForms.ini(Hover, Focus, and Active states)
 
-Example
+Documentation
 =====
 An example demonstrating how a typical menu's code could look like:
 
@@ -42,8 +57,6 @@ An example demonstrating how a typical menu's code could look like:
     
         // Let's add a button to exit the game.
         begin object name=oExitButton class=FButton
-            // Red
-            TextColor=(R=255,G=0,B=0,A=255)
             // Caption(We use Text because FButton extends FLabel)
             Text="Exit"
             // Delegate OnClick to OnExit, we'll add this function later, see below!
@@ -220,11 +233,12 @@ And hold Shift and CTRL, then click on a component you wish to modify; This will
 About
 =====
 Home: http://eliotvu.com/portfolio/view/48/forms-udk-gui-framework
+
 Forums: http://eliotvu.com/forum/forumdisplay.php?fid=11
 
 License
 =====
-Copyright 2012 Eliot van Uytfanghe
+Copyright 2012-2013 Eliot van Uytfanghe
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
