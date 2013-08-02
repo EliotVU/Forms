@@ -17,10 +17,10 @@
  * ======================================================== */
 class FColumnsSet extends FMultiComponent;
 
-var(ColumnsSet, Display) int NumColumns;
-var(ColumnsSet, Display) int NumRows;
+var(ColumnsSet, Display) editconst int NumColumns;
+var(ColumnsSet, Display) editconst int NumRows;
 
-var(ColumnsSet, Function) class<FColumn> ColumnClass;
+var(ColumnsSet, Function) editconst class<FColumn> ColumnClass;
 
 var(ColumnsSet, Advanced) protectedwrite editinline array<FColumn> Columns;
 
@@ -56,7 +56,7 @@ protected function InitializeComponent()
 			comp = FColumn(CreateComponent( ColumnClass, self ));
 			comp.SetPos( pX, pY );
 			comp.SetSize( columnSizeX, columnSizeY );
-			comp.OnClick = Select;
+			comp.OnClick = ColumnClicked;
 			AddComponent( comp );
 			Columns.AddItem( comp );
 			
@@ -66,10 +66,69 @@ protected function InitializeComponent()
 	}
 }
 
-protected function Select( FComponent sender, optional bool bRight )
+protected function ColumnClicked( FComponent sender, optional bool bRight )
 {
-	SelectedColumn = FColumn(sender);
-	OnSelect( SelectedColumn );	
+	SelectColumn( FColumn(sender) );
+}
+
+final function SelectColumn( FColumn col )
+{
+	SelectedColumn = col;
+	OnSelect( SelectedColumn );		
+}
+
+final function FColumn GetPrevColumn()
+{
+	local FColumn col;
+	local int i, selectedIndex;
+
+	foreach Columns( col, i )
+	{
+		if( col == SelectedColumn )
+		{
+			selectedIndex = i;
+			break;
+		}
+	}
+
+	col = none;
+	for( i = selectedIndex - 1; i >= 0; -- i )
+	{
+		if( !Columns[i].CanInteract() )
+			continue;
+
+		col = Columns[i];
+		break;
+	}
+
+	return col;
+}
+
+final function FColumn GetNextColumn()
+{
+	local FColumn col;
+	local int i, selectedIndex;
+
+	foreach Columns( col, i )
+	{
+		if( col == SelectedColumn )
+		{
+			selectedIndex = i;
+			break;
+		}
+	}
+
+	col = none;
+	for( i = selectedIndex + 1; i < Columns.Length; ++ i )
+	{
+		if( !Columns[i].CanInteract() )
+			continue;
+
+		col = Columns[i];
+		break;
+	}
+
+	return col;
 }
 
 protected function RenderComponent( Canvas C )

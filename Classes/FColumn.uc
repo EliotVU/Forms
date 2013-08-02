@@ -32,7 +32,7 @@ function Free()
 protected function RenderComponent( Canvas C )
 {
 	super(FComponent).RenderComponent( C );
-	RenderBackground( C );
+	RenderBackground( C, CanInteract() ? GetImageColor() : Style.DisabledColor );
 	RenderImage( C );
 	RenderLabel( C, PosX, PosY, SizeX, SizeY, FLabelStyle(Style).TextColor );
 	
@@ -41,14 +41,14 @@ protected function RenderComponent( Canvas C )
 		C.SetPos( PosX, PosY );
 		// Still try to use another color if selected but also hovered or active.
 		C.DrawColor = GetStateColor( Style.ActiveColor );
-		C.DrawBox( SizeX, SizeY );
+		C.DrawBox( SizeX+1, SizeY+1 );
 	}
 	else if( IsHovered() )
 	{
 		C.SetPos( PosX, PosY );
 		// Even though we are hovered, lets still use other colors if it is both hovered and active etc.
 		C.DrawColor = GetStateColor();
-		C.DrawBox( SizeX, SizeY );
+		C.DrawBox( SizeX+1, SizeY+1 );
 	}
 	// For the sake of undoing previous states.
 	else GetStateColor();
