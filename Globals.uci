@@ -1,6 +1,9 @@
 `define STime					(class'WorldInfo'.static.GetWorldInfo().RealTimeSeconds)
 `define STimeSince(Time)		(`STime - `Time)
 `define Automated				editinline 
+`define NoStyle 				StyleNames.Empty();StyleName=Hidden
+`define NoPadding				Padding=(W=0,X=0,Y=0,Z=0)
+`define NoMargin 				Margin=(W=0,X=0,Y=0,Z=0)
 
 `if( `isdefined( DEBUG ) )
 	`define devmode true
