@@ -2,29 +2,9 @@ Forms - GUI framework
 =====
 Forms is a graphical user interface(GUI) framework for the Unreal Development Kit(UDK). Completely written in UnrealScript.
 
-Example Demo
+Installing
 =====
-(Forms in action on Linear Celerity)
-![Potention](https://imageshack.us/a/img15/1985/920c66fdba564d189ef1306.png)
-You can view an example by following this guide [Installing Forms - Wiki](http://github.com/EliotVU/Forms/wiki/Installing-Forms)
-
-Controls
-=====
-- Pages(Scrollable)
-- Windows
-- Buttons
-- Checkboxes
-- BindingBoxes
-- GroupBoxes
-- TextBoxes
-- StepBoxes
-- Sliders
-- Labels(Paragraphs)
-- ColumnSets
-- Dialogs(Draggable)
-- Tabs
-- ToolTips
-- And more...
+[Installing Forms - Wiki](http://github.com/EliotVU/Forms/wiki/Installing-Forms)
 
 Features
 =====
@@ -32,9 +12,27 @@ Features
 - Doesn't require Adobe Flash Professional
 - Customizable controls through DefaultForms.ini(Hover, Focus, and Active states)
 
+Components
+=====
+- [FPage](https://github.com/EliotVU/Forms/blob/master/Classes/FPage.uc)
+- [FWindow](https://github.com/EliotVU/Forms/blob/master/Classes/FWindow.uc)
+- [FButton](https://github.com/EliotVU/Forms/blob/master/Classes/FButton.uc)
+- [FCheckBox](https://github.com/EliotVU/Forms/blob/master/Classes/FCheckBox.uc)
+- [FBindingBox](https://github.com/EliotVU/Forms/blob/master/Classes/FBindingBox.uc)
+- [FGroupBox](https://github.com/EliotVU/Forms/blob/master/Classes/FGroupBox.uc)
+- [FTextBox](https://github.com/EliotVU/Forms/blob/master/Classes/FTextBox.uc)
+- [FStepBox](https://github.com/EliotVU/Forms/blob/master/Classes/FStepBox.uc)
+- [FSlider](https://github.com/EliotVU/Forms/blob/master/Classes/FSlider.uc)
+- [FLabel](https://github.com/EliotVU/Forms/blob/master/Classes/FLabel.uc)
+- [FColumnsSet](https://github.com/EliotVU/Forms/blob/master/Classes/FColumnsSet.uc)
+- [FDialog](https://github.com/EliotVU/Forms/blob/master/Classes/FDialog.uc)
+- [FTabControl](https://github.com/EliotVU/Forms/blob/master/Classes/FTabControl.uc)
+- [FToolTip](https://github.com/EliotVU/Forms/blob/master/Classes/FToolTip.uc)
+- And more...
+
 Documentation
 =====
-An example demonstrating how a typical menu's code could look like:
+An example demonstrating how a typical menu's code may look like:
 
     // The MainMenu. Contains all the basic components such as inline pages and/or buttons.
     class MyMainMenu extends FPage;
@@ -167,7 +165,7 @@ Using delegates
       switch( sender )
     	{
     		case SoundVolume:
-    			sender.ConsoleCommand( "insert_console_command_here" @ SoundVolume.Value;
+    			sender.ConsoleCommand( "insert_console_command_here" @ SoundVolume.Value );
     			break;
     	}
     }
@@ -229,12 +227,6 @@ Make a shortcut to your game if you haven't got one yet. Then add the following 
 
 Launch your game through that shortcut, and hit Alt+Enter to go into windowed mode. 
 And hold Shift and CTRL, then click on a component you wish to modify; This will popup a dialog with every available variable as defined in the UnrealScript classes. When you are done you may copy those settings and apply them to your code if you are happy with the new values. Of course you do the trial and error way but sometimes it's a good idea to get first the idea of position, size units before doing this all out of your head!
-
-About
-=====
-Home: http://eliotvu.com/portfolio/view/48/forms-udk-gui-framework
-
-Forums: http://eliotvu.com/forum/forumdisplay.php?fid=11
 
 License
 =====
